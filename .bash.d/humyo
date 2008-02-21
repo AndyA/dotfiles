@@ -1,0 +1,6 @@
+# Humyo
+export HUMYO_TEST_HOST=dev.humyo.com
+export HUMYO_HOME=$HOME/Works/Humyo
+export HUMYO_INC=$HUMYO_HOME/humyo/trunk/
+export HUMYO_APPROOT=$HUMYO_HOME/www
+export HUMYO_TEST_DATA_DIR=$HUMYO_HOME/misc/humyo-test-data

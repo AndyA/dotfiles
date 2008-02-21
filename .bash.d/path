@@ -1,0 +1,2 @@
+# Path settings
+PATH=$HOME/bin:$PATH

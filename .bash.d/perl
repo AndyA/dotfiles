@@ -1,0 +1,4 @@
+# Perforce
+export P4PORT=localhost:1666
+export P4CLIENT=andy-voodoo
+export P4USER=andy
