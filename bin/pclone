@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+use File::Path;
+use File::Spec;
+
+use constant MANIFEST => 'MANIFEST';
+
+my $help    = 0;
+my $man     = 0;
+my $verbose = 0;
+
+GetOptions(
+    'help|?'  => \$help,
+    'man'     => \$man,
+    'verbose' => \$verbose,
+) or pod2usage( 2 );
+
+pod2usage( 1 ) if $help;
+pod2usage( -exitstatus => 0, -verbose => 2 ) if $man;
+
+my $files = read_manifest( MANIFEST );
+check_manifest( $files );
+
+for my $dir ( @ARGV ) {
+    clone_dir( $dir, $files );
+}
+
+sub clone_dir {
+    my ( $dir, $files ) = @_;
+
+    for my $file ( @$files ) {
+        my $dst = File::Spec->catfile( $dir, $file );
+        next if -f $dst;
+        mention( "Linking $file as $dst" );
+        mkpath( dirname( $dst ) );
+        link( $file, $dst ) or die "Can't link $file as $dst ($!)";
+    }
+}
+
+sub check_manifest {
+    my $files = shift;
+    my @missing = grep { !-f } @$files;
+    die "The following files mentioned in the MANIFEST were not found:\n  "
+      . join( "  \n", @missing ) . "\n"
+      if @missing;
+}
+
+sub trim($) {
+    my $str = shift;
+    $str =~ s/^\s+//;
+    $str =~ s/\s+$//;
+    return $str;
+}
+
+sub dirname {
+    my ( $v, $d, undef ) = File::Spec->splitpath( $_[0] );
+    return File::Spec->catpath( $v, $d, '' );
+}
+
+sub read_manifest {
+    my $manifest = shift;
+    open my $mh, '<', $manifest or die "Can't read $manifest ($!)\n";
+    my @lines = grep { /^[^#]/ }
+      grep { /^./ }
+      map { trim $_ } map { s/[\t#].*//; $_ } <$mh>;
+    close $mh;
+    return \@lines;
+}
+
+sub mention {
+    return unless $verbose;
+    print join( '', @_ ), "\n";
+}
+
+__END__
+
+=head1 NAME
+
+pclone - Make a clone of a project
+
+=head1 SYNOPSIS
+
+pclone [options] [dir ...]
+
+ Options:
+
+    -help               see this summary
+    -man                view man page for pclone
+    -verbose            say lots
+
+=head1 DESCRIPTION
+
+
+=head1 OPTIONS
+
+=over
+
+=back
+
+=head1 AUTHOR
+
+Andy Armstrong  C<< <andy@hexten.net> >>
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright (c) 2007, Andy Armstrong C<< <andy@hexten.net> >>. All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
