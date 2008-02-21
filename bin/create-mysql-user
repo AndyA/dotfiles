@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 
 my ($user, $pass) = @ARGV or die "Usage: create-mysql-user user pas\n";
 
