@@ -16,7 +16,6 @@ var new_links = {
     }
 };
 
-
 function canonical_url() {
     var permalink = document.getElementById('permalink');
     if (permalink) {
@@ -66,3 +65,24 @@ if (rows) {
         }
     }
 }
+
+// var deps = document.evaluate(
+//     "//a[contains(text(),'CPAN Dependencies')]",
+//     document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null );
+// 
+// if ( deps.snapshotLength > 0 ) {
+//     var url = deps.snapshotItem(0).href;
+//    GM_xmlhttpRequest({
+//         method: "GET",
+//         url: url,
+//         onload: function ( resp ) { mashupDeps( resp, deps ) }
+//     });
+// }
+// 
+// function mashupDeps ( resp, deps ) {
+//     var x = resp.responseText.replace( /[\n\r]/g, " " );
+//     var match = x.match( /Chance\s+of\s+success.*?(\d+%)/ );
+//     for ( var i = 0; i < deps.snapshotLength; i++ ) {
+//         deps.snapshotItem(i).innerHTML += " (" + match[1] + ")" ;
+//     }
+// }
