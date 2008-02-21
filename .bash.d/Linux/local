@@ -1,0 +1,9 @@
+# Linux
+[ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
+
+if [ "$TERM" != "dumb" ]; then
+    eval "`dircolors -b`"
+    alias ls='ls --color=auto'
+fi
+
+[ -f /etc/bash_completion ] && source /etc/bash_completion
