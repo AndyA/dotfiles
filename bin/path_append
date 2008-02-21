@@ -1,3 +1,3 @@
-#!/alt/local/bin/perl
+#!/usr/bin/env perl
 my %seen;
-print join( ':', grep { !$seen{$_}++ } map { split /:/ } @ARGV ), "\n";
+print join( ':', grep { -d } grep { !$seen{$_}++ } map { split /:/ } @ARGV ), "\n";
