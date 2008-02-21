@@ -146,6 +146,6 @@ set hlsearch
 
 "map <M-c> :call ToggleCommentify()<CR>j
 "imap <M-c> <ESC>:call ToggleCommentify()<CR>j 
-"let g:showfuncctagsbin = "/opt/local/bin/ctags"
+let g:showfuncctagsbin = $CTAGS
 map <F3> <PLUG>ShowFunc
 

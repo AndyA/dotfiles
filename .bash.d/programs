@@ -1,0 +1,2 @@
+# Program locations
+export CTAGS=`which ctags`
