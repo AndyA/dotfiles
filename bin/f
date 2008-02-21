@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+
+my @ff = grep /^-?\d+$/, @ARGV;
+@ARGV = grep $_ !~ /^-?\d+$/, @ARGV;
+
+while (<>) {
+    chomp;
+    s/^\s+//;
+    my @f = split /\s+/;
+    print join(' ', @f[@ff]), "\n";
+}
