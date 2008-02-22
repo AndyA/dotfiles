@@ -1,13 +1,11 @@
 #!/usr/bin/env perl
 
-use strict;
-use warnings;
-
-#export PS1='\[\e[01;34m\]\h\[\e[m\]:\[\e[01;32m\]\w\[\e[m\]\n${PROMPT_EXTRA}[\A] \u $ '
-
-if ( -d '.svn' ) {
-    my @info = qx/svn info/;
-    chomp @info;
-    my %info = map { split /:\s+/, $_, 2 } @info;
-    print "\e[01;30m$info{URL} -r$info{Revision}\e[0m ";
-}
+#use strict;
+#use warnings;
+#
+#if ( -d '.svn' ) {
+#    my @info = qx/svn info/;
+#    chomp @info;
+#    my %info = map { split /:\s+/, $_, 2 } @info;
+#    print "\e[01;30m$info{URL} -r$info{Revision}\e[0m ";
+#}
