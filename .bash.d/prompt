@@ -8,5 +8,5 @@ function prompt_command {
 export -f prompt_command
 
 export PROMPT_COMMAND='prompt_command'
-export PS1='\[\e[01;34m\]\h\[\e[m\]:\[\e[01;32m\]\w\[\e[m\] ${PROMPT_EXTRA}\n[\A] \u $ '
+export PS1='\[\e[01;34m\]\h\[\e[m\]:\[\e[01;32m\]\w\[\e[m\] ${PROMPT_EXTRA}\n\e[01;30m[\A]\e[m \u $ '
 
