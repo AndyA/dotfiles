@@ -1,12 +1,11 @@
 # Prompt
 function prompt_command {
     history -a
-    PROMPT_EXTRA=`$HOME/bin/ambience`
     echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"
 }
 
 export -f prompt_command
 
 export PROMPT_COMMAND='prompt_command'
-export PS1='\[\e[01;34m\]\h\[\e[m\]:\[\e[01;32m\]\w\[\e[m\] ${PROMPT_EXTRA}\n\e[01;30m[\A]\e[m \u $ '
+export PS1='\[\e[01;34m\]\h\[\e[m\]:\[\e[01;32m\]\w\[\e[m\]\n[\A] \u $ '
 

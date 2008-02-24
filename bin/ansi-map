@@ -63,7 +63,7 @@ sub centre {
 }
 
 sub colourtab {
-    my @pfx = @_;
+    my ( $hdr, @pfx ) = @_;
     my @real = sort { $attr{$a} <=> $attr{$b} }
       grep { $_ !~ /Reset$/ } @colname;
     my @rows = grep    { /^Fore/ } @real;
@@ -73,15 +73,18 @@ sub colourtab {
     $_ = ' ' x ( $len - length $_ ) . $_ for @rows, @cols;
 
     # Header rows
-    my @hdr = map { [ split // ] } @cols;
-    for ( 1 .. $len ) {
-        print ' ' x $len, ' ';
-        for ( @hdr ) {
-            print centre( $colw, shift @$_ );
+    if ( $hdr ) {
+        my @hdr = map { [ split // ] } @cols;
+        for ( 1 .. $len ) {
+            print ' ' x $len, ' ';
+            for ( @hdr ) {
+                print centre( $colw, shift @$_ );
+            }
+            print "\n";
         }
         print "\n";
     }
-    print "\n";
+
     for my $rc ( @rows ) {
         print "$rc ";
         ( my $rcn = $rc ) =~ s/^\s*//;
@@ -97,9 +100,11 @@ sub colourtab {
 sub alltab {
     my @others = sort { $attr{$a} <=> $attr{$b} }
       grep { $attr{$_} > 0 && $attr{$_} < 30 } keys %attr;
+    my $hdr = 1;
     for my $pfx ( @others ) {
         print "=== $pfx ===\n";
-        colourtab( $pfx );
+        colourtab( $hdr, $pfx );
+        $hdr = 0;
     }
 }
 
