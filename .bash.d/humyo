@@ -6,3 +6,6 @@ export HUMYO_BRANCH=$HUMYO_HOME/humyo/branches/andya-refactor
 export HUMYO_INC=$HUMYO_BRANCH/Lib
 export HUMYO_APPROOT=$HUMYO_HOME/www
 export HUMYO_TEST_DATA_DIR=$HUMYO_HOME/misc/humyo-test-data
+
+#export DBI_TRACE='2=/var/log/humyo/dbitrace.log'
+export DBI_TRACE=
