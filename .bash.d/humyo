@@ -1,8 +1,8 @@
 # Humyo
 export HUMYO_TEST_HOST=dev.humyo.com
 export HUMYO_HOME=$HOME/Works/Humyo
-#export HUMYO_INC=$HUMYO_HOME/humyo/trunk/
 export HUMYO_BRANCH=$HUMYO_HOME/humyo/branches/andya-refactor
+#export HUMYO_BRANCH=$HUMYO_HOME/humyo/trunk
 export HUMYO_INC=$HUMYO_BRANCH/Lib
 export HUMYO_APPROOT=$HUMYO_HOME/www
 export HUMYO_TEST_DATA_DIR=$HUMYO_HOME/misc/humyo-test-data
