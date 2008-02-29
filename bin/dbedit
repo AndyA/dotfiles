@@ -44,6 +44,7 @@ for my $cfg ( grep -e, @path ) {
 }
 
 my $list_only = 0;
+my $help_only = 0;
 
 GetOptions(
     'u|username=s' => \$config{DBUSER},
@@ -51,24 +52,32 @@ GetOptions(
     'h|host=s'     => \$config{DBHOST},
     'e|editor=s'   => \$config{EDITOR},
     'L'            => \$list_only,
+    'h|help'       => \$help_only,
 ) or syntax();
 
-if ( $list_only ) {
+if ( $help_only ) {
+    syntax();
+}
+elsif ( $list_only ) {
     list_matching( @ARGV );
 }
 else {
-
     my ( $dh, $df ) = tempfile( UNLINK => 1, SUFFIX => '.sql' );
 
     dump_to( $dh, @ARGV );
     close $dh;
-    edit_file( $df ) && load_from( $df );
+    edit_file( $df ) && do {
+        load_from( $df );
+        print "Database updated\n";
+    };
 }
 exit;
 
 sub dump_to {
     my ( $fh, @spec ) = @_;
     my $work = expand_wildcards( @spec );
+
+    die "No tables match @spec\n" unless keys %$work;
 
     for my $db ( sort keys %$work ) {
         dump_database( $fh, $db, sort keys %{ $work->{$db} } );
