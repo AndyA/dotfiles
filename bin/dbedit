@@ -43,19 +43,27 @@ for my $cfg ( grep -e, @path ) {
     add_config( %{$CONFIG} ) if 'HASH' eq ref $CONFIG;
 }
 
+my $list_only = 0;
+
 GetOptions(
     'u|username=s' => \$config{DBUSER},
     'p|password=s' => \$config{DBPASS},
     'h|host=s'     => \$config{DBHOST},
     'e|editor=s'   => \$config{EDITOR},
+    'L'            => \$list_only,
 ) or syntax();
 
-my ( $dh, $df ) = tempfile( UNLINK => 1, SUFFIX => '.sql' );
+if ( $list_only ) {
+    list_matching( @ARGV );
+}
+else {
 
-dump_to( $dh, @ARGV );
-close $dh;
-edit_file( $df ) && load_from( $df );
+    my ( $dh, $df ) = tempfile( UNLINK => 1, SUFFIX => '.sql' );
 
+    dump_to( $dh, @ARGV );
+    close $dh;
+    edit_file( $df ) && load_from( $df );
+}
 exit;
 
 sub dump_to {
@@ -65,7 +73,15 @@ sub dump_to {
     for my $db ( sort keys %$work ) {
         dump_database( $fh, $db, sort keys %{ $work->{$db} } );
     }
+}
 
+sub list_matching {
+    my $work = expand_wildcards( @_ );
+    for my $db ( sort keys %$work ) {
+        for my $table ( sort keys %{ $work->{$db} } ) {
+            print "$db.$table\n";
+        }
+    }
 }
 
 sub dump_database {
@@ -84,7 +100,7 @@ sub dump_database {
 }
 
 sub edit_file {
-    my $file = shift;
+    my $file      = shift;
     my $ts_before = -M $file;
     return !system( cfg( 'EDITOR' ), $file ) && -M $file < $ts_before;
 }
@@ -118,7 +134,7 @@ sub mysql_cmd {
 
 sub catch_command {
     my $cmd = shift;
-    my @db = ();
+    my @db  = ();
     open my $ch, "$cmd|" or die "Can't shell $cmd ($!)\n";
     while ( <$ch> ) {
         chomp;
@@ -172,5 +188,8 @@ Options:
     -u --username Set the MySQL username
     -p --password Set the MySQL password
     -h --host     Set the MySQL host
+    -e --editor   Set the editor to use
+    -L            List matching tables
 EOS
+    exit;
 }
