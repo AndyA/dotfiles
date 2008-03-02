@@ -63,7 +63,8 @@ sub bigness {
         for my $char ( @chars ) {
             next if $char < 32 || $char > 126;
             my $size = scalar( @cdef );
-            my $byte = hex( substr( $cdef[ $char - 32 ], $row * 2, 2 ) );
+            my $byte
+              = hex( substr( $cdef[ $char - 32 ], $row * 2, 2 ) );
             my $bits = sprintf( '%08b', $byte );
             $bits =~ tr/01/ #/;
             push @out, $bits;
