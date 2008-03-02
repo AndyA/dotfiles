@@ -1,7 +1,7 @@
 # .bashrc
 export EDITOR=vim
 export PAGER=less
-export UNAME=`uname`
+export RCUNAME=`uname`
 
 # Directory shortcuts
 shopt -s cdable_vars
@@ -21,7 +21,7 @@ function source_dir {
 }
 
 # Per platform config
-source_dir "$HOME/.bash.d/$UNAME"
+source_dir "$HOME/.bash.d/$RCUNAME"
 # Per host config
 source_dir "$HOME/.bash.d/$HOSTNAME"
 # Global topical config

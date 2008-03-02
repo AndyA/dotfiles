@@ -1,4 +1,4 @@
 # Path settings
 PATH=$HOME/bin:$PATH
-[ -d $HOME/bin/$UNAME ] && PATH=$HOME/bin/$UNAME:$PATH
+[ -d $HOME/bin/$RCUNAME ] && PATH=$HOME/bin/$RCUNAME:$PATH
 
