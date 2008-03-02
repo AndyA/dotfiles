@@ -28,7 +28,8 @@ source_dir "$HOME/.bash.d/$HOSTNAME"
 source_dir "$HOME/.bash.d"
 
 PATH=`$HOME/bin/path_append $PATH`
-export PATH
+MANPATH=`$HOME/bin/path_append $MANPATH`
+export PATH MANPATH
 
 [ -f ~/.aliases ] && source ~/.aliases
 
