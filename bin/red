@@ -22,13 +22,10 @@ else {
 
     my $spec = shift;
     my $ext = $spec =~ /(\.[^.]+)$/ ? $1 : '.txt';
-
     my ( undef, $tf ) = tempfile( UNLINK => 1, SUFFIX => $ext );
 
     my @rsync = ( 'rsync', '-az', '-e', 'ssh' );
-
     my $ts = -M $tf;
-
     system( @rsync, $spec, $tf )
       or system( $options{editor}, $tf )
       or ( -M $tf < $ts and system( @rsync, $tf, $spec ) );

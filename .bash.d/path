@@ -1,2 +1,4 @@
 # Path settings
 PATH=$HOME/bin:$PATH
+[ -d $HOME/bin/$UNAME ] && PATH=$HOME/bin/$UNAME:$PATH
+
