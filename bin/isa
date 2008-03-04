@@ -171,7 +171,7 @@ sub scan_file {
         }
         else {
             push @pack, [$1, $.]
-              if /^\s*package\s+(\w+(?:::\w+)*)\s*;/;
+              if /^package\s+(\w+(?:::\w+)*)\s*;/;
         }
     }
     close $fh;
