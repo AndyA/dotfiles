@@ -1,0 +1,44 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use App::Prove::State;
+use List::Util 'sum';
+use Lingua::EN::Numbers 'num2en';
+
+my $prove = '.prove';
+unless ( -f $prove && -r _ ) {
+    die "Cannot find or read $prove file";
+}
+
+my $state      = App::Prove::State->new( { store => $prove } );
+my $generation = $state->{_}{generation};
+my $tests      = $state->{_}{tests};
+
+my $total   = sum( map { $_->{elapsed} } values %$tests );
+my $minutes = int( $total / 60 );
+my $seconds = int( $total % 60 );
+
+my $num_tests = shift || 5;
+
+if ( $num_tests > keys %$tests ) {
+    $num_tests = keys %$tests;
+}
+
+my $num_word = num2en( $num_tests );
+
+my %time_for;
+while ( my ( $test, $data ) = each %$tests ) {
+    $time_for{$test} = $data->{elapsed};
+}
+
+my @sorted_by_time_desc
+  = sort { $time_for{$b} <=> $time_for{$a} } keys %time_for;
+
+print "Generation $generation\n";
+print "Total runtime approximately $minutes minutes $seconds seconds\n";
+print "\u$num_word slowest tests:\n";
+for ( 0 .. $num_tests ) {
+    my $test = $sorted_by_time_desc[$_];
+    print "\t$time_for{$test} seconds -> $test\n";
+}
