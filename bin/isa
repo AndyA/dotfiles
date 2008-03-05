@@ -2,18 +2,20 @@
 
 use strict;
 use warnings;
+
 use File::Find;
 use File::Path;
 use File::Spec;
 use Getopt::Long;
 use HTML::Tiny;
 use URI::file;
+use Devel::Symdump;
+use B;
 
 my %options = (
     show_help     => 0,
     stop_on_error => 0,
     quiet         => 0,
-    scan          => 0,
     textmate      => 0,
     frames        => 0,
     output        => undef,
@@ -25,7 +27,6 @@ GetOptions(
     'h|help'     => \$options{show_help},
     'f|fatal'    => \$options{stop_on_error},
     'q|quiet'    => \$options{quiet},
-    's|scan'     => \$options{scan},
     'o|output:s' => \$options{output},
     'frames'     => \$options{frames},
     'textmate'   => \$options{textmate},
@@ -40,21 +41,16 @@ else {
       : $options{stop_on_error} ? sub { die @_ }
       :                           sub { warn @_ };
 
-    my $modules = { map { %{ load_modules( $_, $error ) } } @ARGV };
+    my $modules
+      = scan_files( { map { %{ load_modules( $_, $error ) } } @ARGV },
+        $error );
 
-    $modules = scan_files( $modules, $error )
-      if $options{scan};
-
-    my $isa_map = walk_hierarchy( $modules );
-
-    my $edit_link
-      = $options{textmate}
-      ? mml_textmate()
-      : mml_default();
+    my $isa_map   = walk_hierarchy( $modules );
+    my $interface = walk_interface( $modules );
+    my $inherited = walk_inherited( $interface, $isa_map );
 
     my $h = HTML::Tiny->new;
 
-    # Target setting stuff is a bit nasty...
     my $menu_link = $options{frames}
       ? do {
         die "--frames requires --output which must name a directory"
@@ -87,7 +83,24 @@ else {
         output_single( \*STDOUT, @_ );
       };
 
-    report( $output, $edit_link, $menu_link, $modules, $isa_map );
+    # use Data::Dumper;
+    # print Dumper( $interface );
+
+    report(
+        $output,
+        {
+            $options{textmate}
+            ? ( edit_link => mml_textmate() )
+            : (),
+            menu_link => $menu_link,
+        },
+        {
+            modules   => $modules,
+            isa_map   => $isa_map,
+            interface => $interface,
+            inherited => $inherited,
+        }
+    );
 }
 
 sub load_modules {
@@ -153,7 +166,8 @@ sub scan_files {
 }
 
 sub scan_file {
-    my $file    = shift;
+    my $file = shift;
+
     my @pack    = ();
     my $in_name = 0;
     my @name    = ();
@@ -185,6 +199,59 @@ sub scan_file {
     return @pack;
 }
 
+sub walk_inherited {
+    my ( $interface, $isa_map ) = @_;
+    my $cache = {};
+    return {
+        map { $_ => get_inherited( $_, $interface, $isa_map, $cache ) }
+          keys %$interface
+    };
+}
+
+sub get_inherited {
+    my ( $module, $interface, $isa_map, $cache ) = @_;
+    return $cache->{$module} if $cache->{$module};
+    my $method = {};
+    for my $class ( @{ $isa_map->{$module} } ) {
+        for my $dict ( $interface->{$class},
+            get_inherited( $class, $interface, $isa_map, $cache ) ) {
+            for my $name ( keys %$dict ) {
+                $method->{$name} ||= $dict->{$name};
+            }
+        }
+    }
+    $cache->{$module} = $method;
+    return $method;
+}
+
+sub walk_interface {
+    my $modules = shift;
+    return { map { $_ => get_subs( $_ ) } keys %$modules };
+}
+
+# Stolen from Pod::Coverage with thanks
+sub get_subs {
+    my $pack = shift;
+
+    my $syms = Devel::Symdump->new( $pack );
+    my %symbols;
+    for my $sym ( $syms->functions ) {
+
+        # Skip imported symbols
+        my $glob = do { no strict 'refs'; \*{$sym} };
+        my $o = B::svref_2object( $glob );
+        next if $o->GvFLAGS & B::GVf_IMPORTED_CV;
+
+        ( my $sub_name = $sym ) =~ s/^\Q$pack\E:://;
+
+        $symbols{$sub_name} = {
+            file => $o->FILE,
+            line => $o->LINE
+        };
+    }
+    return \%symbols;
+}
+
 sub walk_hierarchy {
     my $modules = shift;
     my %isa_map = ();
@@ -204,7 +271,21 @@ sub subclass_invert {
 }
 
 sub report {
-    my ( $output, $edit_link, $menu_link, $modules, $isa_map ) = @_;
+    my ( $output, $handlers, $data ) = @_;
+
+    my $edit_link = $handlers->{edit_link}
+      || sub { $_[2] };
+    my $menu_link = $handlers->{menu_link}
+      || sub { $_[1] };
+
+    my $modules = $data->{modules}
+      || die "Data must contain modules";
+    my $isa_map = $data->{isa_map}
+      || die "Data must contain isa_map";
+    my $interface = $data->{interface}
+      || die "Data must contain interface";
+    my $inherited = $data->{inherited}
+      || die "Data must contain inherited";
 
     my $h = HTML::Tiny->new;
 
@@ -246,8 +327,11 @@ sub report {
 
     for my $mod ( sort keys %$modules ) {
         ( my $anchor = $mod ) =~ s/:+/_/g;
+
         push @index,
           $h->div( { class => 'index' }, $pack_link->( $mod ) );
+
+        # You know, I think I could usefully shorten this expression...
         push @body, $h->div(
             { class => 'entry' },
             [
@@ -255,7 +339,8 @@ sub report {
                 $h->p(
                     { class => 'description' },
                     grep defined,
-                    map { $_->{description} } @{ $modules->{$mod} }
+                    map { $h->entity_encode( $_->{description} ) }
+                      @{ $modules->{$mod} }
                 ),
                 $h->div(
                     { class => 'editlink' },
@@ -266,7 +351,11 @@ sub report {
                                 map {
                                     $h->li(
                                         $edit_link->(
-                                            $_->{file}, $_->{line}
+                                            $_->{file},
+                                            $_->{line},
+                                            $_->{file}
+                                              . ', line '
+                                              . $_->{line}
                                         )
                                       )
                                   } @{ $modules->{$mod} }
@@ -293,12 +382,40 @@ sub report {
                             ]
                         )
                     ]
-                )
+                ),
+                $h->table(
+                    [
+                        $h->tr(
+                            [
+                                $h->th(
+                                    'Locally defined methods/subs',
+                                    'Inherited methods',
+                                )
+                            ],
+                            [
+                                $h->td(
+                                    { valign => 'top' },
+                                    map {
+                                        list_subs( $_->{$mod},
+                                            $edit_link )
+                                      } ( $interface, $inherited )
+                                )
+                            ]
+                        )
+                    ]
+                ),
             ]
         );
     }
 
     $output->( \@index, \@body );
+}
+
+sub list_subs {
+    my ( $subs, $edit_link ) = @_;
+    return join ', ', map {
+        $edit_link->( $subs->{$_}->{file}, $subs->{$_}->{line}, $_ )
+    } sort keys %$subs;
 }
 
 {
@@ -369,20 +486,12 @@ sub output_frameset {
 
 }
 
-sub mml_default {
-    return sub {
-        my ( $file, $line ) = @_;
-        return "$file, line $line";
-    };
-}
-
 sub mml_textmate {
     eval "use TextMate::JumpTo";
     die $@ if $@;
-    my $dflt = mml_default();
-    my $h    = HTML::Tiny->new;
+    my $h = HTML::Tiny->new;
     return sub {
-        my ( $file, $line ) = @_;
+        my ( $file, $line, $text ) = @_;
         return $h->a(
             {
                 href => TextMate::JumpTo::tm_location(
@@ -390,7 +499,7 @@ sub mml_textmate {
                     line => $line
                 )
             },
-            $dflt->( @_ )
+            $text
         );
     };
 }
@@ -404,7 +513,6 @@ Options:
    -f --fatal       Stop on any errors
    -h --help        Show this text
    -q --quiet       Don't report errors
-   -s --scan        Scan source for package statements
    -o --output      Specify the output filename (default: STDOUT)
       --frames      Output a frameset (requires --output to name a dir)
       --textmate    Generate TextMate compatible links
@@ -484,11 +592,12 @@ li {
 }
 
 .entry table {
+    margin: 4px 0 4px 0;
     border: 1px solid grey;
     border-collapse: collapse;
 }
 
-.entry td:first-child {
+.entry td, .entry th {
     border-right: 1px solid grey;
 }
 
