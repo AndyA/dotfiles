@@ -309,7 +309,7 @@ sub report {
             [
                   $root
                 ? $h->span( { class => 'self' }, $class )
-                : $pack_link->( $class ),    # $modules->{$class}
+                : $pack_link->( $class ),
                 $h->ul(
                     [
                         map { $tree->( $hash, $_, $seen ) }
