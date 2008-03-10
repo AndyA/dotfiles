@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- Komodo Preferences File - DO NOT EDIT -->
+
+<preference-set >
+  <string id="uilayout_leftTabBoxSelectedTabId">project_tab</string>
+<preference-set id="workspace">
+<preference-set id="topview">
+<ordered-preference id="childState">
+<preference-set >
+  <long id="current_view_index">1</long>
+<ordered-preference id="view_prefs">
+<preference-set >
+  <string id="viewtype">editor</string>
+  <string id="URI">file:///home/andy/bin/isa</string>
+</preference-set>
+</ordered-preference>
+</preference-set>
+</ordered-preference>
+<ordered-preference id="viewHistoryState">
+  <string>file:///home/andy/bin/isa?parentId=view-1</string>
+  <string>chrome://komodo/content/startpage/startpage.xml#view-startpage?parentId=view-1</string>
+</ordered-preference>
+  <string id="orientation">vertical</string>
+</preference-set>
+</preference-set>
+  <string id="uilayout_rightTabBoxSelectedTabId">toolbox_tab</string>
+  <boolean id="start_page_quick_links_box_closed">0</boolean>
+  <string id="uilayout_bottomTabBoxSelectedTabId">runoutput_tab</string>
+  <boolean id="haveInstalledSampleToolbox-Komodo4.3.0">1</boolean>
+  <boolean id="start_page_mru_box_closed">0</boolean>
+  <string id="encodingDefault">utf8</string>
+  <boolean id="startupFullScreen">0</boolean>
+  <boolean id="start_page_landing_box_closed">0</boolean>
+  <boolean id="startupMaximized">1</boolean>
+  <string id="kpf_open_nodes_042f8423-e917-496b-bdb4-bf14210a9e9d">{}</string>
+<ordered-preference id="mruFileList">
+  <string>file:///home/andy/bin/isa</string>
+</ordered-preference>
+  <boolean id="codeintel_have_preloaded_database">1</boolean>
+</preference-set>
