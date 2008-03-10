@@ -1,4 +1,9 @@
-use TextMate::JumpTo qw(jumpto);
+use constant MACOS => $^O =~ /darwin/;
+
+BEGIN {
+    eval q{use TextMate::JumpTo qw(jumpto)} if MACOS;
+}
+
 use File::Spec;
 
 my @opts = qw( windowSize=30 );
@@ -28,11 +33,13 @@ my $cmd_b = \&DB::cmd_b;
 sub afterinit {
     $trace |= 4;    # Enable watchfunction
 
-    # Needed to work out where filenames are relative to
-    chomp( $base_dir = `pwd` );
+    if ( MACOS ) {
+        # Needed to work out where filenames are relative to
+        chomp( $base_dir = `pwd` );
 
-    $option{animate} = 0;
-    push @options, 'animate';
+        $option{animate} = 0;
+        push @options, 'animate';
+    }
 }
 
 {
@@ -56,7 +63,8 @@ sub afterinit {
             }
         }
 
-        return textmate( @_ );
+        return textmate( @_ ) if MACOS;
+        return;
     }
 }
 
