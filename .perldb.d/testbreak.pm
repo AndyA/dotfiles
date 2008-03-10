@@ -13,7 +13,6 @@ my $cmd_b = \&DB::cmd_b;
         my %seen;
         @testbreak = grep { !$seen{$_}++ }
           sort { $a <=> $b } ( split( /\s*,\s*/, $1 ), @testbreak );
-        print join( ', ', @testbreak ), "\n";
     }
     else {
         $cmd_b->( @_ );
