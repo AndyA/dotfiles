@@ -1,0 +1,84 @@
+use TextMate::JumpTo qw(jumpto);
+use File::Spec;
+
+my @opts = qw( windowSize=30 );
+
+if ( $] >= 5.010000 ) {
+    push @opts, "HistFile='" . glob( '~/.perldb_history' ) . "'";
+}
+
+parse_options( $_ ) for @opts;
+
+@DB::testbreak = ();
+
+# Monkeypatch cmd_b (set breakpoint)
+my $cmd_b = \&DB::cmd_b;
+*DB::cmd_b = sub {
+    my ( $cmd, $line, $dbline ) = @_;
+    if ( $line =~ /\s*#\s*(\d+(?:\s*,\s*\d+)*)$/ ) {
+        my %seen;
+        @DB::testbreak = grep { !$seen{$_}++ }
+          sort { $a <=> $b } ( split( /\s*,\s*/, $1 ), @DB::testbreak );
+    }
+    else {
+        $cmd_b->( @_ );
+    }
+};
+
+sub afterinit {
+    $trace |= 4;    # Enable watchfunction
+
+    # Needed to work out where filenames are relative to
+    chomp( $base_dir = `pwd` );
+
+    $option{animate} = 0;
+    push @options, 'animate';
+}
+
+{
+    my $tb = undef;
+
+    sub watchfunction {
+        if ( @DB::testbreak && exists $INC{'Test/Builder.pm'} ) {
+            my $next = ( $tb ||= Test::Builder->new )->current_test + 1;
+            if ( $next >= $DB::testbreak[0] ) {
+                shift @DB::testbreak
+                  while @DB::testbreak && $next >= $DB::testbreak[0];
+
+                my $depth = 1;
+                while ( 1 ) {
+                    my ( $package, $file, $line ) = caller $depth;
+                    last unless defined $package;
+                    last unless $package =~ /^Test::/;
+                    $depth++;
+                }
+                $DB::stack[ -$depth ] = 1;
+            }
+        }
+
+        return textmate( @_ );
+    }
+}
+
+sub textmate {
+    my ( $package, $file, $line ) = @_;
+
+    return unless $single || $signal || $option{animate};
+    return if $file =~ m{/perl5db[.]pl$};
+
+    local $trace = 0;
+
+    # Doesn't really work
+    if ( $file =~ /^\(eval\s+\d+\)\[(.+?):(\d+)\]/ ) {
+        $file = $1;
+        $line += $2 - 1;
+    }
+
+    jumpto(
+        file => File::Spec->rel2abs( $file, $base_dir ),
+        line => $line,
+        bg   => 1
+    );
+
+    return 1;
+}
