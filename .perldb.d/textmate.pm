@@ -1,5 +1,6 @@
 package DB::TextMate;
 our @ISA = qw( DB::Plugin );
+use File::Spec;
 
 eval q{ use TextMate::JumpTo qw(jumpto) };
 if ( $@ ) {

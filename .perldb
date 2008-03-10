@@ -1,7 +1,6 @@
 package DB::Plugin;
 
 sub new { bless {}, shift }
-
 sub afterinit     { return }
 sub watchfunction { return }
 
