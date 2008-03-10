@@ -1,3 +1,12 @@
+package DB::Plugin;
+
+sub new { bless {}, shift }
+
+sub afterinit     { return }
+sub watchfunction { return }
+
+package DB;
+
 my @opts = qw( windowSize=30 );
 
 if ( $] >= 5.010000 ) {
@@ -7,7 +16,6 @@ if ( $] >= 5.010000 ) {
 parse_options( $_ ) for @opts;
 
 my @handlers;
-
 sub add_handler { push @handlers, @_ }
 
 BEGIN {
@@ -16,51 +24,12 @@ BEGIN {
     }
 }
 
-# @DB::testbreak = ();
-# 
-# # Monkeypatch cmd_b (set breakpoint)
-# my $cmd_b = \&DB::cmd_b;
-# *DB::cmd_b = sub {
-#     my ( $cmd, $line, $dbline ) = @_;
-#     if ( $line =~ /\s*#\s*(\d+(?:\s*,\s*\d+)*)$/ ) {
-#         my %seen;
-#         @DB::testbreak = grep { !$seen{$_}++ }
-#           sort { $a <=> $b } ( split( /\s*,\s*/, $1 ), @DB::testbreak );
-#     }
-#     else {
-#         $cmd_b->( @_ );
-#     }
-# };
-
 sub afterinit {
     $trace |= 4;    # Enable watchfunction
-
     $_->afterinit( @_ ) for @handlers;
 }
 
-{
-    # my $tb = undef;
-
-    sub watchfunction {
-        # if ( @DB::testbreak && exists $INC{'Test/Builder.pm'} ) {
-        #     my $next = ( $tb ||= Test::Builder->new )->current_test + 1;
-        #     if ( $next >= $DB::testbreak[0] ) {
-        #         shift @DB::testbreak
-        #           while @DB::testbreak && $next >= $DB::testbreak[0];
-        # 
-        #         my $depth = 1;
-        #         while ( 1 ) {
-        #             my ( $package, $file, $line ) = caller $depth;
-        #             last unless defined $package;
-        #             last unless $package =~ /^Test::/;
-        #             $depth++;
-        #         }
-        #         $DB::stack[ -$depth ] = 1;
-        #     }
-        # }
-
-        my $rc = 0;
-        $rc |= $_->watchfunction( @_ ) for @handlers;
-        return;
-    }
+sub watchfunction {
+    my @rc = grep { $_->watchfunction( @_ ) } @handlers;
+    return shift @rc;
 }

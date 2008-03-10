@@ -1,4 +1,5 @@
 package DB::TestBreak;
+our @ISA = qw( DB::Plugin );
 
 print "Test breakpoints enabled\n";
 
@@ -20,10 +21,6 @@ my $cmd_b = \&DB::cmd_b;
 };
 
 DB::add_handler( __PACKAGE__->new );
-
-sub new { bless {}, shift }
-
-sub afterinit { }
 
 sub watchfunction {
     my $self = shift;

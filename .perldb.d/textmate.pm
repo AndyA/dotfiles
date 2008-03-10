@@ -1,4 +1,5 @@
 package DB::TextMate;
+our @ISA = qw( DB::Plugin );
 
 eval q{ use TextMate::JumpTo qw(jumpto) };
 if ( $@ ) {
@@ -8,8 +9,6 @@ else {
     DB::add_handler( __PACKAGE__->new );
     print "TextMate support enabled\n";
 }
-
-sub new { bless {}, shift }
 
 sub afterinit {
     my $self = shift;
