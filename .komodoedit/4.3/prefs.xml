@@ -27,17 +27,17 @@
   <string id="PHP/newEncoding">Default Encoding</string>
   <boolean id="PHP/newBOM">0</boolean>
 </preference-set>
-<preference-set id="languages/Baan">
-  <boolean id="Baan/newBOM">0</boolean>
-  <string id="Baan/newEncoding">Default Encoding</string>
+<preference-set id="languages/Tcl">
+  <boolean id="Tcl/newBOM">0</boolean>
+  <string id="Tcl/newEncoding">Default Encoding</string>
 </preference-set>
 <preference-set id="languages/Lua">
   <string id="Lua/newEncoding">Default Encoding</string>
   <boolean id="Lua/newBOM">0</boolean>
 </preference-set>
-<preference-set id="languages/Tcl">
-  <boolean id="Tcl/newBOM">0</boolean>
-  <string id="Tcl/newEncoding">Default Encoding</string>
+<preference-set id="languages/Baan">
+  <boolean id="Baan/newBOM">0</boolean>
+  <string id="Baan/newEncoding">Default Encoding</string>
 </preference-set>
 <preference-set id="languages/Ada">
   <boolean id="Ada/newBOM">0</boolean>
@@ -115,9 +115,9 @@
   <string id="Lisp/newEncoding">Default Encoding</string>
   <boolean id="Lisp/newBOM">0</boolean>
 </preference-set>
-<preference-set id="languages/Eiffel">
-  <boolean id="Eiffel/newBOM">0</boolean>
-  <string id="Eiffel/newEncoding">Default Encoding</string>
+<preference-set id="languages/Errors">
+  <string id="C++/newEncoding">Default Encoding</string>
+  <boolean id="C++/newBOM">0</boolean>
 </preference-set>
 <preference-set id="languages/JavaScript">
   <boolean id="JavaScript/newBOM">0</boolean>
@@ -139,9 +139,9 @@
   <string id="C++/newEncoding">Default Encoding</string>
   <boolean id="C++/newBOM">0</boolean>
 </preference-set>
-<preference-set id="languages/Errors">
-  <string id="C++/newEncoding">Default Encoding</string>
-  <boolean id="C++/newBOM">0</boolean>
+<preference-set id="languages/Eiffel">
+  <boolean id="Eiffel/newBOM">0</boolean>
+  <string id="Eiffel/newEncoding">Default Encoding</string>
 </preference-set>
 <preference-set id="languages/Apache">
   <string id="Apache/newEncoding">Default Encoding</string>
@@ -155,6 +155,8 @@
   <string id="isearchType">0</string>
   <boolean id="startupFullScreen">0</boolean>
 <ordered-preference id="mruFileList">
+  <string>file:///Users/andy/Works/Humyo/humgit/jb/Lib/Storage/Object/Object.pm</string>
+  <string>file:///Users/andy/Works/Humyo/humyo/branches/andya-refactor/Lib/Storage/Object/Object.pm</string>
   <string>file:///Users/andy/Desktop/prob.pl</string>
 </ordered-preference>
   <boolean id="editTabCompletes">0</boolean>
@@ -170,12 +172,13 @@
   <string id="OtherHelpCommand">open http://www.google.com/search?q=%W</string>
   <boolean id="codeintel_completion_triggering_enabled">1</boolean>
   <boolean id="donotask_dragdrop_mapped_uri">0</boolean>
-  <string id="defaultSelectedPref">fontsItem</string>
+  <string id="defaultSelectedPref">fileProperties</string>
   <boolean id="print_showLineNos">1</boolean>
-  <string id="uilayout_bottomTabBoxSelectedTabId">runoutput_tab</string>
+  <string id="uilayout_bottomTabBoxSelectedTabId">findresults1_tab</string>
   <string id="perlDefaultInterpreter">/alt/local/bin/perl</string>
   <boolean id="useTabs">0</boolean>
   <boolean id="editRestoreFoldPoints">0</boolean>
+  <long id="find-caseSensitivity">0</long>
   <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store</string>
   <long id="editTabstopDelimiterStart_Value">171</long>
   <string id="isearchCaseSensitivity">2</string>
@@ -213,6 +216,7 @@
   <long id="scrollWidth">2000</long>
   <string id="uilayout_leftTabBoxSelectedTabId">project_tab</string>
   <string id="ActionScriptHelpCommand">open http://www.google.com/search?q=site%3Aadobe.com%20ActionScript%20Reference+%W</string>
+  <boolean id="find-confirmReplacementsInFiles">1</boolean>
   <boolean id="encodingHTML">0</boolean>
   <string id="keybindings">Default
 Emacs
@@ -222,31 +226,46 @@ _vi
 </string>
   <string id="import_type">useFolders</string>
   <string id="defaultDateFormat">%a %b %d %H:%M:%S %Y</string>
+<ordered-preference id="find-folders">
+  <string></string>
+</ordered-preference>
   <boolean id="import_recursive">1</boolean>
   <long id="caretWidth">1</long>
+  <boolean id="find-showReplaceAllResults">1</boolean>
   <boolean id="diskBackgroundCheck">1</boolean>
   <boolean id="xmlDeclDetection">1</boolean>
   <boolean id="ensureFinalEOL">0</boolean>
+  <boolean id="find-multiline">0</boolean>
+  <boolean id="find-searchInSubfolders">1</boolean>
   <string id="donotask_action_close_all_files_on_project_close"></string>
+  <long id="find-patternType">0</long>
   <boolean id="show_start_page">1</boolean>
   <boolean id="startupMaximized">0</boolean>
   <long id="mruProjectSize">10</long>
   <boolean id="editBackspaceDedents">1</boolean>
   <string id="browser"></string>
   <long id="editTabstopDelimiterEnd_Value">187</long>
+  <long id="find-preferredContextType">0</long>
   <string id="donotask_action_close_deleted_files"></string>
   <string id="donotask_action_ensure_filename_has_ext"></string>
+  <boolean id="find-searchBackward">0</boolean>
   <boolean id="editFoldLines">1</boolean>
   <string id="kpf_open_nodes_042f8423-e917-496b-bdb4-bf14210a9e9d">{}</string>
   <string id="editor-scheme">Andy</string>
+<ordered-preference id="find-includeFiletypes">
+</ordered-preference>
   <long id="tabWidth">8</long>
   <long id="ySlop">5</long>
   <string id="import_include_matches"></string>
   <string id="endOfLine">LF</string>
   <string id="donotask_action_restore_workspace">Yes</string>
+<ordered-preference id="find-replacementMru">
+  <string>new_object</string>
+</ordered-preference>
   <boolean id="editElectricBrace">1</boolean>
   <boolean id="codeintel_have_preloaded_database">1</boolean>
   <boolean id="showEOL">0</boolean>
+  <boolean id="find-matchWord">0</boolean>
   <string id="donotask_action_open_recent_files_on_project_open"></string>
   <string id="kpf_open_nodes_5f6144cf-8f0a-8441-a1c8-57353facef5b">{}</string>
   <string id="fileAssociationDiffs">[]</string>
@@ -258,6 +277,10 @@ _vi
   <boolean id="shebangDetection">1</boolean>
   <boolean id="donotask_reload_changed_files">0</boolean>
   <boolean id="editUseLinting">1</boolean>
+<ordered-preference id="find-patternMru">
+  <string>createdObject</string>
+  <string>^[ 	]*?(sub\s+\w+|package\s+\w)</string>
+</ordered-preference>
   <boolean id="donotask_ensure_new_filename_has_ext">0</boolean>
   <long id="mruTemplateSize">5</long>
 <preference-set id="workspace">
@@ -268,19 +291,31 @@ _vi
 <ordered-preference id="view_prefs">
 <preference-set >
   <string id="viewtype">editor</string>
-  <string id="URI">file:///Users/andy/Desktop/prob.pl</string>
+  <string id="URI">file:///Users/andy/Works/Humyo/humyo/branches/andya-refactor/Lib/Storage/Object/Object.pm</string>
+</preference-set>
+</ordered-preference>
+</preference-set>
+<preference-set >
+  <long id="current_view_index">0</long>
+<ordered-preference id="view_prefs">
+<preference-set >
+  <string id="viewtype">editor</string>
+  <string id="URI">file:///Users/andy/Works/Humyo/humgit/jb/Lib/Storage/Object/Object.pm</string>
 </preference-set>
 </ordered-preference>
 </preference-set>
 </ordered-preference>
 <ordered-preference id="viewHistoryState">
-  <string>file:///Users/andy/Desktop/prob.pl?parentId=view-1</string>
+  <string>file:///Users/andy/Works/Humyo/humyo/branches/andya-refactor/Lib/Storage/Object/Object.pm?parentId=view-1</string>
+  <string>file:///Users/andy/Works/Humyo/humgit/jb/Lib/Storage/Object/Object.pm?parentId=view-2</string>
   <string>chrome://komodo/content/startpage/startpage.xml#view-startpage?parentId=view-1</string>
 </ordered-preference>
-  <string id="orientation">vertical</string>
+  <string id="orientation">horizontal</string>
 </preference-set>
 </preference-set>
   <boolean id="encodingModeline">1</boolean>
   <long id="lintDelay">1000</long>
   <long id="caretStyle">1</long>
+<ordered-preference id="find-excludeFiletypes">
+</ordered-preference>
 </preference-set>

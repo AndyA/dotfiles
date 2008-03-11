@@ -49,7 +49,7 @@ my $help_only = 0;
 GetOptions(
     'u|username=s' => \$config{DBUSER},
     'p|password=s' => \$config{DBPASS},
-    'h|host=s'     => \$config{DBHOST},
+    'host=s'       => \$config{DBHOST},
     'e|editor=s'   => \$config{EDITOR},
     'L'            => \$list_only,
     'h|help'       => \$help_only,
@@ -196,7 +196,7 @@ Syntax: dbedit <options> database[.table] ...
 Options:
     -u --username Set the MySQL username
     -p --password Set the MySQL password
-    -h --host     Set the MySQL host
+       --host     Set the MySQL host
     -e --editor   Set the editor to use
     -L            List matching tables
 EOS
