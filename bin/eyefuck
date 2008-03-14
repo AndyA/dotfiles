@@ -1,0 +1,76 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use GD;
+
+use constant MAX     => 80;
+use constant CELL    => 15;
+use constant FATNESS => 4;
+
+while ( my $img = shift ) {
+    my $lc = eyefuck( $img );
+    my $nn = $img . '.fuck.png';
+    open my $ih, '>', $nn or die "Can't write $nn ($!)\n";
+    binmode $ih;
+    print $ih $lc->png;
+    close $ih;
+}
+
+sub eyefuck {
+    my $name = shift;
+    my $img  = GD::Image->new( $name );
+    my ( $width, $height ) = $img->getBounds();
+    my $scale = MAX / $width;
+    $scale = MAX / $height
+      if $height * $scale > MAX;
+    my $nw = int( $width * $scale );
+    my $nh = int( $height * $scale );
+    my $ni = GD::Image->new( $nw, $nh );
+    $ni->copyResampled( $img, 0, 0, 0, 0, $nw, $nh, $width, $height );
+    return splunge( $ni );
+}
+
+sub splunge {
+    my $si = shift;
+
+    my ( $sw, $sh ) = $si->getBounds();
+    my ( $dw, $dh ) = map { $_ * CELL } ( $sw, $sh );
+
+    my $di = GD::Image->new( $dw, $dh );
+
+    my $black = $di->colorAllocate( 0,   0,   0 );
+    my $white = $di->colorAllocate( 255, 255, 255 );
+
+    $di->filledRectangle( 0, 0, $dw - 1, $dh - 1, $white );
+
+    for ( my $x = 0; $x < $sw; $x++ ) {
+        for ( my $y = 0; $y < $sh; $y++ ) {
+            my ( $r, $g, $b ) = $si->rgb( $si->getPixel( $x, $y ) );
+            my ( $x0, $y0 ) = map { $_ * CELL } ( $x,  $y );
+            my ( $x1, $y1 ) = map { $_ + CELL } ( $x0, $y0 );
+            ( $y0, $y1 ) = ( $y1, $y0 )
+              if $r + $g + $b >= ( 128 * 3 );
+            diagonal( $di, $x0, $y0, $x1, $y1, $black );
+        }
+    }
+    return $di;
+}
+
+sub diagonal {
+    my ( $im, $x0, $y0, $x1, $y1, $colour ) = @_;
+
+    my $poly = GD::Polygon->new;
+
+    ( $x0, $y0, $x1, $y1 ) = ( $x1, $y1, $x0, $y0 )
+      if $x0 > $x1;
+
+    my $rfat = $y0 < $y1 ? FATNESS : - FATNESS;
+
+    $poly->addPt( $x0,           $y0 - $rfat );
+    $poly->addPt( $x0 - FATNESS, $y0 );
+    $poly->addPt( $x1,           $y1 + $rfat );
+    $poly->addPt( $x1 + FATNESS, $y1 );
+
+    $im->filledPolygon( $poly, $colour );
+}
