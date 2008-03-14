@@ -185,9 +185,6 @@ sub filter_reader {
 
     $filter = [ shellwords( $filter ) ] unless 'ARRAY' eq ref $filter;
 
-use Data::Dumper;
-print Dumper($filter);
-
     my $buffer = '';
     my $h = start $filter, $reader, sub { $buffer .= join '', @_ };
 
