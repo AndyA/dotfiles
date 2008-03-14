@@ -1,2 +1,2 @@
 # Program locations
-export CTAGS=`which ctags`
+export CTAGSPROG=`which ctags`
