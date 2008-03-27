@@ -27,9 +27,10 @@ print $oh $h->open( 'html' ), $h->head(
   $h->open( 'body' ), $h->open( 'form' ),
   $h->open( 'table' );
 
-my $last_file = '';
-my $tr_style  = {};
-my $next_id   = 1;
+my $last_file   = '';
+my $tr_style    = {};
+my $next_id     = 1;
+my $close_group = '';
 
 open my $ack, '-|', 'ack', @args or die "Can't run ack ($!)";
 
@@ -85,8 +86,18 @@ while ( defined( my $line = <$ack> ) ) {
     } @info;
 
     if ( $last_file ne $file ) {
+        my $id = 'file' . $next_id++;
+        print $oh $close_group, $h->open( 'tbody', { id => $id } );
+        $close_group = $h->close( 'tbody' );
         print $oh $h->tr(
-            $h->th( { colspan => 3 }, $h->entity_encode( $file ) ) );
+            [
+                $h->th(
+                    _hide_control( $h, $id ),
+                    { colspan => 2 },
+                    $h->entity_encode( $file )
+                )
+            ]
+        );
         $last_file = $file;
         $tr_style  = {};
     }
@@ -105,6 +116,7 @@ while ( defined( my $line = <$ack> ) ) {
     $tr_style = {};
 }
 close $ack;
+print $oh $close_group;
 print $oh $h->close( 'table' ), $h->close( 'form' ),
   $h->close( 'body' ),
   $h->close( 'html' );
