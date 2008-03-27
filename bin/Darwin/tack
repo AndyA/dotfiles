@@ -16,16 +16,20 @@ my $h = HTML::Tiny->new;
 my ( $oh, $oname ) = tempfile( SUFFIX => '.html' );
 
 print $oh $h->open( 'html' ), $h->head(
-    $h->title( 'Search results' ),
-    $h->style(
-        do { local $/; <DATA> }
-    )
+    [
+        $h->title( 'Search results' ),
+        $h->style(
+            do { local $/; <DATA> }
+        ),
+        $h->script( _js() )
+    ]
   ),
-  $h->open( 'body' ),
+  $h->open( 'body' ), $h->open( 'form' ),
   $h->open( 'table' );
 
 my $last_file = '';
 my $tr_style  = {};
+my $next_id   = 1;
 
 open my $ack, '-|', 'ack', @args or die "Can't run ack ($!)";
 
@@ -82,14 +86,18 @@ while ( defined( my $line = <$ack> ) ) {
 
     if ( $last_file ne $file ) {
         print $oh $h->tr(
-            $h->th( { colspan => 2 }, $h->entity_encode( $file ) ) );
+            $h->th( { colspan => 3 }, $h->entity_encode( $file ) ) );
         $last_file = $file;
         $tr_style  = {};
     }
 
+    my $id = 'line' . $next_id++;
+
     print $oh $h->tr(
         $tr_style,
+        { id => $id },
         [
+            $h->td( _hide_control( $h, $id ) ),
             $h->td( { align => 'right', class => 'ln' }, $line ),
             $h->td( $info )
         ]
@@ -97,10 +105,21 @@ while ( defined( my $line = <$ack> ) ) {
     $tr_style = {};
 }
 close $ack;
-print $oh $h->close( 'table' ), $h->close( 'body' ),
+print $oh $h->close( 'table' ), $h->close( 'form' ),
+  $h->close( 'body' ),
   $h->close( 'html' );
 close $oh;
 _open( $oname, 0 );
+
+sub _hide_control {
+    my ( $h, $id ) = @_;
+    return $h->input(
+        {
+            type    => 'checkbox',
+            onclick => "tick_off('$id', this.checked)"
+        }
+    );
+}
 
 sub _open {
     my ( $url, $bg ) = @_;
@@ -112,6 +131,19 @@ sub _ns {
     my $s = shift;
     $s =~ s/\s/&nbsp;/g;
     return $s;
+}
+
+sub _js {
+    return <<EOS;
+function tick_off(id, state) {
+    if ( state ) {
+        var el = document.getElementById(id);
+        if ( el ) {
+            el.style.display = 'none';
+        }
+    }
+}
+EOS
 }
 
 __DATA__
