@@ -153,10 +153,12 @@
 </preference-set>
 </preference-set>
   <string id="isearchType">0</string>
-  <boolean id="startupFullScreen">0</boolean>
+<ordered-preference id="find-folders">
+  <string></string>
+</ordered-preference>
 <ordered-preference id="mruFileList">
-  <string>file:///Users/andy/Works/Humyo/humgit/jb/Lib/Storage/Object/Object.pm</string>
   <string>file:///Users/andy/Works/Humyo/humyo/branches/andya-refactor/Lib/Storage/Object/Object.pm</string>
+  <string>file:///Users/andy/Works/Humyo/humgit/jb/Lib/Storage/Object/Object.pm</string>
   <string>file:///Users/andy/Desktop/prob.pl</string>
 </ordered-preference>
   <boolean id="editTabCompletes">0</boolean>
@@ -174,7 +176,7 @@
   <boolean id="donotask_dragdrop_mapped_uri">0</boolean>
   <string id="defaultSelectedPref">fileProperties</string>
   <boolean id="print_showLineNos">1</boolean>
-  <string id="uilayout_bottomTabBoxSelectedTabId">findresults1_tab</string>
+  <string id="uilayout_bottomTabBoxSelectedTabId">runoutput_tab</string>
   <string id="perlDefaultInterpreter">/alt/local/bin/perl</string>
   <boolean id="useTabs">0</boolean>
   <boolean id="editRestoreFoldPoints">0</boolean>
@@ -226,9 +228,7 @@ _vi
 </string>
   <string id="import_type">useFolders</string>
   <string id="defaultDateFormat">%a %b %d %H:%M:%S %Y</string>
-<ordered-preference id="find-folders">
-  <string></string>
-</ordered-preference>
+  <boolean id="startupFullScreen">0</boolean>
   <boolean id="import_recursive">1</boolean>
   <long id="caretWidth">1</long>
   <boolean id="find-showReplaceAllResults">1</boolean>

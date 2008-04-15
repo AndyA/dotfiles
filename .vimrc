@@ -146,6 +146,6 @@ set hlsearch
 
 "map <M-c> :call ToggleCommentify()<CR>j
 "imap <M-c> <ESC>:call ToggleCommentify()<CR>j 
-let g:showfuncctagsbin = $CTAGSPROG
-map <F3> <PLUG>ShowFunc
+"let g:showfuncctagsbin = $CTAGSPROG
+"map <F3> <PLUG>ShowFunc
 
