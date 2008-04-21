@@ -34,6 +34,7 @@ sub list_check {
     if ( my $list = Mail::ListDetector->new( $mail->simple ) ) {
         $mail->simple->header_set( 'X-Identified-List',
             $list->listname );
+        $mail->simple->header_set( 'X-Is-List', 'YES' );
     }
 }
 
