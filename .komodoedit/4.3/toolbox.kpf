@@ -1,148 +1,252 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Komodo Project File - DO NOT EDIT -->
 <project id="042f8423-e917-496b-bdb4-bf14210a9e9d" kpf_version="4" name="toolbox.kpf">
-<snippet id="04e5e40b-7fd6-4ac1-af2d-dfab7362ec14" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
-while {[[%tabstop:EXPR]]} {
-    [[%tabstop]]
+<snippet id="0684a84f-438c-4339-b12f-bfd376b33107" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
+/**
+ * [[%tabstop:method]]
+ * @param [[%tabstop:arg1]]
+ */
+ 
+[[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
+    [[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
-<snippet id="7e0e7421-d246-4718-81e2-5e7eab257e8b" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="for" set_selection="false">
-for {set [[%tabstop:START]]} {[[%tabstop:TEST]]} {[[%tabstop:NEXT]]}
-    [[%tabstop]]
+<folder id="26e504db-131e-4bea-be91-ba6bc5c4ddba" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" name="jQuery">
+</folder>
+<snippet id="3a3c48a8-5b39-4329-9aef-9b873cf80e41" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="com" set_selection="false">
+/* [[%tabstop:comment]] */!@#_currentPos!@#_anchor</snippet>
+<snippet id="79b847c5-6c57-4348-90d3-7b6037f7bf3c" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
+try {
+  !@#_currentPos!@#_anchor   
+} catch(e) {
+  alert(e);
+}</snippet>
+<snippet id="c5e23c85-b65b-440d-a8be-9f53f41a8a83" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+/**
+ * [[%tabstop:className]]
+ */
+
+var [[%tabstop:className]] = function() {
+    [[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
-<snippet id="cd7f9ff6-8c99-400a-bf0e-b700aff80ab5" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="proc" set_selection="false">
-proc [[%tabstop:NAME]] {[[%tabstop:ARGS]]} {
-    [[%tabstop]]
+<snippet id="e3504739-62e5-46e0-8f6f-27eecd44f356" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+/**
+ * [[%tabstop:name]]
+ * @param [[%tabstop:arg1]]
+ */
+
+function [[%tabstop:name]]([[%tabstop:arg1]]) {
+   [[%tabstop:]] 
 }!@#_currentPos!@#_anchor</snippet>
-<snippet id="a66e309a-8a98-4f82-8aa4-f0adb44f8b32" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
-foreach [[%tabstop:VAR]] [[%tabstop]] {
-    [[%tabstop]]
-}!@#_currentPos!@#_anchor</snippet>
-<snippet id="4e6bd659-f980-40d8-a0dc-55b6f270a78c" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="switch" set_selection="false">
-switch [[%tabstop:STRING]] {
-    [[%tabstop:PATTERN]] {
-	[[%tabstop:ACTION]]
-    }
-    [[%tabstop:PATTERN2]]
-	[[%tabstop:ACTION2]]
-    }
-}!@#_currentPos!@#_anchor</snippet>
-<folder id="88e68317-ec9b-4873-8940-2c49b98eec39" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="PHP">
-</folder>
-<folder id="0b7806ca-4c66-455e-b49e-974a4e92efc0" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="Python">
-</folder>
-<folder id="00a37f6d-b896-4036-9dea-5e907666bfdf" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="JavaScript">
-</folder>
-<folder id="3d0938d2-d450-449c-a24d-7411ce863071" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="HTML">
-</folder>
-<folder id="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="XUL">
-</folder>
-<folder id="4e63ee78-d782-413f-8b5f-32d42696330b" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="General">
-</folder>
-<folder id="ba028906-5b20-4b1f-aa60-d9e1b5db551e" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="Perl">
-</folder>
-<folder id="32a55e0c-4227-492f-8c36-77c1ac206365" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="Ruby">
-</folder>
-<folder id="ccee7fb1-0d55-4b22-856f-8c6c535691f4" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="Tcl">
-</folder>
-<folder id="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="RHTML">
-</folder>
-<snippet id="36573f72-d56b-4919-9f4d-20bc1c4ac141" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="true" keyboard_shortcut="" name="lia" set_selection="false">
-&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="8ec8721b-1889-4177-be34-0be8dca9d493" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="false" keyboard_shortcut="" name="liai" set_selection="false">
-&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:edit]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="f7d14176-9d1b-4522-98ed-e28f2b2785fe" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="true" keyboard_shortcut="" name="lic" set_selection="false">
-&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]" %&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="a10fce81-5668-4af5-8aa3-43a88f4be620" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="true" keyboard_shortcut="" name="lica" set_selection="false">
-&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="101562a1-f61a-4ac2-a596-9d1fb35d9e51" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="true" keyboard_shortcut="" name="licai" set_selection="false">
-&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="bcf4bfe1-5864-42d8-b100-2b9f1c3e3a8e" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
-foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
-    [[%tabstop]]
-}!@#_currentPos!@#_anchor</snippet>
-<snippet id="fdb54d1e-2efd-434a-9ff7-8f26fe28ce66" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="if" set_selection="false">
-if ([[%tabstop:EXPR]]) {
-    [[%tabstop]]
-   }
-elsif ([[%tabstop:EXPR]]) {
-    [[%tabstop]]
+<snippet id="e5017368-4b40-4b7b-8891-365cd4dcd2b7" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+/**
+ * [[%tabstop:docs]]
+*/!@#_currentPos!@#_anchor</snippet>
+<snippet id="fd3a6356-783e-45b5-869f-a6cad0bad8ed" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
+/**
+ * namespace [[%tabstop:name]]
+ */
+
+if(typeof([[%tabstop:name]]) == 'undefined') {
+    var [[%tabstop:name]] = {};
 }
-else {
-    [[%tabstop]]
-}!@#_currentPos!@#_anchor</snippet>
-<snippet id="1cedae85-8376-4f64-88cf-310d1306aa62" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
-while ([[%tabstop:EXPR]]) {
-    [[%tabstop]]
+
+(function() {
+    [[%tabstop:]]
+}).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
+<folder id="170b4020-dc21-40c6-84fd-2ae4cfa55eab" idref="042f8423-e917-496b-bdb4-bf14210a9e9d" name="Samples (4.3.2)">
+</folder>
+<folder id="498fb4a9-8f94-4c01-a63a-45ba6d949d15" idref="042f8423-e917-496b-bdb4-bf14210a9e9d" name="Samples (4.3.0)">
+</folder>
+<folder id="5b99c86b-251a-4206-ae0d-729c2a50a5fe" idref="042f8423-e917-496b-bdb4-bf14210a9e9d" name="Samples (4.3.0)">
+</folder>
+<snippet id="12c63ab8-b8ac-4f05-af1e-2395e298f9c6" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+/**
+ * [[%tabstop:docs]]
+*/!@#_currentPos!@#_anchor</snippet>
+<snippet id="69ee8d51-9c84-4866-8ecf-ec40c11eca9c" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" indent_relative="true" keyboard_shortcut="" name="com" set_selection="false">
+/* [[%tabstop:comment]] */!@#_currentPos!@#_anchor</snippet>
+<snippet id="73feded0-6ef1-4031-bb2a-5d73d83e7930" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
+/**
+ * namespace [[%tabstop:name]]
+ */
+
+if(typeof([[%tabstop:name]]) == 'undefined') {
+    var [[%tabstop:name]] = {};
 }
+
+(function() {
+    [[%tabstop:]]
+}).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
+<snippet id="9d313c89-d8fc-47cc-9dab-5e0f46009f3c" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+/**
+ * [[%tabstop:name]]
+ * @param [[%tabstop:arg1]]
+ */
+
+function [[%tabstop:name]]([[%tabstop:arg1]]) {
+   [[%tabstop:]] 
+}!@#_currentPos!@#_anchor</snippet>
+<folder id="a9a5f1b2-781d-4ba3-a4e4-81a1d37aeb7c" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" name="jQuery">
+</folder>
+<snippet id="a9f55775-c8fb-4e5a-b465-4d0afe997988" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
+try {
+  !@#_currentPos!@#_anchor   
+} catch(e) {
+  alert(e);
+}</snippet>
+<snippet id="d0a05173-d03c-48d9-a53f-293e7b9bdf20" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
+/**
+ * [[%tabstop:method]]
+ * @param [[%tabstop:arg1]]
+ */
+ 
+[[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
+    [[%tabstop:]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="ee0ae57b-7fec-45f0-9455-9eb02e16be6b" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+/**
+ * [[%tabstop:className]]
+ */
+
+var [[%tabstop:className]] = function() {
+    [[%tabstop:]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="1808e6a1-6799-44cb-8100-0cbdb730b21a" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="main" set_selection="true">
+if __name__ == '__main__':
+    !@#_anchorpass!@#_currentPos</snippet>
+<snippet id="19a496a6-aa3e-4842-85d8-36bda5cd9d9a" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="false" keyboard_shortcut="" name="shebang" set_selection="true">
+#![[%python]]
+import os, re
+from os.path import join, abspath, isfile, isdir, exists, basename
+from shutil import copyfile, copytree, rmtree
+from time import strftime, strptime, localtime
+
 !@#_currentPos!@#_anchor</snippet>
-<snippet id="9866f335-97b4-4e7e-9a99-b2ef67e6a492" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="sheb" set_selection="false">
-#![[%(perl)]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="9d469afb-0bd9-492a-9c7a-f920368cfb92" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="hash" set_selection="false">
-%[[%tabstop:name]] (
-    [[%tabstop]]	=&gt; [[%tabstop]],
-    [[%tabstop]]	=&gt; [[%tabstop]],
-)!@#_currentPos!@#_anchor</snippet>
-<snippet id="52cf0961-9b24-4205-b0a0-c063c8363ea0" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;strong&gt; Strong" set_selection="true">
-&lt;strong&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/strong&gt;</snippet>
-<snippet id="2a19f140-0d40-4cf2-a745-43caca0071bb" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;em&gt; Emphasis" set_selection="true">
-&lt;em&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/em&gt;</snippet>
-<snippet id="0ad68be6-8af2-43e5-b2d8-f87d503555af" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="false" keyboard_shortcut="" name="&lt;br/&gt; Break Line" set_selection="true">
-&lt;br/&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="36639c93-2bc1-46b9-ae78-80560ebaa909" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h1&gt; Header 1" set_selection="true">
-&lt;h1&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h1&gt;</snippet>
-<snippet id="a2ba6527-0d56-4d3f-afe1-3ba91ad7634e" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h2&gt; Header 2" set_selection="true">
-&lt;h2&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h2&gt;</snippet>
-<snippet id="42ed47ea-1e3c-4df0-a62a-155d2378c70a" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h3&gt; Header 3" set_selection="true">
-&lt;h3&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h3&gt;</snippet>
-<snippet id="0d769c78-b4c0-414c-a868-7a9d37d5116f" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h4&gt; Header 4" set_selection="true">
-&lt;h4&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h4&gt;</snippet>
-<snippet id="af282f72-8871-497d-a5bf-20d117ec25b4" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h5&gt; Header 5" set_selection="true">
-&lt;h5&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h5&gt;</snippet>
-<snippet id="8a418a2e-4e1b-4064-bfab-b366493c1f7b" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h6&gt; Header 6" set_selection="true">
-&lt;h6&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h6&gt;</snippet>
-<snippet id="779db260-60c6-4805-b3c4-225d237ac74e" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;li&gt; List Item" set_selection="true">
-&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;</snippet>
-<snippet id="83427f3f-652c-4ac6-b345-f775474fc2e9" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;ol&gt; Ordered List" set_selection="true">
-&lt;ol&gt;&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;&lt;/ol&gt;</snippet>
-<snippet id="86c8ab93-04ce-416c-a059-267ccbc57ab3" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;ul&gt; Unordered List" set_selection="true">
-&lt;ul&gt;&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;&lt;/ul&gt;</snippet>
-<snippet id="5ff71b42-4371-4f39-a7ae-3cd7b897bf05" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;p&gt; Paragraph w/Dialog" set_selection="true">
-&lt;p style="[[%ask:Style]]" class="[[%ask:Class]]"&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/p&gt;</snippet>
-<snippet id="fb79ad61-b6b2-4664-a59b-ec20a9ef8d1c" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;p&gt; Paragraph" set_selection="true">
-&lt;p&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/p&gt;</snippet>
-<snippet id="0b42f1a0-079d-4117-9b04-68a8a68928c1" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;table&gt; Table 1 row 1 col" set_selection="true">
-&lt;table&gt;&lt;tr&gt;&lt;td&gt;!@#_currentPos!@#_anchor&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</snippet>
-<snippet id="46cd7620-6b7b-4dcc-b138-37a94ae31372" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;tr&gt; Table Row" set_selection="true">
-&lt;tr&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/tr&gt;</snippet>
-<snippet id="6a12e7f9-e159-42b8-85c5-3584a2908a02" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;td&gt; Table Cell" set_selection="true">
-&lt;td&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/td&gt;</snippet>
-<snippet id="9b1e0d37-9d78-4f6c-baef-5f2360ae210f" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;pre&gt; Preformated Text" set_selection="true">
-&lt;pre&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/pre&gt;</snippet>
-<snippet id="973c95f1-3fbb-48aa-a25d-2537861b630b" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;A&gt; URI Link w/Dialog" set_selection="true">
-&lt;a href="[[%w:orask:URI]]" name="[[%ask:Name]]" target="[[%ask:Target:_self]]"&gt;[[%w:orask:Text]]&lt;/a&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="77bc456c-9fb1-42a2-8417-deded5d6d629" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;A&gt; URI Link" set_selection="true">
-&lt;a href="[[%w:else:]]"&gt;[[%w:else:]]!@#_currentPos!@#_anchor&lt;/a&gt;</snippet>
-<snippet id="41232522-931c-4fa0-86c4-27a758fa7175" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;form&gt; Form w/Dialog" set_selection="true">
-&lt;form name="[[%ask:Name]]" action="[[%ask:Action]]" method="[[%ask:Method:POST]]" enctype="[[%ask:Encoding:application/x-www-form-urlencoded]]"&gt;!@#_currentPos!@#_anchor&lt;input type="submit"/&gt;&lt;input type="reset"/&gt;&lt;/form&gt;</snippet>
-<snippet id="7a8e45ed-951f-42b7-b08e-15153f473c0f" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="false" keyboard_shortcut="" name="&lt;input/&gt; Form Input w/Dialog" set_selection="false">
-&lt;input type="[[%ask:Type:text]]" name="[[%ask:Name:]]" value="[[%ask:Value:]]" size="[[%ask:Size:40]]" maxlength="[[%ask:Max Length:40]]"  min="[[%ask:Min:]]" max="[[%ask:Max:]]" accept="[[%ask:Accept:]]"/&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="2c72bc03-ca8d-4c8a-b7ba-7e63baa2dfc9" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;select&gt; Form Select w/Dialog" set_selection="true">
-&lt;select name="[[%ask:Name:]]"&gt;&lt;option&gt;!@#_currentPos!@#_anchor&lt;/option&gt;&lt;/select&gt;</snippet>
-<snippet id="bec63bca-525e-40f5-be54-18be78ddb5b0" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;option&gt; Form Option w/Dialog" set_selection="true">
-&lt;option name="[[%ask:Name:]]" value="[[%ask:Value:]]"&gt;!@#_currentPos!@#_anchor&lt;/option&gt;</snippet>
-<snippet id="42f23c1d-7c19-426e-b012-edf096313ae6" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;textarea&gt; Form Text Area w/Dialog" set_selection="true">
-&lt;textarea name="[[%ask:Name:]]" cols="[[%ask:Columns:40]]" rows="[[%ask:Rows:10]]" wrap="[[%ask:Wrap:SOFT]]"&gt;!@#_currentPos!@#_anchor&lt;/textarea&gt;</snippet>
-<snippet id="c322f134-53b0-4ae9-a9dc-c5420bafa16f" idref="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" indent_relative="true" keyboard_shortcut="" name="label" set_selection="false">
+<snippet id="4b8807c2-4264-49b3-a804-f00d239bff58" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+class [[%tabstop:name]](object):
+    
+    def __init__(self,*args):
+	[[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="58321ac0-bb17-4032-988c-8ff3582378e9" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="opts" set_selection="false">
+from optparse import OptionParser
+
+parser.add_option("-[[%tabstop:f]]",
+		  "--[[%tabstop:file]]",
+		  dest="[[%tabstop:file]]",
+		  help="[[%tabstop:desc]].",
+		  default="[[%tabstop:DEFAULT]]"
+		  )!@#_currentPos!@#_anchor</snippet>
+<snippet id="840aef15-5030-4b1e-86c1-a81ad208d3f8" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="walk" set_selection="false">
+for root, dirs, files in os.walk([[%tabstop:dirname]]):
+    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="88fa5caa-a18e-49ac-8f4e-d882dad35596" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
+def [[%tabstop:name]](self,*args):
+    """ [[%tabstop:docs]] """
+    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="e50bfb9e-87a2-4ba3-8852-45b4e99295c7" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+def [[%tabstop:name]]([[%tabstop:arg1]]):
+    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="e7bff557-ddf7-4f7c-ac75-d006a9a0f84f" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+""" [[%tabstop:docs]] """!@#_currentPos!@#_anchor</snippet>
+<snippet id="2568a07c-2815-4046-951f-5f55e8bc9b4c" idref="133285d4-c003-4241-9d41-5f211540c590" indent_relative="true" keyboard_shortcut="" name="splitter" set_selection="false">
+&lt;splitter&gt;&lt;grippy/&gt;&lt;/splitter&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="655b42ed-045d-4b72-a233-137184bc595a" idref="133285d4-c003-4241-9d41-5f211540c590" indent_relative="true" keyboard_shortcut="" name="scriptlink" set_selection="false">
+&lt;script src="[[%tabstop:filename]]" type="application/x-javascript;version=1.7"/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="726b0980-b4ff-45bf-82f2-148da5122644" idref="133285d4-c003-4241-9d41-5f211540c590" indent_relative="true" keyboard_shortcut="" name="main" set_selection="false">
+&lt;?xml version="1.0"?&gt;
+&lt;?xml-stylesheet href="chrome://global/skin/" type="text/css"?&gt;
+
+&lt;window
+    id="[[%tabstop:id]]"
+    title="[[%tabstop:title]]"
+    orient="horizontal"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"&gt;
+    
+    &lt;script src="[[%tabstop:filename]]" type="application/x-javascript;version=1.7"/&gt;
+    
+&lt;/window&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="7843ef1f-0fec-4ea3-acc3-a7730626e4ce" idref="133285d4-c003-4241-9d41-5f211540c590" indent_relative="true" keyboard_shortcut="" name="row" set_selection="false">
+&lt;row&gt;
+  &lt;label value="[[%tabstop:Label]]"/&gt;
+  &lt;textbox id="[[%tabstop:id]]"/&gt;
+&lt;/row&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="e9f6c74d-f7c5-48a4-af8e-39d42b2519b9" idref="133285d4-c003-4241-9d41-5f211540c590" indent_relative="true" keyboard_shortcut="" name="label" set_selection="false">
 &lt;label value="[[%tabstop:value]]"/&gt;!@#_currentPos!@#_anchor</snippet>
+<command cwd="%(ask:Start Directory:%D)" doNotOpenOutputWindow="0" env="" id="0248ae0b-da67-4952-b2c5-d7a9ff7ece97" idref="170b4020-dc21-40c6-84fd-2ae4cfa55eab" insertOutput="0" keyboard_shortcut="" name="Find in Files" operateOnSelection="0" parseOutput="1" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" runIn="command-output-window" showParsedOutputList="1">
+find . -name "%(ask:File Pattern:*)" | xargs -l grep -nH "%(w:orask:Search Term)"</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" id="042a9d1e-6fec-4fa4-89b8-608e8b2c1174" idref="170b4020-dc21-40c6-84fd-2ae4cfa55eab" insertOutput="0" keyboard_shortcut="" name='Count words in selection using "wc"' operateOnSelection="1" runIn="command-output-window">
+wc -w</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" id="0baee734-172d-439a-a386-40a1d004c199" idref="170b4020-dc21-40c6-84fd-2ae4cfa55eab" insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" runIn="command-output-window">
+chmod +w %F</command>
+<folder id="32e793ed-e22d-4835-9250-b325cd69761c" idref="170b4020-dc21-40c6-84fd-2ae4cfa55eab" name="Abbreviations">
+</folder>
+<folder id="a9c0a351-3bc9-4079-baf6-120a612aca04" idref="170b4020-dc21-40c6-84fd-2ae4cfa55eab" name="HTML">
+</folder>
+<URL id="ab49642c-0c93-4440-b063-b9a9b6e5a30e" idref="170b4020-dc21-40c6-84fd-2ae4cfa55eab" name="http://slashdot.org/">
+http://slashdot.org/</URL>
+<snippet id="e24363bd-ed49-49b9-a1fd-17f44503976f" idref="170b4020-dc21-40c6-84fd-2ae4cfa55eab" indent_relative="false" keyboard_shortcut="" name="Sample Snippet - Double Click to Insert" set_selection="false">
+!@#_anchor/* Copyright (c) 2003 [[%ask:Corporation Name:Default]] Corporation. */\n!@#_currentPos</snippet>
+<snippet id="011bf87c-c472-498e-b46e-ebd412f06ddb" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;p&gt; Paragraph w/Dialog" set_selection="true">
+&lt;p style="[[%ask:Style]]" class="[[%ask:Class]]"&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/p&gt;</snippet>
+<snippet id="09bd27e7-fc4f-4f28-bb64-89c101fe3e16" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;tr&gt; Table Row" set_selection="true">
+&lt;tr&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/tr&gt;</snippet>
+<snippet id="0bc024f3-3ff7-4874-a2f5-ab7f4a97e4c2" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;form&gt; Form w/Dialog" set_selection="true">
+&lt;form name="[[%ask:Name]]" action="[[%ask:Action]]" method="[[%ask:Method:POST]]" enctype="[[%ask:Encoding:application/x-www-form-urlencoded]]"&gt;!@#_currentPos!@#_anchor&lt;input type="submit"/&gt;&lt;input type="reset"/&gt;&lt;/form&gt;</snippet>
+<snippet id="2b61861c-e26e-4b09-b83c-4d5f327c4256" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;pre&gt; Preformated Text" set_selection="true">
+&lt;pre&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/pre&gt;</snippet>
+<snippet id="2ed6717d-ef7e-48d7-bca9-33abb9dca531" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;h4&gt; Header 4" set_selection="true">
+&lt;h4&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h4&gt;</snippet>
+<snippet id="36b63af9-7c4e-4c5f-b6d0-b3f2e0812719" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;h5&gt; Header 5" set_selection="true">
+&lt;h5&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h5&gt;</snippet>
+<snippet id="3bfb2c65-b4af-45b7-91d2-0399234536f1" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;h2&gt; Header 2" set_selection="true">
+&lt;h2&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h2&gt;</snippet>
+<snippet id="3d428282-a4bc-4ecd-96f7-baa432682417" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="false" keyboard_shortcut="" name="&lt;input/&gt; Form Input w/Dialog" set_selection="false">
+&lt;input type="[[%ask:Type:text]]" name="[[%ask:Name:]]" value="[[%ask:Value:]]" size="[[%ask:Size:40]]" maxlength="[[%ask:Max Length:40]]"  min="[[%ask:Min:]]" max="[[%ask:Max:]]" accept="[[%ask:Accept:]]"/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="4bf124b4-d06f-42f2-b811-7ea94d4dd343" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;ul&gt; Unordered List" set_selection="true">
+&lt;ul&gt;&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;&lt;/ul&gt;</snippet>
+<snippet id="4e9c125d-a402-4882-9966-fdd48a4f03b4" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;A&gt; URI Link w/Dialog" set_selection="true">
+&lt;a href="[[%w:orask:URI]]" name="[[%ask:Name]]" target="[[%ask:Target:_self]]"&gt;[[%w:orask:Text]]&lt;/a&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="658d079e-86f8-453c-abf3-e92cecd918e8" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;option&gt; Form Option w/Dialog" set_selection="true">
+&lt;option name="[[%ask:Name:]]" value="[[%ask:Value:]]"&gt;!@#_currentPos!@#_anchor&lt;/option&gt;</snippet>
+<snippet id="6a064e5a-bf1e-4964-b2a5-ecc996f21d7c" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;em&gt; Emphasis" set_selection="true">
+&lt;em&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/em&gt;</snippet>
+<snippet id="87e507f9-4678-495d-b802-de025167eb6a" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;ol&gt; Ordered List" set_selection="true">
+&lt;ol&gt;&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;&lt;/ol&gt;</snippet>
+<snippet id="882508d4-3171-422c-948b-5eb65a75ca4f" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;h3&gt; Header 3" set_selection="true">
+&lt;h3&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h3&gt;</snippet>
+<snippet id="8bf1347a-a5e1-434d-bdb6-691c7ecbd23a" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;textarea&gt; Form Text Area w/Dialog" set_selection="true">
+&lt;textarea name="[[%ask:Name:]]" cols="[[%ask:Columns:40]]" rows="[[%ask:Rows:10]]" wrap="[[%ask:Wrap:SOFT]]"&gt;!@#_currentPos!@#_anchor&lt;/textarea&gt;</snippet>
+<snippet id="8e7945b1-89e8-48dc-8c40-0feefcd35eef" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;p&gt; Paragraph" set_selection="true">
+&lt;p&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/p&gt;</snippet>
+<snippet id="ab8c577a-ca12-4608-9dca-eea40d21bab2" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;li&gt; List Item" set_selection="true">
+&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;</snippet>
+<snippet id="ae36261b-d819-417d-84f8-ae42ee28c67a" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;table&gt; Table 1 row 1 col" set_selection="true">
+&lt;table&gt;&lt;tr&gt;&lt;td&gt;!@#_currentPos!@#_anchor&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</snippet>
+<snippet id="b525f201-0550-476d-9de8-95813abd8e02" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;h1&gt; Header 1" set_selection="true">
+&lt;h1&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h1&gt;</snippet>
+<snippet id="b57b52b9-66ea-4254-9f87-e191aca50b87" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;select&gt; Form Select w/Dialog" set_selection="true">
+&lt;select name="[[%ask:Name:]]"&gt;&lt;option&gt;!@#_currentPos!@#_anchor&lt;/option&gt;&lt;/select&gt;</snippet>
+<snippet id="d9f9a202-ddbc-474f-9861-0ef0a970d02f" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;h6&gt; Header 6" set_selection="true">
+&lt;h6&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h6&gt;</snippet>
+<snippet id="e7cb97bd-9f61-4702-bf3f-a0a44e5f748d" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;A&gt; URI Link" set_selection="true">
+&lt;a href="[[%w:else:]]"&gt;[[%w:else:]]!@#_currentPos!@#_anchor&lt;/a&gt;</snippet>
+<snippet id="e824bede-fc25-471f-bd06-0e604dafbd21" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;td&gt; Table Cell" set_selection="true">
+&lt;td&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/td&gt;</snippet>
+<snippet id="e894e252-2512-4e4b-832b-d45e183c2a7b" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="true" keyboard_shortcut="" name="&lt;strong&gt; Strong" set_selection="true">
+&lt;strong&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/strong&gt;</snippet>
+<snippet id="f0172320-2440-43e7-9b84-6c89952dee7d" idref="1c9b7ab8-1c24-41d9-8930-29053098892e" indent_relative="false" keyboard_shortcut="" name="&lt;br/&gt; Break Line" set_selection="true">
+&lt;br/&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="3fab05a3-c4a0-4d33-a08c-60d41b66073e" idref="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" indent_relative="true" keyboard_shortcut="" name="row" set_selection="false">
 &lt;row&gt;
   &lt;label value="[[%tabstop:Label]]"/&gt;
   &lt;textbox id="[[%tabstop:id]]"/&gt;
 &lt;/row&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="bee19cfc-b26b-4c7d-872f-8a424acc8698" idref="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" indent_relative="true" keyboard_shortcut="" name="splitter" set_selection="false">
-&lt;splitter&gt;&lt;grippy/&gt;&lt;/splitter&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="4645266d-6869-4e56-81ea-620c75f3aaa0" idref="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" indent_relative="true" keyboard_shortcut="" name="scriptlink" set_selection="false">
 &lt;script src="[[%tabstop:filename]]" type="application/x-javascript;version=1.7"/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="bee19cfc-b26b-4c7d-872f-8a424acc8698" idref="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" indent_relative="true" keyboard_shortcut="" name="splitter" set_selection="false">
+&lt;splitter&gt;&lt;grippy/&gt;&lt;/splitter&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="c322f134-53b0-4ae9-a9dc-c5420bafa16f" idref="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" indent_relative="true" keyboard_shortcut="" name="label" set_selection="false">
+&lt;label value="[[%tabstop:value]]"/&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="e2db0582-f019-43e7-b0d8-135ccc7cfc5c" idref="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" indent_relative="true" keyboard_shortcut="" name="main" set_selection="false">
 &lt;?xml version="1.0"?&gt;
 &lt;?xml-stylesheet href="chrome://global/skin/" type="text/css"?&gt;
@@ -156,72 +260,9 @@ while ([[%tabstop:EXPR]]) {
     &lt;script src="[[%tabstop:filename]]" type="application/x-javascript;version=1.7"/&gt;
     
 &lt;/window&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="e3504739-62e5-46e0-8f6f-27eecd44f356" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
-/**
- * [[%tabstop:name]]
- * @param [[%tabstop:arg1]]
- */
-
-function [[%tabstop:name]]([[%tabstop:arg1]]) {
-   [[%tabstop:]] 
-}!@#_currentPos!@#_anchor</snippet>
-<snippet id="0684a84f-438c-4339-b12f-bfd376b33107" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
-/**
- * [[%tabstop:method]]
- * @param [[%tabstop:arg1]]
- */
- 
-[[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
-    [[%tabstop:]]
-}!@#_currentPos!@#_anchor</snippet>
-<snippet id="c5e23c85-b65b-440d-a8be-9f53f41a8a83" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
-/**
- * [[%tabstop:className]]
- */
-
-var [[%tabstop:className]] = function() {
-    [[%tabstop:]]
-}!@#_currentPos!@#_anchor</snippet>
-<snippet id="79b847c5-6c57-4348-90d3-7b6037f7bf3c" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
-try {
-  !@#_currentPos!@#_anchor   
-} catch(e) {
-  alert(e);
-}</snippet>
-<snippet id="fd3a6356-783e-45b5-869f-a6cad0bad8ed" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
-/**
- * namespace [[%tabstop:name]]
- */
-
-if(typeof([[%tabstop:name]]) == 'undefined') {
-    var [[%tabstop:name]] = {};
-}
-
-(function() {
-    [[%tabstop:]]
-}).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
-<folder id="26e504db-131e-4bea-be91-ba6bc5c4ddba" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" name="jQuery">
-</folder>
-<snippet id="3a3c48a8-5b39-4329-9aef-9b873cf80e41" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="com" set_selection="false">
-/* [[%tabstop:comment]] */!@#_currentPos!@#_anchor</snippet>
-<snippet id="e5017368-4b40-4b7b-8891-365cd4dcd2b7" idref="00a37f6d-b896-4036-9dea-5e907666bfdf" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
-/**
- * [[%tabstop:docs]]
-*/!@#_currentPos!@#_anchor</snippet>
-<URL id="0a68df5f-c7b1-42d8-8966-014f490350eb" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" name="http://slashdot.org/">
-http://slashdot.org/</URL>
-<snippet id="a8615a32-b8e2-44f5-8f0a-edea0ee4073e" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" indent_relative="false" keyboard_shortcut="" name="Sample Snippet - Double Click to Insert" set_selection="false">
-!@#_anchor/* Copyright (c) 2003 [[%ask:Corporation Name:Default]] Corporation. */\n!@#_currentPos</snippet>
-<command cwd="%(ask:Start Directory:%D)" doNotOpenOutputWindow="0" env="" id="403260f5-693e-4ae6-98ea-85414b2b54f4" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" insertOutput="0" keyboard_shortcut="" name="Find in Files" operateOnSelection="0" parseOutput="1" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" runIn="command-output-window" showParsedOutputList="1">
-find . -name "%(ask:File Pattern:*)" | xargs -l grep -nH "%(w:orask:Search Term)"</command>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="40a0ae28-868c-4d34-890e-b9b82b12c87f" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" runIn="command-output-window">
-chmod +w %F</command>
-<command cwd="" doNotOpenOutputWindow="0" env="" id="53d8a802-68c0-44c0-a337-d561627921eb" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" insertOutput="0" keyboard_shortcut="" name='Count words in selection using "wc"' operateOnSelection="1" runIn="command-output-window">
-wc -w</command>
-<folder id="643f2db6-fa21-473e-9476-12a39bf65ba0" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" name="HTML">
-</folder>
-<folder id="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" name="Abbreviations">
-</folder>
+<snippet id="6428e550-690e-4081-8806-c7f970117698" idref="254add4c-911c-41b6-900c-030d17311e5b" indent_relative="false" keyboard_shortcut="" name="main" set_selection="false">
+#!/bin/env [[%tabstop:bash]]
+# [[%tabstop:scriptname]]!@#_currentPos!@#_anchor</snippet>
 <snippet id="a1b2677e-c2c9-44e0-aa68-537132842ea6" idref="26e504db-131e-4bea-be91-ba6bc5c4ddba" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
 $('[[%tabstop:selector]]').each(
     function(i) {
@@ -232,13 +273,133 @@ $('[[%tabstop:selector]]').each(
 $(document).ready(function() {
   !@#_currentPos!@#_anchor
 });</snippet>
+<snippet id="251a74fd-3706-4605-9b97-64167fbc6966" idref="2a281406-4b8b-4b9f-aac4-a36d42e8a5e1" indent_relative="true" keyboard_shortcut="" name="scriptlink" set_selection="false">
+&lt;script src="[[%tabstop:filename]]" type="application/x-javascript;version=1.7"/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="48d890ea-cdfc-4a0b-b889-8c830ca03b4e" idref="2a281406-4b8b-4b9f-aac4-a36d42e8a5e1" indent_relative="true" keyboard_shortcut="" name="label" set_selection="false">
+&lt;label value="[[%tabstop:value]]"/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="7daa11b2-8431-4a8b-83b7-b74514969a0b" idref="2a281406-4b8b-4b9f-aac4-a36d42e8a5e1" indent_relative="true" keyboard_shortcut="" name="main" set_selection="false">
+&lt;?xml version="1.0"?&gt;
+&lt;?xml-stylesheet href="chrome://global/skin/" type="text/css"?&gt;
+
+&lt;window
+    id="[[%tabstop:id]]"
+    title="[[%tabstop:title]]"
+    orient="horizontal"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"&gt;
+    
+    &lt;script src="[[%tabstop:filename]]" type="application/x-javascript;version=1.7"/&gt;
+    
+&lt;/window&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="eb8697c4-07f8-4f9a-bb5a-b632616eb01a" idref="2a281406-4b8b-4b9f-aac4-a36d42e8a5e1" indent_relative="true" keyboard_shortcut="" name="splitter" set_selection="false">
+&lt;splitter&gt;&lt;grippy/&gt;&lt;/splitter&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="f7703b6a-1430-4e96-ac76-75a880bd97a3" idref="2a281406-4b8b-4b9f-aac4-a36d42e8a5e1" indent_relative="true" keyboard_shortcut="" name="row" set_selection="false">
+&lt;row&gt;
+  &lt;label value="[[%tabstop:Label]]"/&gt;
+  &lt;textbox id="[[%tabstop:id]]"/&gt;
+&lt;/row&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="0b8fef38-b372-4ea1-8c33-1b0600b4d54f" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="coll" set_selection="false">
+collect { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
+<snippet id="1c56d134-d3d3-44ec-94c9-258d0d313e36" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="emf" set_selection="false">
+error_messages_for [[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="2f1091ac-a080-4f65-afd0-054a0c7cf73f" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="ai" set_selection="false">
+add_index [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="38463d1d-65a3-4d5b-9bbe-cbd26bbe6b5b" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="each" set_selection="false">
+each { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
+<snippet id="3c36be58-2c40-4c32-8dc6-b0c4558c75ba" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="false" keyboard_shortcut="" name="rc" set_selection="false">
+remove_column [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="42d056d3-9502-4a53-abbf-bb640b282260" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="bt" set_selection="false">
+belongs_to :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="5144576e-49e1-4d1e-9967-fe7174dc0c43" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="hm" set_selection="false">
+has_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="558845c4-7fde-4e87-b457-5a9fbeb256cf" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="ac" set_selection="false">
+add_column :[[%tabstop:table]], :[[%tabstop:column]], :[[%tabstop:string]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="82222d55-def8-4424-b9dd-fb56d9527ee3" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="tc" set_selection="false">
+t.[[%tabstop:string]] :[[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="8670bbfa-4ca3-4cbe-be86-0084d2999c9b" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="reca" set_selection="false">
+redirect_to :controller =&gt; [[%tabstop:items]], :action =&gt; "[[%tabstop:action]]"!@#_currentPos!@#_anchor</snippet>
+<snippet id="89fb170e-b1fb-4493-9769-d4d647c784fe" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="mod" set_selection="false">
+module [[%tabstop:Name]]
+  [[%tabstop]]
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="945158a9-138d-448c-934c-f64fdd4afb2a" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="rec" set_selection="false">
+redirect_to :controller =&gt; [[%tabstop:items]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="ad4a1f40-ac4a-4ff6-8b72-9bd773fb704b" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="rnc" set_selection="false">
+rename_column [[%tabstop:table]], [[%tabstop:old_column_name]], [[%tabstop:new_column_name]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="b3b72b2c-bb1a-46f8-ad23-fbc225b6926b" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="habtm" set_selection="false">
+has_and_belongs_to_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="b717b55d-4c6c-4bfb-b6f4-4122aebc9bea" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="def" set_selection="false">
+def [[%tabstop:name]]
+  [[%tabstop]]
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="b88276c8-087e-4c97-8af7-4f4feef5c943" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+class [[%tabstop:name]]
+  def [[%tabstop]]
+    [[%tabstop]]
+  end
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="b8da2cb3-080d-426e-8d19-4c498813527a" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="ct" set_selection="false">
+create_table(:[[%tabstop:table]]) do |t|
+  [[%tabstop:]]
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="debc52f6-f27e-4da2-be49-bde79e3a57ae" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="reai" set_selection="false">
+redirect_to :action =&gt; [[%tabstop:show]], :id =&gt; [[%tabstop:@item]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="e310a0d2-5133-4495-b6f1-5d6a4a32c309" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="ho" set_selection="false">
+has_one :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<folder id="2a281406-4b8b-4b9f-aac4-a36d42e8a5e1" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="XUL">
+</folder>
+<folder id="5b8a48e9-8831-4250-b0a5-da975c9b30ea" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="JavaScript">
+</folder>
+<folder id="b50e1a28-9643-495e-8056-dffc536cc091" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="RHTML">
+</folder>
+<folder id="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="PHP">
+</folder>
+<folder id="c691cc1e-44a7-4888-b1a9-e6147e5f8a9c" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="General">
+</folder>
+<folder id="ce0d2874-0086-4995-a488-fe70b2b7f397" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="Ruby">
+</folder>
+<folder id="d8a46a1f-a946-40ef-8ecd-233d05e38490" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="Python">
+</folder>
+<folder id="dc0e6f49-8e09-4731-b7b4-dc55755b1da6" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="Tcl">
+</folder>
+<folder id="e549c429-c680-40ee-b156-b23f96d855eb" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="HTML">
+</folder>
+<folder id="fa7e64d9-32cf-417d-b63c-abce3696a5c2" idref="32e793ed-e22d-4835-9250-b325cd69761c" name="Perl">
+</folder>
+<snippet id="0043d53a-fd39-4e0f-96b1-cf162a1677fc" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="style" set_selection="false">
+&lt;style type="text/css"&gt;
+[[%tabstop:]]
+&lt;/style&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="1699d614-d069-4a77-9229-dd79ec6263f9" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="ul" set_selection="false">
+&lt;ul id="[[%tabstop:id]]"&gt;
+    &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
+&lt;/ul&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="30541dd9-9126-4660-aa63-89fde2c3f6da" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="script" set_selection="false">
+&lt;script type="application/x-javascript"&gt;
+
+&lt;/script&gt;
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="645d34aa-baeb-49fc-b7ba-027415bbd126" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="textarea" set_selection="false">
+&lt;textarea id="[[%tabstop:id]]" cols="[[%tabstop:45]]" rows="[[%tabstop:15]]"&gt;
+[[%tabstop:]]
+&lt;/textarea&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="669c24fa-3d0b-4c49-8836-7c8dcc3fa748" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="p" set_selection="false">
+&lt;p class="[[%tabstop:classname]]"&gt;[[%tabstop:]]&lt;/p&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="675cfe95-0902-4715-a0d6-f992816a7310" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="text" set_selection="false">
+&lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="a128a805-39bf-41ae-89a1-1c8bee334b7c" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="div" set_selection="false">
 &lt;div id="[[%tabstop:id]]"&gt;
     [[%tabstop:]]
 &lt;/div&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="f3c06e12-73db-481d-b3c0-0fca95f8fe0c" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
-&lt;!-- !@#_currentPos!@#_anchor --&gt;
-</snippet>
+<snippet id="a5373c66-8dae-473c-b166-346affce05a4" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="html4" set_selection="false">
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd"&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;[[%tabstop:title]]&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="a704383d-bf66-47ff-b25a-207868768994" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="false" keyboard_shortcut="" name="xhtml" set_selection="false">
 &lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"&gt;
 &lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"&gt;
@@ -251,58 +412,400 @@ $(document).ready(function() {
 &lt;/body&gt;
 &lt;/html&gt;
 !@#_currentPos!@#_anchor</snippet>
-<snippet id="a5373c66-8dae-473c-b166-346affce05a4" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="html4" set_selection="false">
-&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd"&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;[[%tabstop:title]]&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;/body&gt;
-&lt;/html&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="669c24fa-3d0b-4c49-8836-7c8dcc3fa748" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="p" set_selection="false">
-&lt;p class="[[%tabstop:classname]]"&gt;[[%tabstop:]]&lt;/p&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="c60849da-4364-46ae-8b23-c610fde0d07a" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="li" set_selection="false">
-&lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="d71f116c-d92a-4b41-b51a-686afbf0e93e" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="tag" set_selection="false">
-&lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="675cfe95-0902-4715-a0d6-f992816a7310" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="text" set_selection="false">
-&lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="1699d614-d069-4a77-9229-dd79ec6263f9" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="ul" set_selection="false">
-&lt;ul id="[[%tabstop:id]]"&gt;
-    &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
-&lt;/ul&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="0043d53a-fd39-4e0f-96b1-cf162a1677fc" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="style" set_selection="false">
-&lt;style type="text/css"&gt;
-[[%tabstop:]]
-&lt;/style&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="645d34aa-baeb-49fc-b7ba-027415bbd126" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="textarea" set_selection="false">
-&lt;textarea id="[[%tabstop:id]]" cols="[[%tabstop:45]]" rows="[[%tabstop:15]]"&gt;
-[[%tabstop:]]
-&lt;/textarea&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="bb78b003-4ae1-4f0a-9e63-c6221f6b48ec" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="scriptlink" set_selection="false">
+&lt;script type="application/x-javascript" src="[[%tabstop:scriptname]]"&gt;&lt;/script&gt;!@#_currentPos!@#_anchor</snippet>
 <snippet id="c0ee33b6-2eef-4b8a-a9b2-9d657af2a2a0" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="ol" set_selection="false">
 &lt;ol id="[[%tabstop:id]]"&gt;
     &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
 &lt;/ol&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="30541dd9-9126-4660-aa63-89fde2c3f6da" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="script" set_selection="false">
-&lt;script type="application/x-javascript"&gt;
+<snippet id="c60849da-4364-46ae-8b23-c610fde0d07a" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="li" set_selection="false">
+&lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="d71f116c-d92a-4b41-b51a-686afbf0e93e" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="tag" set_selection="false">
+&lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="f3c06e12-73db-481d-b3c0-0fca95f8fe0c" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
+&lt;!-- !@#_currentPos!@#_anchor --&gt;
+</snippet>
+<snippet id="81bb13f7-b369-4504-95ec-88e6f461c6fb" idref="3e2e5b8a-7978-44f5-ab73-f812f70d85c6" indent_relative="true" keyboard_shortcut="" name="drmenu" set_selection="true">
+$items[] = array(
+  'path'=&gt;'[[%ask:path:]]',
+  'title' =&gt; t('!@#_currentPos!@#_anchor'),
+  'access' =&gt; user_access('access content'),
+  'callback' =&gt; '[[%ask:callback:]]',
+  'type' =&gt; 'MENU_NORMAL_ITEM',
+);
+</snippet>
+<snippet id="89b2adb2-6a94-445c-952e-aa8040af0234" idref="3e2e5b8a-7978-44f5-ab73-f812f70d85c6" indent_relative="true" keyboard_shortcut="" name="drmodule" set_selection="false">
+&lt;?php
+// \$Id\$
 
-&lt;/script&gt;
-!@#_currentPos!@#_anchor</snippet>
-<snippet id="bb78b003-4ae1-4f0a-9e63-c6221f6b48ec" idref="3d0938d2-d450-449c-a24d-7411ce863071" indent_relative="true" keyboard_shortcut="" name="scriptlink" set_selection="false">
-&lt;script type="application/x-javascript" src="[[%tabstop:scriptname]]"&gt;&lt;/script&gt;!@#_currentPos!@#_anchor</snippet>
-<snippet id="d0e606ff-d311-4ec1-9372-4faf103e1c7a" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
+/**
+ * Implementation of hook_perm
+ */
+function [[%tabstop:example]]_perm() {
+  return array(
+    '[[%tabstop:example permission]]',
+  );
+}
+
+
+/**
+ * Implementation of hook_menu
+ */
+function [[%tabstop:example]]_menu($may_cache) {
+  $items = array();
+
+  if ($may_cache) {
+    $items[] = array(
+      'path' =&gt; 'admin/settings/[[%tabstop:example]]',
+      'title' =&gt; t('[[%tabstop:Example]]'),
+      'callback' =&gt; 'drupal_get_form',
+      'callback arguments' =&gt; array('[[%tabstop:example]]_admin_form'),
+      'access' =&gt; user_access('administer site configuration'),
+    );
+  }
+
+  return $items;
+}
+
+
+/**
+ * Menu callback - Admin settings form.
+ */
+function [[%tabstop:example]]_admin_form() {
+  $form = array();
+  return system_settings_form($form);
+}
+
+
+/**
+ * Implementation of hook_form_alter
+ */
+function [[%tabstop:example]]_form_alter($form_id, &amp;$form) {
+  switch ($form_id) {
+    // Alter node edit form
+    case $form['type']['#value'] .'_node_form':
+    break;
+  }
+}
+
+
+/**
+ * Implementation of hook_nodeapi
+ */
+function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'delete':
+    break;
+
+    case 'insert':
+    break;
+
+    case 'load':
+    break;
+
+    case 'submit':
+    break;
+
+    case 'update':
+    break;
+
+    case 'view':
+    break;
+  }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="eb0295b2-8175-4c7c-8db6-1a98d7fe6771" idref="3e2e5b8a-7978-44f5-ab73-f812f70d85c6" indent_relative="true" keyboard_shortcut="" name="drinfo" set_selection="false">
+; \$Id\$
+name = "[[%tabstop:Example Module]]"
+description = "[[%tabstop:Example module description]]"
+dependencies = [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="f215089f-b55c-47bd-a8fc-dc2a200736fd" idref="3e2e5b8a-7978-44f5-ab73-f812f70d85c6" indent_relative="true" keyboard_shortcut="" name="drinstall" set_selection="false">
+&lt;?php
+// \$Id\$
+
+/**
+ * Implementation of hook_install
+ */
+function [[%tabstop:example]]_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysqli':
+    case 'mysql':
+      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop:example]]} (
+        id int unsigned NOT NULL auto_increment,
+        field varchar(128) NOT NULL default ''
+        PRIMARY KEY (id),
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+    break;
+  }
+}
+
+
+/**
+ * Implementation of hook_uninstall
+ */
+function [[%tabstop:example]]_uninstall() {
+  db_query("DROP TABLE {[[%tabstop:example]]}");
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop:example]]%%'");
+  while ($variable = db_fetch_object($variables)) {
+    variable_del($variable-&gt;name);
+  }
+}!@#_currentPos!@#_anchor</snippet>
+<URL id="12e9747a-dd12-40ac-a441-d4a6dee17b47" idref="498fb4a9-8f94-4c01-a63a-45ba6d949d15" name="http://slashdot.org/">
+http://slashdot.org/</URL>
+<folder id="1c9b7ab8-1c24-41d9-8930-29053098892e" idref="498fb4a9-8f94-4c01-a63a-45ba6d949d15" name="HTML">
+</folder>
+<command cwd="%(ask:Start Directory:%D)" doNotOpenOutputWindow="0" env="" id="223c797c-938c-4190-8fd6-62ea572eff2a" idref="498fb4a9-8f94-4c01-a63a-45ba6d949d15" insertOutput="0" keyboard_shortcut="" name="Find in Files" operateOnSelection="0" parseOutput="1" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" runIn="command-output-window" showParsedOutputList="1">
+find . -name "%(ask:File Pattern:*)" | xargs -l grep -nH "%(w:orask:Search Term)"</command>
+<snippet id="58876188-6556-4959-ad35-a26b9a2a0c37" idref="498fb4a9-8f94-4c01-a63a-45ba6d949d15" indent_relative="false" keyboard_shortcut="" name="Sample Snippet - Double Click to Insert" set_selection="false">
+!@#_anchor/* Copyright (c) 2003 [[%ask:Corporation Name:Default]] Corporation. */\n!@#_currentPos</snippet>
+<command cwd="" doNotOpenOutputWindow="0" env="" id="b73e9bc7-3a38-4e78-a914-746d5588dd22" idref="498fb4a9-8f94-4c01-a63a-45ba6d949d15" insertOutput="0" keyboard_shortcut="" name='Count words in selection using "wc"' operateOnSelection="1" runIn="command-output-window">
+wc -w</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" id="d4142e0d-3ba7-484c-ae9d-4fa3aa0a26a4" idref="498fb4a9-8f94-4c01-a63a-45ba6d949d15" insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" runIn="command-output-window">
+chmod +w %F</command>
+<folder id="f853449e-c3ff-4ec5-bceb-1711ae69e043" idref="498fb4a9-8f94-4c01-a63a-45ba6d949d15" name="Abbreviations">
+</folder>
+<snippet id="4a540821-6615-4eed-a1a5-4b316346c677" idref="4b5a27c9-f76c-4876-9a1b-c17eb1448f0c" indent_relative="true" keyboard_shortcut="" name="proc" set_selection="false">
+proc [[%tabstop:NAME]] {[[%tabstop:ARGS]]} {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="7a73d03f-e96c-4257-a4b5-788e952d6809" idref="4b5a27c9-f76c-4876-9a1b-c17eb1448f0c" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
+while {[[%tabstop:EXPR]]} {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="8476bcbe-1a4e-4ac1-b1ab-2b98299a4b24" idref="4b5a27c9-f76c-4876-9a1b-c17eb1448f0c" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
+foreach [[%tabstop:VAR]] [[%tabstop]] {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="d4fb9ec1-dbfd-4383-9d18-316089766a19" idref="4b5a27c9-f76c-4876-9a1b-c17eb1448f0c" indent_relative="true" keyboard_shortcut="" name="for" set_selection="false">
+for {set [[%tabstop:START]]} {[[%tabstop:TEST]]} {[[%tabstop:NEXT]]}
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="e7241122-c256-4fa9-92e4-0b1693825ad2" idref="4b5a27c9-f76c-4876-9a1b-c17eb1448f0c" indent_relative="true" keyboard_shortcut="" name="switch" set_selection="false">
+switch [[%tabstop:STRING]] {
+    [[%tabstop:PATTERN]] {
+	[[%tabstop:ACTION]]
+    }
+    [[%tabstop:PATTERN2]]
+	[[%tabstop:ACTION2]]
+    }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="101562a1-f61a-4ac2-a596-9d1fb35d9e51" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="true" keyboard_shortcut="" name="licai" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="36573f72-d56b-4919-9f4d-20bc1c4ac141" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="true" keyboard_shortcut="" name="lia" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="8ec8721b-1889-4177-be34-0be8dca9d493" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="false" keyboard_shortcut="" name="liai" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:edit]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="a10fce81-5668-4af5-8aa3-43a88f4be620" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="true" keyboard_shortcut="" name="lica" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="f7d14176-9d1b-4522-98ed-e28f2b2785fe" idref="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" indent_relative="true" keyboard_shortcut="" name="lic" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="18bfdad7-c1d7-454b-825f-3e6d9a7ec3d1" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="true" keyboard_shortcut="" name="inline" set_selection="false">
+&lt;?php echo $[[%tabstop:var]]; ?&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="2f4e76f3-c662-4086-aebc-3ae7b5a0a863" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="false" keyboard_shortcut="" name="block" set_selection="true">
+&lt;?php
+
+!@#_currentPos!@#_anchor
+
+?&gt;
+</snippet>
+<snippet id="32f8d4b7-ef30-40f0-9f49-fd38863e6e55" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+/*
+    * class [[%tabstop:class]]
+*/
+
+class [[%tabstop:class]] «extends» «» {
+    
+    /*
+        * __construct()
+	* @param $[[%tabstop:arg]]
+    */
+    
+    function __construct($[[%tabstop:arg]]) {
+        [[%tabstop:parent]]
+    }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="3d21c691-6713-4388-ad82-a7018610a00e" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+/*
+    * function [[%tabstop:name]]
+    * @param $[[%tabstop:arg]]
+*/
+
+function [[%tabstop:name]]($[[%tabstop:arg]]) {
+    [[%tabstop:]]
+}!@#_currentPos!@#_anchor</snippet>
+<folder id="3e2e5b8a-7978-44f5-ab73-f812f70d85c6" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" name="Drupal">
+</folder>
+<snippet id="5db3ae2d-2c8b-4235-a768-08c747df906c" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
 /**
   *  !@#_currentPos!@#_anchor 
   */
 </snippet>
+<snippet id="7188e06d-8359-4ce9-a4b8-950bd197f083" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="true" keyboard_shortcut="" name="main" set_selection="false">
+&lt;?php
+/*
+
+[[%tabstop:scriptname]]:
+
+Usage: php [[%tabstop:scriptname]] [[%tabstop:arument]]
+
+*/
+
+if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
+
+  if ($argc &lt; 2 || in_array($argv[1], array('--help', '-help', '-h', '-?')) || [[%tabstop:conditon]]) {
+    echo "[[%tabstop:Description]]\n\n";
+    echo "Usage:      [[%tabstop:scriptname]] [[%tabstop:arument]]\n";
+    echo "            --help, -help, -h, -?      - to get this help\n";
+    die;
+  }
+}
+?&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="75bacc51-448d-43c9-9886-3ee2dd950b11" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="true" keyboard_shortcut="" name="dump" set_selection="false">
+function _dump($data) {
+    if (func_num_args() &gt; 1) {
+	$data = func_get_args();
+    }
+    return "&lt;pre&gt;".print_r($data, 1)."&lt;/pre&gt;";
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="a810ddcd-f717-4892-8053-0e7f6552de48" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="true" keyboard_shortcut="" name="array" set_selection="false">
+$[[%tabstop:array]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
+<snippet id="c0a8b030-4b0f-43ef-a0ed-1791bcec7510" idref="4ce7c525-33ae-4a3b-93ea-536437c644e9" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+/**
+ * [[%tabstop:docs]]
+*/!@#_currentPos!@#_anchor</snippet>
+<snippet id="9fef69bc-9784-405a-9ffb-bafafeb66b80" idref="4e63ee78-d782-413f-8b5f-32d42696330b" indent_relative="false" keyboard_shortcut="" name="main" set_selection="false">
+#!/bin/env [[%tabstop:bash]]
+# [[%tabstop:scriptname]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="4680c80c-bae4-4145-a15c-5ab1ebbe52a1" idref="5b8a48e9-8831-4250-b0a5-da975c9b30ea" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+/**
+ * [[%tabstop:name]]
+ * @param [[%tabstop:arg1]]
+ */
+
+function [[%tabstop:name]]([[%tabstop:arg1]]) {
+   [[%tabstop:]] 
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="4c28b0e8-a6f7-4e2c-b5b1-578ffdcf9da2" idref="5b8a48e9-8831-4250-b0a5-da975c9b30ea" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+/**
+ * [[%tabstop:docs]]
+*/!@#_currentPos!@#_anchor</snippet>
+<snippet id="4f1757d0-f231-4a32-be89-4b9f01415199" idref="5b8a48e9-8831-4250-b0a5-da975c9b30ea" indent_relative="true" keyboard_shortcut="" name="namespace" set_selection="false">
+/**
+ * namespace [[%tabstop:name]]
+ */
+
+if(typeof([[%tabstop:name]]) == 'undefined') {
+    var [[%tabstop:name]] = {};
+}
+
+(function() {
+    [[%tabstop:]]
+}).apply([[%tabstop:name]])!@#_currentPos!@#_anchor</snippet>
+<snippet id="532ba8e7-fabf-43b9-87b2-0f5f6788c6df" idref="5b8a48e9-8831-4250-b0a5-da975c9b30ea" indent_relative="true" keyboard_shortcut="" name="try" set_selection="true">
+try {
+  !@#_currentPos!@#_anchor   
+} catch(e) {
+  alert(e);
+}</snippet>
+<snippet id="9abea82d-cfab-46ca-b314-c9cb26173c1e" idref="5b8a48e9-8831-4250-b0a5-da975c9b30ea" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+/**
+ * [[%tabstop:className]]
+ */
+
+var [[%tabstop:className]] = function() {
+    [[%tabstop:]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="b4525bd7-3b81-46c9-a6b0-d8f6759b5478" idref="5b8a48e9-8831-4250-b0a5-da975c9b30ea" indent_relative="true" keyboard_shortcut="" name="com" set_selection="false">
+/* [[%tabstop:comment]] */!@#_currentPos!@#_anchor</snippet>
+<folder id="d1635668-6898-43e8-b79a-20225be407e9" idref="5b8a48e9-8831-4250-b0a5-da975c9b30ea" name="jQuery">
+</folder>
+<snippet id="f74aca46-d386-40e7-8d8b-6b6c54e184d3" idref="5b8a48e9-8831-4250-b0a5-da975c9b30ea" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
+/**
+ * [[%tabstop:method]]
+ * @param [[%tabstop:arg1]]
+ */
+ 
+[[%tabstop:Object]].prototype.[[%tabstop:method]] = function [[%tabstop:method]]([[%tabstop:arg1]]) {
+    [[%tabstop:]]
+}!@#_currentPos!@#_anchor</snippet>
+<URL id="0a68df5f-c7b1-42d8-8966-014f490350eb" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" name="http://slashdot.org/">
+http://slashdot.org/</URL>
+<command cwd="%(ask:Start Directory:%D)" doNotOpenOutputWindow="0" env="" id="403260f5-693e-4ae6-98ea-85414b2b54f4" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" insertOutput="0" keyboard_shortcut="" name="Find in Files" operateOnSelection="0" parseOutput="1" parseRegex="^(?P&lt;file&gt;.+?):(?P&lt;line&gt;\d+):(?P&lt;content&gt;.*)$" runIn="command-output-window" showParsedOutputList="1">
+find . -name "%(ask:File Pattern:*)" | xargs -l grep -nH "%(w:orask:Search Term)"</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" id="40a0ae28-868c-4d34-890e-b9b82b12c87f" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" insertOutput="0" keyboard_shortcut="" name="Make current file writeable" operateOnSelection="0" runIn="command-output-window">
+chmod +w %F</command>
+<command cwd="" doNotOpenOutputWindow="0" env="" id="53d8a802-68c0-44c0-a337-d561627921eb" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" insertOutput="0" keyboard_shortcut="" name='Count words in selection using "wc"' operateOnSelection="1" runIn="command-output-window">
+wc -w</command>
+<folder id="643f2db6-fa21-473e-9476-12a39bf65ba0" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" name="HTML">
+</folder>
+<snippet id="a8615a32-b8e2-44f5-8f0a-edea0ee4073e" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" indent_relative="false" keyboard_shortcut="" name="Sample Snippet - Double Click to Insert" set_selection="false">
+!@#_anchor/* Copyright (c) 2003 [[%ask:Corporation Name:Default]] Corporation. */\n!@#_currentPos</snippet>
+<folder id="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe" name="Abbreviations">
+</folder>
+<snippet id="0ad68be6-8af2-43e5-b2d8-f87d503555af" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="false" keyboard_shortcut="" name="&lt;br/&gt; Break Line" set_selection="true">
+&lt;br/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="0b42f1a0-079d-4117-9b04-68a8a68928c1" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;table&gt; Table 1 row 1 col" set_selection="true">
+&lt;table&gt;&lt;tr&gt;&lt;td&gt;!@#_currentPos!@#_anchor&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</snippet>
+<snippet id="0d769c78-b4c0-414c-a868-7a9d37d5116f" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h4&gt; Header 4" set_selection="true">
+&lt;h4&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h4&gt;</snippet>
+<snippet id="2a19f140-0d40-4cf2-a745-43caca0071bb" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;em&gt; Emphasis" set_selection="true">
+&lt;em&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/em&gt;</snippet>
+<snippet id="2c72bc03-ca8d-4c8a-b7ba-7e63baa2dfc9" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;select&gt; Form Select w/Dialog" set_selection="true">
+&lt;select name="[[%ask:Name:]]"&gt;&lt;option&gt;!@#_currentPos!@#_anchor&lt;/option&gt;&lt;/select&gt;</snippet>
+<snippet id="36639c93-2bc1-46b9-ae78-80560ebaa909" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h1&gt; Header 1" set_selection="true">
+&lt;h1&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h1&gt;</snippet>
+<snippet id="41232522-931c-4fa0-86c4-27a758fa7175" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;form&gt; Form w/Dialog" set_selection="true">
+&lt;form name="[[%ask:Name]]" action="[[%ask:Action]]" method="[[%ask:Method:POST]]" enctype="[[%ask:Encoding:application/x-www-form-urlencoded]]"&gt;!@#_currentPos!@#_anchor&lt;input type="submit"/&gt;&lt;input type="reset"/&gt;&lt;/form&gt;</snippet>
+<snippet id="42ed47ea-1e3c-4df0-a62a-155d2378c70a" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h3&gt; Header 3" set_selection="true">
+&lt;h3&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h3&gt;</snippet>
+<snippet id="42f23c1d-7c19-426e-b012-edf096313ae6" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;textarea&gt; Form Text Area w/Dialog" set_selection="true">
+&lt;textarea name="[[%ask:Name:]]" cols="[[%ask:Columns:40]]" rows="[[%ask:Rows:10]]" wrap="[[%ask:Wrap:SOFT]]"&gt;!@#_currentPos!@#_anchor&lt;/textarea&gt;</snippet>
+<snippet id="46cd7620-6b7b-4dcc-b138-37a94ae31372" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;tr&gt; Table Row" set_selection="true">
+&lt;tr&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/tr&gt;</snippet>
+<snippet id="52cf0961-9b24-4205-b0a0-c063c8363ea0" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;strong&gt; Strong" set_selection="true">
+&lt;strong&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/strong&gt;</snippet>
+<snippet id="5ff71b42-4371-4f39-a7ae-3cd7b897bf05" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;p&gt; Paragraph w/Dialog" set_selection="true">
+&lt;p style="[[%ask:Style]]" class="[[%ask:Class]]"&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/p&gt;</snippet>
+<snippet id="6a12e7f9-e159-42b8-85c5-3584a2908a02" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;td&gt; Table Cell" set_selection="true">
+&lt;td&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/td&gt;</snippet>
+<snippet id="779db260-60c6-4805-b3c4-225d237ac74e" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;li&gt; List Item" set_selection="true">
+&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;</snippet>
+<snippet id="77bc456c-9fb1-42a2-8417-deded5d6d629" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;A&gt; URI Link" set_selection="true">
+&lt;a href="[[%w:else:]]"&gt;[[%w:else:]]!@#_currentPos!@#_anchor&lt;/a&gt;</snippet>
+<snippet id="7a8e45ed-951f-42b7-b08e-15153f473c0f" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="false" keyboard_shortcut="" name="&lt;input/&gt; Form Input w/Dialog" set_selection="false">
+&lt;input type="[[%ask:Type:text]]" name="[[%ask:Name:]]" value="[[%ask:Value:]]" size="[[%ask:Size:40]]" maxlength="[[%ask:Max Length:40]]"  min="[[%ask:Min:]]" max="[[%ask:Max:]]" accept="[[%ask:Accept:]]"/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="83427f3f-652c-4ac6-b345-f775474fc2e9" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;ol&gt; Ordered List" set_selection="true">
+&lt;ol&gt;&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;&lt;/ol&gt;</snippet>
+<snippet id="86c8ab93-04ce-416c-a059-267ccbc57ab3" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;ul&gt; Unordered List" set_selection="true">
+&lt;ul&gt;&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;&lt;/ul&gt;</snippet>
+<snippet id="8a418a2e-4e1b-4064-bfab-b366493c1f7b" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h6&gt; Header 6" set_selection="true">
+&lt;h6&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h6&gt;</snippet>
+<snippet id="973c95f1-3fbb-48aa-a25d-2537861b630b" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;A&gt; URI Link w/Dialog" set_selection="true">
+&lt;a href="[[%w:orask:URI]]" name="[[%ask:Name]]" target="[[%ask:Target:_self]]"&gt;[[%w:orask:Text]]&lt;/a&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="9b1e0d37-9d78-4f6c-baef-5f2360ae210f" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;pre&gt; Preformated Text" set_selection="true">
+&lt;pre&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/pre&gt;</snippet>
+<snippet id="a2ba6527-0d56-4d3f-afe1-3ba91ad7634e" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h2&gt; Header 2" set_selection="true">
+&lt;h2&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h2&gt;</snippet>
+<snippet id="af282f72-8871-497d-a5bf-20d117ec25b4" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;h5&gt; Header 5" set_selection="true">
+&lt;h5&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h5&gt;</snippet>
+<snippet id="bec63bca-525e-40f5-be54-18be78ddb5b0" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;option&gt; Form Option w/Dialog" set_selection="true">
+&lt;option name="[[%ask:Name:]]" value="[[%ask:Value:]]"&gt;!@#_currentPos!@#_anchor&lt;/option&gt;</snippet>
+<snippet id="fb79ad61-b6b2-4664-a59b-ec20a9ef8d1c" idref="643f2db6-fa21-473e-9476-12a39bf65ba0" indent_relative="true" keyboard_shortcut="" name="&lt;p&gt; Paragraph" set_selection="true">
+&lt;p&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/p&gt;</snippet>
 <snippet id="0f95f2ab-0245-4f4a-926d-31698294b15a" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="dump" set_selection="false">
 function _dump($data) {
     if (func_num_args() &gt; 1) {
 	$data = func_get_args();
     }
     return "&lt;pre&gt;".print_r($data, 1)."&lt;/pre&gt;";
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="198509b0-9c44-452a-8be6-f7b91517c661" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+/*
+    * function [[%tabstop:name]]
+    * @param $[[%tabstop:arg]]
+*/
+
+function [[%tabstop:name]]($[[%tabstop:arg]]) {
+    [[%tabstop:]]
 }!@#_currentPos!@#_anchor</snippet>
 <snippet id="2d28fee7-4787-426a-b132-debb9ab8b0ec" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="false" keyboard_shortcut="" name="block" set_selection="true">
 &lt;?php
@@ -311,8 +814,6 @@ function _dump($data) {
 
 ?&gt;
 </snippet>
-<snippet id="826afb8c-d9b7-4e19-aaf6-5d1cb49595b4" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="array" set_selection="false">
-$[[%tabstop:array]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
 <snippet id="407f54e2-0091-4e36-b4fc-d22937ef1cea" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 /*
     * class [[%tabstop:class]]
@@ -329,17 +830,10 @@ class [[%tabstop:class]] «extends» «» {
         [[%tabstop:parent]]
     }
 }!@#_currentPos!@#_anchor</snippet>
-<snippet id="198509b0-9c44-452a-8be6-f7b91517c661" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
-/*
-    * function [[%tabstop:name]]
-    * @param $[[%tabstop:arg]]
-*/
-
-function [[%tabstop:name]]($[[%tabstop:arg]]) {
-    [[%tabstop:]]
-}!@#_currentPos!@#_anchor</snippet>
-<snippet id="c5847bd0-4b20-487b-84fa-904fab180590" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="inline" set_selection="false">
-&lt;?php echo $[[%tabstop:var]]; ?&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="5b8b7ca9-f5d6-40d4-9243-2ca362e9c003" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+/**
+ * [[%tabstop:docs]]
+*/!@#_currentPos!@#_anchor</snippet>
 <snippet id="7b37955c-8994-4056-95d7-ddbb7625d901" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="main" set_selection="false">
 &lt;?php
 /*
@@ -360,65 +854,561 @@ if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
   }
 }
 ?&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="826afb8c-d9b7-4e19-aaf6-5d1cb49595b4" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="array" set_selection="false">
+$[[%tabstop:array]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
+<snippet id="c5847bd0-4b20-487b-84fa-904fab180590" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="inline" set_selection="false">
+&lt;?php echo $[[%tabstop:var]]; ?&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="d0e606ff-d311-4ec1-9372-4faf103e1c7a" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
+/**
+  *  !@#_currentPos!@#_anchor 
+  */
+</snippet>
 <folder id="d2063d67-10ba-4d7d-a4bd-bd9ba998ccf3" idref="88e68317-ec9b-4873-8940-2c49b98eec39" name="Drupal">
 </folder>
-<snippet id="5b8b7ca9-f5d6-40d4-9243-2ca362e9c003" idref="88e68317-ec9b-4873-8940-2c49b98eec39" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+<snippet id="78bba754-9a77-4feb-9e7e-db472b210fd1" idref="89001b97-4536-4b20-bd3a-b5f91438e9a1" indent_relative="true" keyboard_shortcut="" name="drinfo" set_selection="false">
+; \$Id\$
+name = "[[%tabstop:Example Module]]"
+description = "[[%tabstop:Example module description]]"
+dependencies = [[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="7fbd47bd-cac8-4049-9ca8-071cfea31275" idref="89001b97-4536-4b20-bd3a-b5f91438e9a1" indent_relative="true" keyboard_shortcut="" name="drmodule" set_selection="false">
+&lt;?php
+// \$Id\$
+
+/**
+ * Implementation of hook_perm
+ */
+function [[%tabstop:example]]_perm() {
+  return array(
+    '[[%tabstop:example permission]]',
+  );
+}
+
+
+/**
+ * Implementation of hook_menu
+ */
+function [[%tabstop:example]]_menu($may_cache) {
+  $items = array();
+
+  if ($may_cache) {
+    $items[] = array(
+      'path' =&gt; 'admin/settings/[[%tabstop:example]]',
+      'title' =&gt; t('[[%tabstop:Example]]'),
+      'callback' =&gt; 'drupal_get_form',
+      'callback arguments' =&gt; array('[[%tabstop:example]]_admin_form'),
+      'access' =&gt; user_access('administer site configuration'),
+    );
+  }
+
+  return $items;
+}
+
+
+/**
+ * Menu callback - Admin settings form.
+ */
+function [[%tabstop:example]]_admin_form() {
+  $form = array();
+  return system_settings_form($form);
+}
+
+
+/**
+ * Implementation of hook_form_alter
+ */
+function [[%tabstop:example]]_form_alter($form_id, &amp;$form) {
+  switch ($form_id) {
+    // Alter node edit form
+    case $form['type']['#value'] .'_node_form':
+    break;
+  }
+}
+
+
+/**
+ * Implementation of hook_nodeapi
+ */
+function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'delete':
+    break;
+
+    case 'insert':
+    break;
+
+    case 'load':
+    break;
+
+    case 'submit':
+    break;
+
+    case 'update':
+    break;
+
+    case 'view':
+    break;
+  }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="acb76e92-e953-442a-8cb3-a974e608e33f" idref="89001b97-4536-4b20-bd3a-b5f91438e9a1" indent_relative="true" keyboard_shortcut="" name="drmenu" set_selection="true">
+$items[] = array(
+  'path'=&gt;'[[%ask:path:]]',
+  'title' =&gt; t('!@#_currentPos!@#_anchor'),
+  'access' =&gt; user_access('access content'),
+  'callback' =&gt; '[[%ask:callback:]]',
+  'type' =&gt; 'MENU_NORMAL_ITEM',
+);
+</snippet>
+<snippet id="bb5dd079-cfeb-49f4-b6c3-103a64f3ebf2" idref="89001b97-4536-4b20-bd3a-b5f91438e9a1" indent_relative="true" keyboard_shortcut="" name="drinstall" set_selection="false">
+&lt;?php
+// \$Id\$
+
+/**
+ * Implementation of hook_install
+ */
+function [[%tabstop:example]]_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysqli':
+    case 'mysql':
+      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop:example]]} (
+        id int unsigned NOT NULL auto_increment,
+        field varchar(128) NOT NULL default ''
+        PRIMARY KEY (id),
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+    break;
+  }
+}
+
+
+/**
+ * Implementation of hook_uninstall
+ */
+function [[%tabstop:example]]_uninstall() {
+  db_query("DROP TABLE {[[%tabstop:example]]}");
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop:example]]%%'");
+  while ($variable = db_fetch_object($variables)) {
+    variable_del($variable-&gt;name);
+  }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="1d305eb0-d87f-45b4-851b-2dec1adb7455" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="html4" set_selection="false">
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd"&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;[[%tabstop:title]]&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="315dfa7c-5d87-4e6b-bbfd-5b9ca0847a83" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="false" keyboard_shortcut="" name="xhtml" set_selection="false">
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"&gt;
+
+&lt;head&gt;
+    &lt;title&gt;[[%tabstop:title]]&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="362dbfc4-080a-496d-ae02-3d054f43920b" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="scriptlink" set_selection="false">
+&lt;script type="application/x-javascript" src="[[%tabstop:scriptname]]"&gt;&lt;/script&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="3f78ed37-508e-4b15-85f7-44233b1685ae" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="text" set_selection="false">
+&lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="724e008d-fe03-4ded-a5a3-fbd369482128" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="ul" set_selection="false">
+&lt;ul id="[[%tabstop:id]]"&gt;
+    &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
+&lt;/ul&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="73d22a86-fd64-4655-ac5f-c40432a1550d" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="div" set_selection="false">
+&lt;div id="[[%tabstop:id]]"&gt;
+    [[%tabstop:]]
+&lt;/div&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="7f8189a6-5b3f-47bf-aafc-87349904cf96" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="tag" set_selection="false">
+&lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="84dadba8-65f2-4e56-b21a-c573d763803b" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="li" set_selection="false">
+&lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="926bc507-33f6-4d81-a802-fe2494cb55ab" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="ol" set_selection="false">
+&lt;ol id="[[%tabstop:id]]"&gt;
+    &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
+&lt;/ol&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="9b217b98-c190-4d3d-9719-398a9e8ee6d2" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="script" set_selection="false">
+&lt;script type="application/x-javascript"&gt;
+
+&lt;/script&gt;
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="b830f71a-27cb-4180-be6f-fd1c17902cb3" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
+&lt;!-- !@#_currentPos!@#_anchor --&gt;
+</snippet>
+<snippet id="cad48b9e-a539-4972-9853-711ae566918c" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="p" set_selection="false">
+&lt;p class="[[%tabstop:classname]]"&gt;[[%tabstop:]]&lt;/p&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="ebf92d67-6c3f-48fb-b902-d5212ac93a95" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="textarea" set_selection="false">
+&lt;textarea id="[[%tabstop:id]]" cols="[[%tabstop:45]]" rows="[[%tabstop:15]]"&gt;
+[[%tabstop:]]
+&lt;/textarea&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="f728fb51-6f48-479b-a83f-89ce9a444304" idref="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" indent_relative="true" keyboard_shortcut="" name="style" set_selection="false">
+&lt;style type="text/css"&gt;
+[[%tabstop:]]
+&lt;/style&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="7e582233-499a-4f7e-9258-9a2d356244e8" idref="a9a5f1b2-781d-4ba3-a4e4-81a1d37aeb7c" indent_relative="true" keyboard_shortcut="" name="jqstart" set_selection="true">
+$(document).ready(function() {
+  !@#_currentPos!@#_anchor
+});</snippet>
+<snippet id="8616ac14-916c-4825-95b7-c7fa6aee32f8" idref="a9a5f1b2-781d-4ba3-a4e4-81a1d37aeb7c" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
+$('[[%tabstop:selector]]').each(
+    function(i) {
+	[[%tabstop:]]
+    }
+);!@#_currentPos!@#_anchor</snippet>
+<snippet id="1019f816-eac8-454f-a173-55785e285d52" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;option&gt; Form Option w/Dialog" set_selection="true">
+&lt;option name="[[%ask:Name:]]" value="[[%ask:Value:]]"&gt;!@#_currentPos!@#_anchor&lt;/option&gt;</snippet>
+<snippet id="131a74e7-a968-4ec0-9c94-cbe1f64f3869" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;em&gt; Emphasis" set_selection="true">
+&lt;em&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/em&gt;</snippet>
+<snippet id="1540cacc-a7dd-4c50-a548-629b787837c3" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;h1&gt; Header 1" set_selection="true">
+&lt;h1&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h1&gt;</snippet>
+<snippet id="1fe9def6-8418-4a66-878a-b45bc56474b8" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;h4&gt; Header 4" set_selection="true">
+&lt;h4&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h4&gt;</snippet>
+<snippet id="442e49ba-7843-49d8-820b-f6138ca51350" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;h2&gt; Header 2" set_selection="true">
+&lt;h2&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h2&gt;</snippet>
+<snippet id="462e32ce-41ef-4594-b1a6-4cf051e55520" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;h3&gt; Header 3" set_selection="true">
+&lt;h3&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h3&gt;</snippet>
+<snippet id="6ef55a4e-fe81-4764-b5a4-f80b2fe9e69f" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;ul&gt; Unordered List" set_selection="true">
+&lt;ul&gt;&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;&lt;/ul&gt;</snippet>
+<snippet id="74f2b74b-7720-4f63-be9a-3c94e775efc1" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;textarea&gt; Form Text Area w/Dialog" set_selection="true">
+&lt;textarea name="[[%ask:Name:]]" cols="[[%ask:Columns:40]]" rows="[[%ask:Rows:10]]" wrap="[[%ask:Wrap:SOFT]]"&gt;!@#_currentPos!@#_anchor&lt;/textarea&gt;</snippet>
+<snippet id="7638f60d-2723-4d5d-9e4d-607203d2b1d8" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;select&gt; Form Select w/Dialog" set_selection="true">
+&lt;select name="[[%ask:Name:]]"&gt;&lt;option&gt;!@#_currentPos!@#_anchor&lt;/option&gt;&lt;/select&gt;</snippet>
+<snippet id="7e5c6ad2-d9af-46da-9cc7-0ae3eeb72e14" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;A&gt; URI Link" set_selection="true">
+&lt;a href="[[%w:else:]]"&gt;[[%w:else:]]!@#_currentPos!@#_anchor&lt;/a&gt;</snippet>
+<snippet id="7e939463-dc43-430d-93c7-4b09223ce83d" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;p&gt; Paragraph w/Dialog" set_selection="true">
+&lt;p style="[[%ask:Style]]" class="[[%ask:Class]]"&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/p&gt;</snippet>
+<snippet id="855e4d66-7bd0-4fbb-9673-d0b14c1c85dd" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;p&gt; Paragraph" set_selection="true">
+&lt;p&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/p&gt;</snippet>
+<snippet id="8b7c6d5b-863b-435e-b9bd-af5f37d002a0" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;td&gt; Table Cell" set_selection="true">
+&lt;td&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/td&gt;</snippet>
+<snippet id="92d82c45-7f3d-422b-84a4-1fd250edde62" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;pre&gt; Preformated Text" set_selection="true">
+&lt;pre&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/pre&gt;</snippet>
+<snippet id="940b1efb-b6c5-4a40-b98d-ae8a7b041cc8" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="false" keyboard_shortcut="" name="&lt;input/&gt; Form Input w/Dialog" set_selection="false">
+&lt;input type="[[%ask:Type:text]]" name="[[%ask:Name:]]" value="[[%ask:Value:]]" size="[[%ask:Size:40]]" maxlength="[[%ask:Max Length:40]]"  min="[[%ask:Min:]]" max="[[%ask:Max:]]" accept="[[%ask:Accept:]]"/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="95507644-b719-4ff5-8670-085539398945" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;A&gt; URI Link w/Dialog" set_selection="true">
+&lt;a href="[[%w:orask:URI]]" name="[[%ask:Name]]" target="[[%ask:Target:_self]]"&gt;[[%w:orask:Text]]&lt;/a&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="a51f3733-ee1b-4e56-96c1-67e83b4adfbe" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;ol&gt; Ordered List" set_selection="true">
+&lt;ol&gt;&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;&lt;/ol&gt;</snippet>
+<snippet id="b214876a-8acd-46ad-87e3-e78ea8e0940e" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;strong&gt; Strong" set_selection="true">
+&lt;strong&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/strong&gt;</snippet>
+<snippet id="b2ec3cb0-e369-4c63-ba6b-ec02263a95af" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;table&gt; Table 1 row 1 col" set_selection="true">
+&lt;table&gt;&lt;tr&gt;&lt;td&gt;!@#_currentPos!@#_anchor&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</snippet>
+<snippet id="bbe12faa-5e43-47d7-a110-9aa845f8b99d" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;h5&gt; Header 5" set_selection="true">
+&lt;h5&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h5&gt;</snippet>
+<snippet id="c048980c-8b22-4f92-bfe7-3e65882d6e80" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;form&gt; Form w/Dialog" set_selection="true">
+&lt;form name="[[%ask:Name]]" action="[[%ask:Action]]" method="[[%ask:Method:POST]]" enctype="[[%ask:Encoding:application/x-www-form-urlencoded]]"&gt;!@#_currentPos!@#_anchor&lt;input type="submit"/&gt;&lt;input type="reset"/&gt;&lt;/form&gt;</snippet>
+<snippet id="c87d1e3d-09ab-408d-8995-2ef168fd708d" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;li&gt; List Item" set_selection="true">
+&lt;li&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/li&gt;</snippet>
+<snippet id="d601d849-8176-4262-a3ac-947c42638488" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;tr&gt; Table Row" set_selection="true">
+&lt;tr&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/tr&gt;</snippet>
+<snippet id="de734ca2-52c4-477c-9a63-9b8f72903472" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="false" keyboard_shortcut="" name="&lt;br/&gt; Break Line" set_selection="true">
+&lt;br/&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="efc5e9c8-9b27-4058-b4a0-516700c2439e" idref="a9c0a351-3bc9-4079-baf6-120a612aca04" indent_relative="true" keyboard_shortcut="" name="&lt;h6&gt; Header 6" set_selection="true">
+&lt;h6&gt;[[%(w:else:)]]!@#_currentPos!@#_anchor&lt;/h6&gt;</snippet>
+<folder id="00a37f6d-b896-4036-9dea-5e907666bfdf" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="JavaScript">
+</folder>
+<folder id="0b7806ca-4c66-455e-b49e-974a4e92efc0" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="Python">
+</folder>
+<folder id="226fcf3d-c11b-44a8-9f47-fe4d86e1e3c7" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="XUL">
+</folder>
+<folder id="32a55e0c-4227-492f-8c36-77c1ac206365" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="Ruby">
+</folder>
+<folder id="3d0938d2-d450-449c-a24d-7411ce863071" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="HTML">
+</folder>
+<folder id="4c0bce0e-1347-40db-a4e6-deeb289dc9cd" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="RHTML">
+</folder>
+<folder id="4e63ee78-d782-413f-8b5f-32d42696330b" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="General">
+</folder>
+<folder id="88e68317-ec9b-4873-8940-2c49b98eec39" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="PHP">
+</folder>
+<folder id="ba028906-5b20-4b1f-aa60-d9e1b5db551e" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="Perl">
+</folder>
+<folder id="ccee7fb1-0d55-4b22-856f-8c6c535691f4" idref="b3cf40c2-2c6d-4929-a230-f3ffc65a1dbf" name="Tcl">
+</folder>
+<snippet id="57f68ce2-ee03-48cc-86f8-f7ba9fabee21" idref="b50e1a28-9643-495e-8056-dffc536cc091" indent_relative="true" keyboard_shortcut="" name="lic" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="5b7aedce-eaf9-439a-ab47-6d12086bbc14" idref="b50e1a28-9643-495e-8056-dffc536cc091" indent_relative="true" keyboard_shortcut="" name="licai" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="7c2b7212-ce86-4846-b570-fb2bd265cb9a" idref="b50e1a28-9643-495e-8056-dffc536cc091" indent_relative="true" keyboard_shortcut="" name="lia" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="824ac8e0-e538-4f78-97ad-71d17a30a018" idref="b50e1a28-9643-495e-8056-dffc536cc091" indent_relative="true" keyboard_shortcut="" name="lica" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="e4cb3002-f6d7-4b16-8448-a80055d322e8" idref="b50e1a28-9643-495e-8056-dffc536cc091" indent_relative="false" keyboard_shortcut="" name="liai" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:edit]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="574867f9-b35b-451f-9662-24c0bfd6464d" idref="b5ce4d08-7e93-40ba-a0b1-dca0999f944d" indent_relative="true" keyboard_shortcut="" name="lica" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="a0e25829-3ce1-4c69-b767-7b932e03d17e" idref="b5ce4d08-7e93-40ba-a0b1-dca0999f944d" indent_relative="true" keyboard_shortcut="" name="lic" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="a2bf0684-62ec-4702-b93e-879f53c9039c" idref="b5ce4d08-7e93-40ba-a0b1-dca0999f944d" indent_relative="true" keyboard_shortcut="" name="lia" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:index]]" %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="b89a37e0-8f3e-43a4-9bff-2cb11a634f63" idref="b5ce4d08-7e93-40ba-a0b1-dca0999f944d" indent_relative="true" keyboard_shortcut="" name="licai" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :controller =&gt; "[[%tabstop:items]]", :action =&gt; "[[%tabstop:index]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="d7da8a8b-c2cf-433e-b18d-219415576291" idref="b5ce4d08-7e93-40ba-a0b1-dca0999f944d" indent_relative="false" keyboard_shortcut="" name="liai" set_selection="false">
+&lt;% link_to("[[%tabstop:text]]", :action =&gt; "[[%tabstop:edit]]", :id =&gt; [[%tabstop:@item]] %&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="1cedae85-8376-4f64-88cf-310d1306aa62" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
+while ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="9866f335-97b4-4e7e-9a99-b2ef67e6a492" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="sheb" set_selection="false">
+#![[%(perl)]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="9d469afb-0bd9-492a-9c7a-f920368cfb92" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="hash" set_selection="false">
+%[[%tabstop:name]] (
+    [[%tabstop]]	=&gt; [[%tabstop]],
+    [[%tabstop]]	=&gt; [[%tabstop]],
+)!@#_currentPos!@#_anchor</snippet>
+<snippet id="bcf4bfe1-5864-42d8-b100-2b9f1c3e3a8e" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
+foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="fdb54d1e-2efd-434a-9ff7-8f26fe28ce66" idref="ba028906-5b20-4b1f-aa60-d9e1b5db551e" indent_relative="true" keyboard_shortcut="" name="if" set_selection="false">
+if ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+   }
+elsif ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}
+else {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="1bd54162-44ac-42d5-b8b0-4cb9610f18df" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
+/**
+  *  !@#_currentPos!@#_anchor 
+  */
+</snippet>
+<snippet id="3129f30b-b75a-4ea6-8e20-a0268a8c7350" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+/*
+    * function [[%tabstop:name]]
+    * @param $[[%tabstop:arg]]
+*/
+
+function [[%tabstop:name]]($[[%tabstop:arg]]) {
+    [[%tabstop:]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="3f085881-ba5f-401e-867b-2889e1938692" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="false" keyboard_shortcut="" name="block" set_selection="true">
+&lt;?php
+
+!@#_currentPos!@#_anchor
+
+?&gt;
+</snippet>
+<snippet id="622207d7-8eec-4cd1-a7f5-37a8dd1418b2" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="true" keyboard_shortcut="" name="array" set_selection="false">
+$[[%tabstop:array]] = array([[%tabstop:]]);!@#_currentPos!@#_anchor</snippet>
+<folder id="89001b97-4536-4b20-bd3a-b5f91438e9a1" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" name="Drupal">
+</folder>
+<snippet id="963b6212-9d7f-4d82-a8b8-408ab61fc40c" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="true" keyboard_shortcut="" name="inline" set_selection="false">
+&lt;?php echo $[[%tabstop:var]]; ?&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="b4d50587-3a1c-4d14-bc59-32bcaa54e2f2" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+/*
+    * class [[%tabstop:class]]
+*/
+
+class [[%tabstop:class]] «extends» «» {
+    
+    /*
+        * __construct()
+	* @param $[[%tabstop:arg]]
+    */
+    
+    function __construct($[[%tabstop:arg]]) {
+        [[%tabstop:parent]]
+    }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="c313c1cc-ed50-4ffa-80a1-34cc739da65b" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="true" keyboard_shortcut="" name="dump" set_selection="false">
+function _dump($data) {
+    if (func_num_args() &gt; 1) {
+	$data = func_get_args();
+    }
+    return "&lt;pre&gt;".print_r($data, 1)."&lt;/pre&gt;";
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="c8bb7409-ff81-49a2-b98b-01a480c28958" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="true" keyboard_shortcut="" name="main" set_selection="false">
+&lt;?php
+/*
+
+[[%tabstop:scriptname]]:
+
+Usage: php [[%tabstop:scriptname]] [[%tabstop:arument]]
+
+*/
+
+if( basename(__FILE__) == basename($_SERVER['PHP_SELF'] )) {
+
+  if ($argc &lt; 2 || in_array($argv[1], array('--help', '-help', '-h', '-?')) || [[%tabstop:conditon]]) {
+    echo "[[%tabstop:Description]]\n\n";
+    echo "Usage:      [[%tabstop:scriptname]] [[%tabstop:arument]]\n";
+    echo "            --help, -help, -h, -?      - to get this help\n";
+    die;
+  }
+}
+?&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="dd257238-49c3-49ae-982c-9cdba0d48312" idref="bac0fb11-5dfd-4b4e-a446-63d30ab1831b" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
 /**
  * [[%tabstop:docs]]
 */!@#_currentPos!@#_anchor</snippet>
-<snippet id="b88276c8-087e-4c97-8af7-4f4feef5c943" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+<snippet id="271f0d7b-8979-482c-a477-5d2e0a4502f2" idref="c0f0bb61-9ef6-4ffc-8fe2-cb78c6bd986c" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
+foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="52488d8f-70ff-4e6b-8915-d3053cb6ff7c" idref="c0f0bb61-9ef6-4ffc-8fe2-cb78c6bd986c" indent_relative="true" keyboard_shortcut="" name="hash" set_selection="false">
+%[[%tabstop:name]] (
+    [[%tabstop]]	=&gt; [[%tabstop]],
+    [[%tabstop]]	=&gt; [[%tabstop]],
+)!@#_currentPos!@#_anchor</snippet>
+<snippet id="85b3bee4-2152-4f1a-8610-17d8fcaf4f24" idref="c0f0bb61-9ef6-4ffc-8fe2-cb78c6bd986c" indent_relative="true" keyboard_shortcut="" name="if" set_selection="false">
+if ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+   }
+elsif ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}
+else {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="e0952d03-036e-46a9-aa1d-bcdbf185dba5" idref="c0f0bb61-9ef6-4ffc-8fe2-cb78c6bd986c" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
+while ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="f4249041-70b2-4586-bdea-b68e116f4c77" idref="c0f0bb61-9ef6-4ffc-8fe2-cb78c6bd986c" indent_relative="true" keyboard_shortcut="" name="sheb" set_selection="false">
+#![[%(perl)]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="9c01bdb4-1c2b-4663-903c-c672451231e1" idref="c691cc1e-44a7-4888-b1a9-e6147e5f8a9c" indent_relative="false" keyboard_shortcut="" name="main" set_selection="false">
+#!/bin/env [[%tabstop:bash]]
+# [[%tabstop:scriptname]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="10e9974c-f3fd-4760-9933-c63f9b2749e2" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="ai" set_selection="false">
+add_index [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="12282f8e-fa41-4ee6-968b-2a5581cdcb4e" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="tc" set_selection="false">
+t.[[%tabstop:string]] :[[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="253189aa-c1c2-4afd-ac6f-8cd168b7c8c1" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="ac" set_selection="false">
+add_column :[[%tabstop:table]], :[[%tabstop:column]], :[[%tabstop:string]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="27da9591-f0c9-47a6-9b73-8654ad49a09d" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="bt" set_selection="false">
+belongs_to :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="3c740a49-335d-42ee-8776-990cf509e0e6" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="habtm" set_selection="false">
+has_and_belongs_to_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="3eee2e22-5414-4922-9610-9175b5ad6017" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="hm" set_selection="false">
+has_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="3f92e43c-7adf-40c4-97e3-2b6eb265cf71" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="reai" set_selection="false">
+redirect_to :action =&gt; [[%tabstop:show]], :id =&gt; [[%tabstop:@item]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="4257d443-a5ce-4f2d-98b9-acacf888dbab" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="rnc" set_selection="false">
+rename_column [[%tabstop:table]], [[%tabstop:old_column_name]], [[%tabstop:new_column_name]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="52a4eeb5-2599-4952-a466-d897967d5224" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="reca" set_selection="false">
+redirect_to :controller =&gt; [[%tabstop:items]], :action =&gt; "[[%tabstop:action]]"!@#_currentPos!@#_anchor</snippet>
+<snippet id="5e1fb784-756e-44e1-ace6-199159a0b667" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="each" set_selection="false">
+each { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
+<snippet id="65f77ed7-e36e-4261-b1fb-314186ef7d7b" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="coll" set_selection="false">
+collect { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
+<snippet id="6dfe0a73-ecb5-46d5-8e41-f7c465d294b6" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 class [[%tabstop:name]]
   def [[%tabstop]]
     [[%tabstop]]
   end
 end!@#_currentPos!@#_anchor</snippet>
-<snippet id="b717b55d-4c6c-4bfb-b6f4-4122aebc9bea" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="def" set_selection="false">
+<snippet id="9c5cc8c4-d131-4875-94b6-ba357e054990" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="false" keyboard_shortcut="" name="rc" set_selection="false">
+remove_column [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="d7d87cf6-4edb-4756-8a19-c66ee76cc40b" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="ho" set_selection="false">
+has_one :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="d88b9a4b-92dc-4324-8921-819a1ad45789" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="def" set_selection="false">
 def [[%tabstop:name]]
   [[%tabstop]]
 end!@#_currentPos!@#_anchor</snippet>
-<snippet id="0b8fef38-b372-4ea1-8c33-1b0600b4d54f" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="coll" set_selection="false">
-collect { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
-<snippet id="38463d1d-65a3-4d5b-9bbe-cbd26bbe6b5b" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="each" set_selection="false">
-each { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
-<snippet id="89fb170e-b1fb-4493-9769-d4d647c784fe" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="mod" set_selection="false">
+<snippet id="dde51930-9ce9-40e2-b986-80aff6af0bc9" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="emf" set_selection="false">
+error_messages_for [[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="de5a5061-d657-42c5-a042-f506c471671f" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="mod" set_selection="false">
 module [[%tabstop:Name]]
   [[%tabstop]]
 end!@#_currentPos!@#_anchor</snippet>
-<snippet id="558845c4-7fde-4e87-b457-5a9fbeb256cf" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="ac" set_selection="false">
-add_column :[[%tabstop:table]], :[[%tabstop:column]], :[[%tabstop:string]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="82222d55-def8-4424-b9dd-fb56d9527ee3" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="tc" set_selection="false">
-t.[[%tabstop:string]] :[[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="2f1091ac-a080-4f65-afd0-054a0c7cf73f" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="ai" set_selection="false">
-add_index [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="b8da2cb3-080d-426e-8d19-4c498813527a" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="ct" set_selection="false">
+<snippet id="e85eac81-32be-41f2-98e2-d3771b85728d" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="ct" set_selection="false">
 create_table(:[[%tabstop:table]]) do |t|
   [[%tabstop:]]
 end!@#_currentPos!@#_anchor</snippet>
-<snippet id="3c36be58-2c40-4c32-8dc6-b0c4558c75ba" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="false" keyboard_shortcut="" name="rc" set_selection="false">
-remove_column [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="ad4a1f40-ac4a-4ff6-8b72-9bd773fb704b" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="rnc" set_selection="false">
-rename_column [[%tabstop:table]], [[%tabstop:old_column_name]], [[%tabstop:new_column_name]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="b3b72b2c-bb1a-46f8-ad23-fbc225b6926b" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="habtm" set_selection="false">
-has_and_belongs_to_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="5144576e-49e1-4d1e-9967-fe7174dc0c43" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="hm" set_selection="false">
-has_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="e310a0d2-5133-4495-b6f1-5d6a4a32c309" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="ho" set_selection="false">
-has_one :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="1c56d134-d3d3-44ec-94c9-258d0d313e36" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="emf" set_selection="false">
-error_messages_for [[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="42d056d3-9502-4a53-abbf-bb640b282260" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="bt" set_selection="false">
-belongs_to :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="debc52f6-f27e-4da2-be49-bde79e3a57ae" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="reai" set_selection="false">
-redirect_to :action =&gt; [[%tabstop:show]], :id =&gt; [[%tabstop:@item]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="945158a9-138d-448c-934c-f64fdd4afb2a" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="rec" set_selection="false">
+<snippet id="ef552380-6249-49b0-b244-e42cd275d063" idref="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" indent_relative="true" keyboard_shortcut="" name="rec" set_selection="false">
 redirect_to :controller =&gt; [[%tabstop:items]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="8670bbfa-4ca3-4cbe-be86-0084d2999c9b" idref="32a55e0c-4227-492f-8c36-77c1ac206365" indent_relative="true" keyboard_shortcut="" name="reca" set_selection="false">
+<snippet id="04e5e40b-7fd6-4ac1-af2d-dfab7362ec14" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
+while {[[%tabstop:EXPR]]} {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="4e6bd659-f980-40d8-a0dc-55b6f270a78c" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="switch" set_selection="false">
+switch [[%tabstop:STRING]] {
+    [[%tabstop:PATTERN]] {
+	[[%tabstop:ACTION]]
+    }
+    [[%tabstop:PATTERN2]]
+	[[%tabstop:ACTION2]]
+    }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="7e0e7421-d246-4718-81e2-5e7eab257e8b" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="for" set_selection="false">
+for {set [[%tabstop:START]]} {[[%tabstop:TEST]]} {[[%tabstop:NEXT]]}
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="a66e309a-8a98-4f82-8aa4-f0adb44f8b32" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
+foreach [[%tabstop:VAR]] [[%tabstop]] {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="cd7f9ff6-8c99-400a-bf0e-b700aff80ab5" idref="ccee7fb1-0d55-4b22-856f-8c6c535691f4" indent_relative="true" keyboard_shortcut="" name="proc" set_selection="false">
+proc [[%tabstop:NAME]] {[[%tabstop:ARGS]]} {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="15ac4590-abb4-40cf-9e3c-c587b1bafc2a" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="bt" set_selection="false">
+belongs_to :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="18321532-51d8-4a9a-8634-c6a67f4e42af" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="false" keyboard_shortcut="" name="rc" set_selection="false">
+remove_column [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="2665fc2e-00e0-4365-a5c4-554aaede7117" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+class [[%tabstop:name]]
+  def [[%tabstop]]
+    [[%tabstop]]
+  end
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="34fd1297-ce84-47f8-8b5e-b8911cc988dd" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="habtm" set_selection="false">
+has_and_belongs_to_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="37627367-3312-4164-9a95-8c4118e397ca" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="ai" set_selection="false">
+add_index [[%tabstop:table]], [[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="41978a3d-a900-4d3f-a80c-1bf67ec530f0" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="reai" set_selection="false">
+redirect_to :action =&gt; [[%tabstop:show]], :id =&gt; [[%tabstop:@item]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="7f15f503-fa56-4102-b467-76f015e33b1a" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="ct" set_selection="false">
+create_table(:[[%tabstop:table]]) do |t|
+  [[%tabstop:]]
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="95133601-5349-4864-97c9-da36abb51a21" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="each" set_selection="false">
+each { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
+<snippet id="a810c9b8-e176-4c0f-986f-04613f4ff586" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="ac" set_selection="false">
+add_column :[[%tabstop:table]], :[[%tabstop:column]], :[[%tabstop:string]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="ad7cb032-2deb-4ab7-9096-d81376c66462" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="mod" set_selection="false">
+module [[%tabstop:Name]]
+  [[%tabstop]]
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="b1b35a4e-7463-45c7-94e8-44bae5291b46" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="rnc" set_selection="false">
+rename_column [[%tabstop:table]], [[%tabstop:old_column_name]], [[%tabstop:new_column_name]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="b468aca5-85db-4611-b59d-04b41294172e" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="hm" set_selection="false">
+has_many :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="b71a867a-8040-4ae2-838c-8c4f544534f4" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="ho" set_selection="false">
+has_one :[[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="bbf30437-c84f-4832-8e76-a19bc76abeb0" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="rec" set_selection="false">
+redirect_to :controller =&gt; [[%tabstop:items]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="cf0d5bba-4ecb-4fac-9b9c-06515b589e00" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="emf" set_selection="false">
+error_messages_for [[%tabstop:object]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="dc2f225b-d7da-4b3d-99c1-7514a03022eb" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="def" set_selection="false">
+def [[%tabstop:name]]
+  [[%tabstop]]
+end!@#_currentPos!@#_anchor</snippet>
+<snippet id="f7cbf4d1-0618-492e-9fe1-d064661d676d" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="tc" set_selection="false">
+t.[[%tabstop:string]] :[[%tabstop:column]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="fced80d8-5152-44c8-a316-6cc7bdc86568" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="coll" set_selection="false">
+collect { |[[%tabstop:e]]| [[%tabstop]] }!@#_currentPos!@#_anchor</snippet>
+<snippet id="fe40f967-b16e-4d6b-8799-518f75104d32" idref="ce0d2874-0086-4995-a488-fe70b2b7f397" indent_relative="true" keyboard_shortcut="" name="reca" set_selection="false">
 redirect_to :controller =&gt; [[%tabstop:items]], :action =&gt; "[[%tabstop:action]]"!@#_currentPos!@#_anchor</snippet>
-<folder id="5b99c86b-251a-4206-ae0d-729c2a50a5fe" idref="042f8423-e917-496b-bdb4-bf14210a9e9d" name="Samples (4.3.0)">
-</folder>
-<snippet id="9fef69bc-9784-405a-9ffb-bafafeb66b80" idref="4e63ee78-d782-413f-8b5f-32d42696330b" indent_relative="false" keyboard_shortcut="" name="main" set_selection="false">
-#!/bin/env [[%tabstop:bash]]
-# [[%tabstop:scriptname]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="92e7bc06-34ce-4cd9-a4c1-1919aec55337" idref="d1635668-6898-43e8-b79a-20225be407e9" indent_relative="true" keyboard_shortcut="" name="jqstart" set_selection="true">
+$(document).ready(function() {
+  !@#_currentPos!@#_anchor
+});</snippet>
+<snippet id="c3a77334-6b3a-4dbb-b11c-f71e5e5b8d16" idref="d1635668-6898-43e8-b79a-20225be407e9" indent_relative="true" keyboard_shortcut="" name="jqeach" set_selection="false">
+$('[[%tabstop:selector]]').each(
+    function(i) {
+	[[%tabstop:]]
+    }
+);!@#_currentPos!@#_anchor</snippet>
 <snippet id="103656bf-d2d6-4dc5-8e3c-845ace936e6e" idref="d2063d67-10ba-4d7d-a4bd-bd9ba998ccf3" indent_relative="true" keyboard_shortcut="" name="drmenu" set_selection="true">
 $items[] = array(
   'path'=&gt;'[[%ask:path:]]',
@@ -428,6 +1418,37 @@ $items[] = array(
   'type' =&gt; 'MENU_NORMAL_ITEM',
 );
 </snippet>
+<snippet id="4e0a182d-fdb6-4f9a-9706-13cb2ebeeb86" idref="d2063d67-10ba-4d7d-a4bd-bd9ba998ccf3" indent_relative="true" keyboard_shortcut="" name="drinstall" set_selection="false">
+&lt;?php
+// \$Id\$
+
+/**
+ * Implementation of hook_install
+ */
+function [[%tabstop:example]]_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysqli':
+    case 'mysql':
+      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop:example]]} (
+        id int unsigned NOT NULL auto_increment,
+        field varchar(128) NOT NULL default ''
+        PRIMARY KEY (id),
+      ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+    break;
+  }
+}
+
+
+/**
+ * Implementation of hook_uninstall
+ */
+function [[%tabstop:example]]_uninstall() {
+  db_query("DROP TABLE {[[%tabstop:example]]}");
+  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop:example]]%%'");
+  while ($variable = db_fetch_object($variables)) {
+    variable_del($variable-&gt;name);
+  }
+}!@#_currentPos!@#_anchor</snippet>
 <snippet id="8d57d72f-a4ea-4c7e-adf4-e465c96eff4c" idref="d2063d67-10ba-4d7d-a4bd-bd9ba998ccf3" indent_relative="true" keyboard_shortcut="" name="drinfo" set_selection="false">
 ; \$Id\$
 name = "[[%tabstop:Example Module]]"
@@ -512,41 +1533,17 @@ function [[%tabstop:example]]_nodeapi(&amp;$node, $op, $a3 = NULL, $a4 = NULL) {
     break;
   }
 }!@#_currentPos!@#_anchor</snippet>
-<snippet id="4e0a182d-fdb6-4f9a-9706-13cb2ebeeb86" idref="d2063d67-10ba-4d7d-a4bd-bd9ba998ccf3" indent_relative="true" keyboard_shortcut="" name="drinstall" set_selection="false">
-&lt;?php
-// \$Id\$
-
-/**
- * Implementation of hook_install
- */
-function [[%tabstop:example]]_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysqli':
-    case 'mysql':
-      db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop:example]]} (
-        id int unsigned NOT NULL auto_increment,
-        field varchar(128) NOT NULL default ''
-        PRIMARY KEY (id),
-      ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
-    break;
-  }
-}
-
-
-/**
- * Implementation of hook_uninstall
- */
-function [[%tabstop:example]]_uninstall() {
-  db_query("DROP TABLE {[[%tabstop:example]]}");
-  $variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop:example]]%%'");
-  while ($variable = db_fetch_object($variables)) {
-    variable_del($variable-&gt;name);
-  }
-}!@#_currentPos!@#_anchor</snippet>
-<snippet id="1808e6a1-6799-44cb-8100-0cbdb730b21a" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="main" set_selection="true">
+<snippet id="0741cf8c-f84f-4eaa-9c7a-cdcda22b4969" idref="d8a46a1f-a946-40ef-8ecd-233d05e38490" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+def [[%tabstop:name]]([[%tabstop:arg1]]):
+    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="24c1d0df-294d-4c68-bbce-4190f170666d" idref="d8a46a1f-a946-40ef-8ecd-233d05e38490" indent_relative="true" keyboard_shortcut="" name="main" set_selection="true">
 if __name__ == '__main__':
     !@#_anchorpass!@#_currentPos</snippet>
-<snippet id="58321ac0-bb17-4032-988c-8ff3582378e9" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="opts" set_selection="false">
+<snippet id="2ed2ea2c-8afb-4f70-b4d6-a8afa8c85812" idref="d8a46a1f-a946-40ef-8ecd-233d05e38490" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
+def [[%tabstop:name]](self,*args):
+    """ [[%tabstop:docs]] """
+    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="d0e2875e-2841-4c91-a9c7-13de9e83b882" idref="d8a46a1f-a946-40ef-8ecd-233d05e38490" indent_relative="true" keyboard_shortcut="" name="opts" set_selection="false">
 from optparse import OptionParser
 
 parser.add_option("-[[%tabstop:f]]",
@@ -555,7 +1552,17 @@ parser.add_option("-[[%tabstop:f]]",
 		  help="[[%tabstop:desc]].",
 		  default="[[%tabstop:DEFAULT]]"
 		  )!@#_currentPos!@#_anchor</snippet>
-<snippet id="19a496a6-aa3e-4842-85d8-36bda5cd9d9a" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="false" keyboard_shortcut="" name="shebang" set_selection="true">
+<snippet id="d46c493f-2bb2-4640-89af-3821aa5bdbe8" idref="d8a46a1f-a946-40ef-8ecd-233d05e38490" indent_relative="true" keyboard_shortcut="" name="walk" set_selection="false">
+for root, dirs, files in os.walk([[%tabstop:dirname]]):
+    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="ea1f53c1-47a4-41bc-8d01-6aa899dd6866" idref="d8a46a1f-a946-40ef-8ecd-233d05e38490" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+""" [[%tabstop:docs]] """!@#_currentPos!@#_anchor</snippet>
+<snippet id="f8186d48-d7a1-4dee-8b9b-dc50bee1dfb2" idref="d8a46a1f-a946-40ef-8ecd-233d05e38490" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+class [[%tabstop:name]](object):
+    
+    def __init__(self,*args):
+	[[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="fd5e8334-9b0a-4f52-b8c6-3f08c41e79f1" idref="d8a46a1f-a946-40ef-8ecd-233d05e38490" indent_relative="false" keyboard_shortcut="" name="shebang" set_selection="true">
 #![[%python]]
 import os, re
 from os.path import join, abspath, isfile, isdir, exists, basename
@@ -563,24 +1570,182 @@ from shutil import copyfile, copytree, rmtree
 from time import strftime, strptime, localtime
 
 !@#_currentPos!@#_anchor</snippet>
-<snippet id="4b8807c2-4264-49b3-a804-f00d239bff58" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
+<snippet id="2d597236-07ac-4b7f-baeb-f9346d61b1ef" idref="dc0e6f49-8e09-4731-b7b4-dc55755b1da6" indent_relative="true" keyboard_shortcut="" name="proc" set_selection="false">
+proc [[%tabstop:NAME]] {[[%tabstop:ARGS]]} {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="581753bd-dd5c-47b5-9b3f-b5a97058f027" idref="dc0e6f49-8e09-4731-b7b4-dc55755b1da6" indent_relative="true" keyboard_shortcut="" name="for" set_selection="false">
+for {set [[%tabstop:START]]} {[[%tabstop:TEST]]} {[[%tabstop:NEXT]]}
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="a1f79881-d1f6-452d-ae9e-282a33ab9ebc" idref="dc0e6f49-8e09-4731-b7b4-dc55755b1da6" indent_relative="true" keyboard_shortcut="" name="switch" set_selection="false">
+switch [[%tabstop:STRING]] {
+    [[%tabstop:PATTERN]] {
+	[[%tabstop:ACTION]]
+    }
+    [[%tabstop:PATTERN2]]
+	[[%tabstop:ACTION2]]
+    }
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="a3922912-0ad3-401d-b292-b4cc8fcd3f8a" idref="dc0e6f49-8e09-4731-b7b4-dc55755b1da6" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
+foreach [[%tabstop:VAR]] [[%tabstop]] {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="be5bb4e6-2bca-4182-9217-fc1272a781f7" idref="dc0e6f49-8e09-4731-b7b4-dc55755b1da6" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
+while {[[%tabstop:EXPR]]} {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="0e0b0dd2-698b-4727-8ba2-df60f447e53d" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="com" set_selection="true">
+&lt;!-- !@#_currentPos!@#_anchor --&gt;
+</snippet>
+<snippet id="108ff1f8-37f8-43e1-98fe-b0f9c9804e84" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="p" set_selection="false">
+&lt;p class="[[%tabstop:classname]]"&gt;[[%tabstop:]]&lt;/p&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="10faa711-4852-43b9-a698-84adbe317d1f" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="ol" set_selection="false">
+&lt;ol id="[[%tabstop:id]]"&gt;
+    &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
+&lt;/ol&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="23bf7851-ed16-4d03-8d23-78a7f04eba63" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="style" set_selection="false">
+&lt;style type="text/css"&gt;
+[[%tabstop:]]
+&lt;/style&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="2c9b9dd3-8cc9-401f-b368-daa17a225ade" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="tag" set_selection="false">
+&lt;[[%tabstop:div]]&gt;[[%tabstop:]]&lt;/[[%tabstop:div]]&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="422712ab-79c7-4d87-b2ae-df34653f2177" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="textarea" set_selection="false">
+&lt;textarea id="[[%tabstop:id]]" cols="[[%tabstop:45]]" rows="[[%tabstop:15]]"&gt;
+[[%tabstop:]]
+&lt;/textarea&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="4df697c6-f5c0-4d0a-98e5-c729b59a9784" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="text" set_selection="false">
+&lt;label&gt;[[%tabstop:Label]]&lt;input type="text" id="[[%tabstop:id]]"/&gt;&lt;/label&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="7282676d-5dbf-4f06-a9b8-8816a390b56f" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="html4" set_selection="false">
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd"&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;[[%tabstop:title]]&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="7809d7e8-400e-4fbe-8518-5d5a42b34126" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="scriptlink" set_selection="false">
+&lt;script type="application/x-javascript" src="[[%tabstop:scriptname]]"&gt;&lt;/script&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="7b351bc3-8e32-4fd2-a7cd-38cd60fab787" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="ul" set_selection="false">
+&lt;ul id="[[%tabstop:id]]"&gt;
+    &lt;li&gt;[[%tabstop:text]]&lt;/li&gt;
+&lt;/ul&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="c08a3bf8-9f9c-41d0-95e6-bc7b164fdf67" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="div" set_selection="false">
+&lt;div id="[[%tabstop:id]]"&gt;
+    [[%tabstop:]]
+&lt;/div&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="c1b4a56d-de72-4c95-864e-59cdbf23d85e" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="li" set_selection="false">
+&lt;li&gt;[[%tabstop:]]&lt;/li&gt;!@#_currentPos!@#_anchor</snippet>
+<snippet id="c60c8a09-f055-414b-9430-d1576935513f" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="false" keyboard_shortcut="" name="xhtml" set_selection="false">
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"&gt;
+
+&lt;head&gt;
+    &lt;title&gt;[[%tabstop:title]]&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="d01ab110-77d8-452f-90c9-a401685d25ee" idref="e549c429-c680-40ee-b156-b23f96d855eb" indent_relative="true" keyboard_shortcut="" name="script" set_selection="false">
+&lt;script type="application/x-javascript"&gt;
+
+&lt;/script&gt;
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="0fd3a4ff-adbe-4b88-9cae-7abbb82dc0fb" idref="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
+def [[%tabstop:name]](self,*args):
+    """ [[%tabstop:docs]] """
+    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="415a145f-72e9-4b7b-9b6a-ff21a5d0b2e0" idref="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
+""" [[%tabstop:docs]] """!@#_currentPos!@#_anchor</snippet>
+<snippet id="5933dedb-26a0-430d-a219-b7497f4b8056" idref="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" indent_relative="true" keyboard_shortcut="" name="class" set_selection="false">
 class [[%tabstop:name]](object):
     
     def __init__(self,*args):
 	[[%tabstop:]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="e50bfb9e-87a2-4ba3-8852-45b4e99295c7" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
+<snippet id="5aafdc9c-b42a-45af-a7a9-6f1273e1fd2e" idref="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" indent_relative="true" keyboard_shortcut="" name="func" set_selection="false">
 def [[%tabstop:name]]([[%tabstop:arg1]]):
     [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="88fa5caa-a18e-49ac-8f4e-d882dad35596" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="meth" set_selection="false">
-def [[%tabstop:name]](self,*args):
-    """ [[%tabstop:docs]] """
-    [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="840aef15-5030-4b1e-86c1-a81ad208d3f8" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="walk" set_selection="false">
+<snippet id="89ac2046-3ba4-4d16-91be-3462444d50b5" idref="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" indent_relative="true" keyboard_shortcut="" name="opts" set_selection="false">
+from optparse import OptionParser
+
+parser.add_option("-[[%tabstop:f]]",
+		  "--[[%tabstop:file]]",
+		  dest="[[%tabstop:file]]",
+		  help="[[%tabstop:desc]].",
+		  default="[[%tabstop:DEFAULT]]"
+		  )!@#_currentPos!@#_anchor</snippet>
+<snippet id="8ac7fe10-fc6d-483e-9526-ab5949a25e82" idref="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" indent_relative="false" keyboard_shortcut="" name="shebang" set_selection="true">
+#![[%python]]
+import os, re
+from os.path import join, abspath, isfile, isdir, exists, basename
+from shutil import copyfile, copytree, rmtree
+from time import strftime, strptime, localtime
+
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="b7239bdc-93d2-4b0b-8764-e73f654d4fc3" idref="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" indent_relative="true" keyboard_shortcut="" name="walk" set_selection="false">
 for root, dirs, files in os.walk([[%tabstop:dirname]]):
     [[%tabstop:pass]]!@#_currentPos!@#_anchor</snippet>
-<snippet id="e7bff557-ddf7-4f7c-ac75-d006a9a0f84f" idref="0b7806ca-4c66-455e-b49e-974a4e92efc0" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
-""" [[%tabstop:docs]] """!@#_currentPos!@#_anchor</snippet>
+<snippet id="c4f31dea-2be3-4478-b6ba-a8149f864851" idref="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" indent_relative="true" keyboard_shortcut="" name="main" set_selection="true">
+if __name__ == '__main__':
+    !@#_anchorpass!@#_currentPos</snippet>
+<folder id="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="JavaScript">
+</folder>
+<folder id="133285d4-c003-4241-9d41-5f211540c590" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="XUL">
+</folder>
+<folder id="254add4c-911c-41b6-900c-030d17311e5b" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="General">
+</folder>
+<folder id="4b5a27c9-f76c-4876-9a1b-c17eb1448f0c" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="Tcl">
+</folder>
+<folder id="4ce7c525-33ae-4a3b-93ea-536437c644e9" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="PHP">
+</folder>
+<folder id="9aa86dba-bfd3-49d9-b2bf-3c58b8f654bb" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="HTML">
+</folder>
+<folder id="b5ce4d08-7e93-40ba-a0b1-dca0999f944d" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="RHTML">
+</folder>
+<folder id="c0f0bb61-9ef6-4ffc-8fe2-cb78c6bd986c" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="Perl">
+</folder>
+<folder id="cb9e9e8c-4843-4cce-86f7-1ca8e1164e0a" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="Ruby">
+</folder>
+<folder id="ec7c2eeb-1e9c-4ad0-a1da-a21cd9b4af8c" idref="f853449e-c3ff-4ec5-bceb-1711ae69e043" name="Python">
+</folder>
+<snippet id="0fa9511d-23fb-43bc-9a9a-22a04ba6f2f3" idref="fa7e64d9-32cf-417d-b63c-abce3696a5c2" indent_relative="true" keyboard_shortcut="" name="fore" set_selection="false">
+foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="5f23040c-0420-42b6-b20e-494778da26b9" idref="fa7e64d9-32cf-417d-b63c-abce3696a5c2" indent_relative="true" keyboard_shortcut="" name="while" set_selection="false">
+while ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}
+!@#_currentPos!@#_anchor</snippet>
+<snippet id="68c8065c-9bf7-4502-a419-ba22021a3c4e" idref="fa7e64d9-32cf-417d-b63c-abce3696a5c2" indent_relative="true" keyboard_shortcut="" name="if" set_selection="false">
+if ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+   }
+elsif ([[%tabstop:EXPR]]) {
+    [[%tabstop]]
+}
+else {
+    [[%tabstop]]
+}!@#_currentPos!@#_anchor</snippet>
+<snippet id="845e345c-49de-4d18-b313-171192279190" idref="fa7e64d9-32cf-417d-b63c-abce3696a5c2" indent_relative="true" keyboard_shortcut="" name="sheb" set_selection="false">
+#![[%(perl)]]!@#_currentPos!@#_anchor</snippet>
+<snippet id="ef0013cc-ef5b-4614-a3e4-30f3027300a6" idref="fa7e64d9-32cf-417d-b63c-abce3696a5c2" indent_relative="true" keyboard_shortcut="" name="hash" set_selection="false">
+%[[%tabstop:name]] (
+    [[%tabstop]]	=&gt; [[%tabstop]],
+    [[%tabstop]]	=&gt; [[%tabstop]],
+)!@#_currentPos!@#_anchor</snippet>
 <preference-set idref="042f8423-e917-496b-bdb4-bf14210a9e9d">
   <boolean id="import_live">0</boolean>
+</preference-set>
+<preference-set idref="5b99c86b-251a-4206-ae0d-729c2a50a5fe">
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store</string>
+  <string id="import_include_matches"></string>
+  <boolean id="import_live">0</boolean>
+  <boolean id="import_recursive">1</boolean>
+  <string id="import_type">useFolders</string>
 </preference-set>
 </project>
