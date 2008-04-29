@@ -3,10 +3,42 @@
 
 <preference-set >
   <boolean id="codeintel_have_preloaded_database">1</boolean>
+  <string id="cursorColor">#003300</string>
+  <string id="defaultSelectedPref">fontsItem</string>
+  <string id="editor-scheme">Andy</string>
   <string id="encodingDefault">utf8</string>
   <boolean id="haveInstalledSampleToolbox-Komodo4.3.0">1</boolean>
   <boolean id="haveInstalledSampleToolbox-Komodo4.3.2">1</boolean>
+  <string id="keybinding-scheme">Default</string>
+  <boolean id="keybindingDisableAccesskeys">0</boolean>
+  <string id="keybindings">Default
+Emacs
+Vi
+_vi
+</string>
   <string id="kpf_open_nodes_042f8423-e917-496b-bdb4-bf14210a9e9d">{}</string>
+<ordered-preference id="mruFileList">
+  <string>file:///home/andy/bin/mailtail</string>
+</ordered-preference>
+  <long id="mruFileSize">10</long>
+  <long id="mruProjectSize">5</long>
+  <string id="perlDefaultInterpreter">/alt/local/bin/perl</string>
+  <string id="perlExtraPaths"></string>
+  <string id="perl_lintOption">cw</string>
+  <string id="prefs.fontsColorsLanguages.langSpecific.lang">Python</string>
+  <long id="prefs.fontsColorsLanguages.whichTab">0</long>
+<ordered-preference id="run-commandMru">
+  <string>perltidy {'insertOutput': True, 'cwd': u'%D', 'operateOnSelection': True}</string>
+  <string>perltidy</string>
+</ordered-preference>
+<ordered-preference id="run-commandStringMru">
+  <string>perltidy</string>
+</ordered-preference>
+<ordered-preference id="run-cwdMru">
+  <string>%D</string>
+</ordered-preference>
+  <boolean id="runShowMoreOptions">1</boolean>
+  <boolean id="show_start_page">1</boolean>
   <boolean id="start_page_landing_box_closed">0</boolean>
   <boolean id="start_page_mru_box_closed">0</boolean>
   <boolean id="start_page_quick_links_box_closed">0</boolean>
@@ -15,4 +47,24 @@
   <string id="uilayout_bottomTabBoxSelectedTabId">runoutput_tab</string>
   <string id="uilayout_leftTabBoxSelectedTabId">project_tab</string>
   <string id="uilayout_rightTabBoxSelectedTabId">toolbox_tab</string>
+<preference-set id="workspace">
+<preference-set id="topview">
+<ordered-preference id="childState">
+<preference-set >
+  <long id="current_view_index">1</long>
+<ordered-preference id="view_prefs">
+<preference-set >
+  <string id="URI">file:///home/andy/bin/mailtail</string>
+  <string id="viewtype">editor</string>
+</preference-set>
+</ordered-preference>
+</preference-set>
+</ordered-preference>
+  <string id="orientation">vertical</string>
+<ordered-preference id="viewHistoryState">
+  <string>file:///home/andy/bin/mailtail?parentId=view-1</string>
+  <string>chrome://komodo/content/startpage/startpage.xml#view-startpage?parentId=view-1</string>
+</ordered-preference>
+</preference-set>
+</preference-set>
 </preference-set>
