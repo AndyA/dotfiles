@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Regexp::Common qw[Email::Address];
+use Email::Address;
+
+my %seen = ();
+while ( <> ) {
+    my ( @found ) = /($RE{Email}{Address})/g;
+    my ( @addrs ) = map lc( $_->address ),
+      Email::Address->parse( "@found" );
+    for ( @addrs ) {
+        print "$_\n" unless $seen{$_}++;
+    }
+}
