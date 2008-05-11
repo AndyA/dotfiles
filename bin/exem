@@ -7,8 +7,9 @@ use Regexp::Common qw[Email::Address];
 use Email::Address;
 
 my %seen = ();
+my $re   = $RE{Email}{Address};
 while ( <> ) {
-    my ( @found ) = /($RE{Email}{Address})/g;
+    my ( @found ) = /($re)/g;
     my ( @addrs ) = map lc( $_->address ),
       Email::Address->parse( "@found" );
     for ( @addrs ) {
