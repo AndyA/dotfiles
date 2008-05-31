@@ -1,7 +1,6 @@
 # Prompt
 function prompt_command {
     history -a
-    echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"
 }
 
 export -f prompt_command
