@@ -59,7 +59,7 @@ if(typeof([[%tabstop:name]]) == 'undefined') {
 </folder>
 <folder id="5b99c86b-251a-4206-ae0d-729c2a50a5fe" idref="042f8423-e917-496b-bdb4-bf14210a9e9d" name="Samples (4.3.0)">
 </folder>
-<command cwd="%D" doNotOpenOutputWindow="0" env="" id="d561b7d5-c47e-4af2-a5ae-10f702d9db51" idref="042f8423-e917-496b-bdb4-bf14210a9e9d" insertOutput="1" keyboard_shortcut="Alt+Shift+H" name="PerlTidy" operateOnSelection="1" parseOutput="0" parseRegex="" runIn="command-output-window" showParsedOutputList="0">
+<command cwd="%D" doNotOpenOutputWindow="0" env="" icon="chrome://famfamfamsilk/skin/icons/cog.png" id="d561b7d5-c47e-4af2-a5ae-10f702d9db51" idref="042f8423-e917-496b-bdb4-bf14210a9e9d" insertOutput="1" keyboard_shortcut="Alt+Shift+H" name="PerlTidy" operateOnSelection="1" parseOutput="0" parseRegex="" runIn="command-output-window" showParsedOutputList="0">
 perltidy</command>
 <snippet id="12c63ab8-b8ac-4f05-af1e-2395e298f9c6" idref="05aa182e-0ce5-4222-9ea9-03c66fe42ec7" indent_relative="true" keyboard_shortcut="" name="doc" set_selection="false">
 /**

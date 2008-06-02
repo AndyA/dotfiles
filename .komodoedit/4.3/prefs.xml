@@ -2,31 +2,245 @@
 <!-- Komodo Preferences File - DO NOT EDIT -->
 
 <preference-set >
+  <string id="ActionScriptHelpCommand">%(browser) http://www.google.com/search?q=site%3Aadobe.com%20ActionScript%20Reference+%W</string>
+  <string id="DefaultHelpCommand">%(browser) http://www.google.com/search?q=%W</string>
+  <string id="OtherHelpCommand">%(browser) http://www.google.com/search?q=%W</string>
+  <long id="autoSaveMinutes">10</long>
+  <string id="browser"></string>
+  <string id="browser_preview_method">in-tab-other-group</string>
+  <long id="caretStyle">1</long>
+  <long id="caretWidth">1</long>
+  <boolean id="checkDiskFile">1</boolean>
+  <boolean id="cleanLineEnds">0</boolean>
+  <boolean id="codeintel_completion_fillups_enabled">0</boolean>
+  <boolean id="codeintel_completion_triggering_enabled">1</boolean>
   <boolean id="codeintel_have_preloaded_database">1</boolean>
   <string id="cursorColor">#003300</string>
-  <string id="defaultSelectedPref">fontsItem</string>
+  <string id="defaultDateFormat">%a %b %d %H:%M:%S %Y</string>
+  <string id="defaultSelectedPref">editSaveItem</string>
+  <boolean id="diskBackgroundCheck">1</boolean>
+  <long id="diskBackgroundMinutes">15</long>
+  <string id="donotask_action_close_all_files_on_project_close"></string>
+  <string id="donotask_action_close_deleted_files"></string>
+  <string id="donotask_action_dragdrop_mapped_uri"></string>
+  <string id="donotask_action_ensure_filename_has_ext"></string>
+  <string id="donotask_action_ensure_new_filename_has_ext"></string>
+  <string id="donotask_action_open_recent_files_on_project_open"></string>
+  <string id="donotask_action_reload_changed_files"></string>
+  <string id="donotask_action_restore_workspace">Yes</string>
+  <boolean id="donotask_buffer_conflicts_with_file_on_disk">0</boolean>
+  <boolean id="donotask_close_all_files_on_project_close">0</boolean>
+  <boolean id="donotask_close_deleted_files">0</boolean>
+  <boolean id="donotask_dragdrop_mapped_uri">0</boolean>
+  <boolean id="donotask_ensure_filename_has_ext">0</boolean>
+  <boolean id="donotask_ensure_new_filename_has_ext">0</boolean>
+  <boolean id="donotask_open_recent_files_on_project_open">0</boolean>
+  <boolean id="donotask_reload_changed_files">0</boolean>
+  <boolean id="donotask_restore_workspace">1</boolean>
+  <boolean id="donotask_startup_reopen_file_error_dialog">0</boolean>
   <string id="editor-scheme">Andy</string>
-  <string id="encodingDefault">utf8</string>
+  <boolean id="encodingAutoDetect">1</boolean>
+  <string id="encodingDefault">ascii</string>
+  <boolean id="encodingEnvironment">1</boolean>
+  <boolean id="encodingHTML">0</boolean>
+  <boolean id="encodingModeline">1</boolean>
+  <boolean id="encodingXMLDec">1</boolean>
+  <string id="endOfLine">LF</string>
+  <boolean id="ensureFinalEOL">0</boolean>
+  <string id="fileDefaultNew">Text</string>
+  <boolean id="find-confirmReplacementsInFiles">1</boolean>
+<ordered-preference id="find-excludeFiletypes">
+</ordered-preference>
+<ordered-preference id="find-folders">
+  <string></string>
+</ordered-preference>
+<ordered-preference id="find-includeFiletypes">
+</ordered-preference>
+  <boolean id="find-matchWord">0</boolean>
+  <boolean id="find-multiline">0</boolean>
+  <long id="find-patternType">0</long>
+  <boolean id="find-searchInSubfolders">1</boolean>
+  <boolean id="find-showReplaceAllResults">1</boolean>
   <boolean id="haveInstalledSampleToolbox-Komodo4.3.0">1</boolean>
   <boolean id="haveInstalledSampleToolbox-Komodo4.3.2">1</boolean>
+  <string id="import_dirname"></string>
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store</string>
+  <string id="import_include_matches"></string>
+  <boolean id="import_live">1</boolean>
+  <boolean id="import_recursive">1</boolean>
+  <string id="import_type">useFolders</string>
+  <string id="isearchCaseSensitivity">2</string>
+  <string id="isearchType">0</string>
   <string id="keybinding-scheme">Default</string>
   <boolean id="keybindingDisableAccesskeys">0</boolean>
   <string id="keybindings">Default
 Emacs
+TextMate
 Vi
 _vi
 </string>
   <string id="kpf_open_nodes_042f8423-e917-496b-bdb4-bf14210a9e9d">{}</string>
+  <string id="kpf_open_nodes_9ae253dd-2b86-48fd-903b-36558d6288b1">{'9ae253dd-2b86-48fd-903b-36558d6288b1': True, u'9ae253dd-2b86-48fd-903b-36558d6288b1/2.2': True, u'9ae253dd-2b86-48fd-903b-36558d6288b1/2.2/tests': True}</string>
+<preference-set id="languages">
+<preference-set id="languages/Ada">
+  <boolean id="Ada/newBOM">0</boolean>
+  <string id="Ada/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Apache">
+  <boolean id="Apache/newBOM">0</boolean>
+  <string id="Apache/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Baan">
+  <boolean id="Baan/newBOM">0</boolean>
+  <string id="Baan/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Batch">
+  <boolean id="Batch/newBOM">0</boolean>
+  <string id="Batch/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Bullant">
+  <boolean id="Bullant/newBOM">0</boolean>
+  <string id="Bullant/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/C#">
+  <boolean id="C#/newBOM">0</boolean>
+  <string id="C#/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/C++">
+  <boolean id="C++/newBOM">0</boolean>
+  <string id="C++/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/CSS">
+  <boolean id="CSS/newBOM">0</boolean>
+  <string id="CSS/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Diff">
+  <boolean id="Diff/newBOM">0</boolean>
+  <string id="Diff/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Eiffel">
+  <boolean id="Eiffel/newBOM">0</boolean>
+  <string id="Eiffel/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Errors">
+  <boolean id="C++/newBOM">0</boolean>
+  <string id="C++/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Fortran">
+  <boolean id="Fortran/newBOM">0</boolean>
+  <string id="Fortran/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Fortran 77">
+  <boolean id="Fortran 77/newBOM">0</boolean>
+  <string id="Fortran 77/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/HTML">
+  <boolean id="HTML/newBOM">0</boolean>
+  <string id="HTML/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/IDL">
+  <boolean id="IDL/newBOM">0</boolean>
+  <string id="IDL/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Java">
+  <boolean id="Java/newBOM">0</boolean>
+  <string id="Java/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/JavaScript">
+  <boolean id="JavaScript/newBOM">0</boolean>
+  <string id="JavaScript/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/LaTeX">
+  <boolean id="LaTeX/newBOM">0</boolean>
+  <string id="LaTeX/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Lisp">
+  <boolean id="Lisp/newBOM">0</boolean>
+  <string id="Lisp/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Lua">
+  <boolean id="Lua/newBOM">0</boolean>
+  <string id="Lua/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Makefile">
+  <boolean id="Makefile/newBOM">0</boolean>
+  <string id="Makefile/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Matlab">
+  <boolean id="Matlab/newBOM">0</boolean>
+  <string id="Matlab/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/PHP">
+  <boolean id="PHP/newBOM">0</boolean>
+  <string id="PHP/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Pascal">
+  <boolean id="Pascal/newBOM">0</boolean>
+  <string id="Pascal/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Perl">
+  <boolean id="Perl/newBOM">0</boolean>
+  <string id="Perl/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Python">
+  <boolean id="Python/newBOM">0</boolean>
+  <string id="Python/newEncoding">ascii</string>
+</preference-set>
+<preference-set id="languages/Ruby">
+  <boolean id="Ruby/newBOM">0</boolean>
+  <string id="Ruby/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/SQL">
+  <boolean id="SQL/newBOM">0</boolean>
+  <string id="SQL/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Tcl">
+  <boolean id="Tcl/newBOM">0</boolean>
+  <string id="Tcl/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/Text">
+  <boolean id="Text/newBOM">0</boolean>
+  <string id="Text/newEncoding">Default Encoding</string>
+</preference-set>
+<preference-set id="languages/VisualBasic">
+  <boolean id="VisualBasic/newBOM">0</boolean>
+  <string id="VisualBasic/newEncoding">utf-8</string>
+</preference-set>
+<preference-set id="languages/XML">
+  <boolean id="XML/newBOM">0</boolean>
+  <string id="XML/newEncoding">utf-8</string>
+</preference-set>
+<preference-set id="languages/XSLT">
+  <boolean id="XSLT/newBOM">0</boolean>
+  <string id="XSLT/newEncoding">utf-8</string>
+</preference-set>
+<preference-set id="languages/nnCrontab">
+  <boolean id="nnCrontab/newBOM">0</boolean>
+  <string id="nnCrontab/newEncoding">Default Encoding</string>
+</preference-set>
+</preference-set>
+  <string id="mappedPaths"></string>
 <ordered-preference id="mruFileList">
+  <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests.pl</string>
+  <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests3.pl</string>
   <string>file:///home/andy/bin/mailtail</string>
 </ordered-preference>
   <long id="mruFileSize">10</long>
+<ordered-preference id="mruProjectList">
+  <string>file:///home/andy/Works/MessageSystems/eCelerity.kpf</string>
+</ordered-preference>
   <long id="mruProjectSize">5</long>
+  <long id="mruTemplateSize">5</long>
   <string id="perlDefaultInterpreter">/alt/local/bin/perl</string>
   <string id="perlExtraPaths"></string>
   <string id="perl_lintOption">cw</string>
   <string id="prefs.fontsColorsLanguages.langSpecific.lang">Python</string>
   <long id="prefs.fontsColorsLanguages.whichTab">0</long>
+  <long id="print_lineLength">132</long>
+  <double id="print_scalingRatio">1.5</double>
+  <boolean id="print_showLineNos">1</boolean>
+  <boolean id="print_useColor">0</boolean>
+  <long id="remotefiles_defaultConnectionTimeout">30</long>
 <ordered-preference id="run-commandMru">
   <string>perltidy {'insertOutput': True, 'cwd': u'%D', 'operateOnSelection': True}</string>
   <string>perltidy</string>
@@ -38,23 +252,36 @@ _vi
   <string>%D</string>
 </ordered-preference>
   <boolean id="runShowMoreOptions">1</boolean>
+  <boolean id="scrollEndAtLastLine">0</boolean>
+  <long id="scrollWidth">2000</long>
+  <boolean id="showEOL">0</boolean>
+  <boolean id="showLineNumbers">0</boolean>
+  <boolean id="showWhitespace">0</boolean>
   <boolean id="show_start_page">1</boolean>
   <boolean id="start_page_landing_box_closed">0</boolean>
   <boolean id="start_page_mru_box_closed">0</boolean>
   <boolean id="start_page_quick_links_box_closed">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
-  <boolean id="startupMaximized">1</boolean>
+  <boolean id="startupMaximized">0</boolean>
+  <boolean id="triggering_macros_enabled">1</boolean>
   <string id="uilayout_bottomTabBoxSelectedTabId">runoutput_tab</string>
   <string id="uilayout_leftTabBoxSelectedTabId">project_tab</string>
   <string id="uilayout_rightTabBoxSelectedTabId">toolbox_tab</string>
 <preference-set id="workspace">
+<ordered-preference id="opened_projects">
+  <string>file:///home/andy/Works/MessageSystems/eCelerity.kpf</string>
+</ordered-preference>
 <preference-set id="topview">
 <ordered-preference id="childState">
 <preference-set >
   <long id="current_view_index">1</long>
 <ordered-preference id="view_prefs">
 <preference-set >
-  <string id="URI">file:///home/andy/bin/mailtail</string>
+  <string id="URI">file:///home/andy/Works/MessageSystems/2.2/tests/runtests3.pl</string>
+  <string id="viewtype">editor</string>
+</preference-set>
+<preference-set >
+  <string id="URI">file:///home/andy/Works/MessageSystems/2.2/tests/runtests.pl</string>
   <string id="viewtype">editor</string>
 </preference-set>
 </ordered-preference>
@@ -62,9 +289,11 @@ _vi
 </ordered-preference>
   <string id="orientation">vertical</string>
 <ordered-preference id="viewHistoryState">
-  <string>file:///home/andy/bin/mailtail?parentId=view-1</string>
+  <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests3.pl?parentId=view-1</string>
   <string>chrome://komodo/content/startpage/startpage.xml#view-startpage?parentId=view-1</string>
+  <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests.pl?parentId=view-1</string>
 </ordered-preference>
 </preference-set>
 </preference-set>
+  <long id="ySlop">5</long>
 </preference-set>
