@@ -64,8 +64,7 @@ sub centre {
 
 sub colourtab {
     my ( $hdr, @pfx ) = @_;
-    my @real = sort { $attr{$a} <=> $attr{$b} }
-      grep { $_ !~ /Reset$/ } @colname;
+    my @real = sort    { $attr{$a} <=> $attr{$b} } @colname;
     my @rows = grep    { /^Fore/ } @real;
     my @cols = grep    { /^Back/ } @real;
     my $len  = max map { length } @real;
