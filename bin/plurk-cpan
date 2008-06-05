@@ -6,7 +6,6 @@ use Carp;
 use Data::Dumper;
 use HTTP::Date;
 use LWP::Simple;
-use Net::Twitter;
 use Net::XMPP;
 use RDF::Simple::Parser;
 use Storable;
@@ -14,7 +13,7 @@ use Storable;
 $| = 1;
 
 my $LATEST = 'http://search.cpan.org/uploads.rdf';
-my $STORE  = './twitter-cpan.store';
+my $STORE  = './plurk-cpan.store';
 
 my %EXTRACT = (
     'http://purl.org/rss/1.0/title'           => 'title',
@@ -46,10 +45,8 @@ my @keys = map { $_->[0] }
 for my $key ( @keys ) {
     next if exists $prev->{$key};
     my $dist = $dir->{$key};
-
-    # Shite
-    next if $dist->{title} eq 'search.cpan.org';
-    my $desc = $dist->{title} . ' by ' . $dist->{creator};
+    next if $dist->{title} eq 'search.cpan.org';    # Shite
+    my $desc = $dist->{title} . ' by ' . $dist->{creator} . "\n$key";
     update( $desc );
 }
 
