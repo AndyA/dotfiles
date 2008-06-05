@@ -4,15 +4,70 @@ use strict;
 use warnings;
 use Carp;
 use Data::Dumper;
+use HTTP::Date;
+use LWP::Simple;
+use Net::Twitter;
 use Net::XMPP;
+use RDF::Simple::Parser;
+use Storable;
 
-send_gtalk_message(
-    user     => 'cpanrelease@googlemail.com',
-    password => 'crabcrab',
-    # target   => 'hexten@gmail.com',
-    target  => 'plurkbuddy@im.plurk.com',
-    message => 'Hello, World',
+$| = 1;
+
+my $LATEST = 'http://search.cpan.org/uploads.rdf';
+my $STORE  = './twitter-cpan.store';
+
+my %EXTRACT = (
+    'http://purl.org/rss/1.0/title'           => 'title',
+    'http://purl.org/rss/1.0/link'            => 'link',
+    'http://purl.org/rss/1.0/description'     => 'description',
+    'http://purl.org/dc/elements/1.1/creator' => 'creator',
+    'http://purl.org/dc/elements/1.1/date'    => 'date',
 );
+
+my $feed    = LWP::Simple::get( $LATEST );
+my $parser  = RDF::Simple::Parser->new( base => $LATEST );
+my @triples = $parser->parse_rdf( $feed );
+
+my $prev = -f $STORE ? retrieve( $STORE ) : {};
+my $dir = {};
+
+for my $tri ( @triples ) {
+    my ( $key, $type, $value ) = @$tri;
+    if ( my $field = $EXTRACT{$type} ) {
+        $dir->{$key}{$field} = $value;
+    }
+}
+
+my @keys = map { $_->[0] }
+  sort { $a->[1] <=> $b->[1] }
+  grep { defined $_->[1] }
+  map { [ $_, str2time( $dir->{$_}->{date} ) ] } keys %$dir;
+
+for my $key ( @keys ) {
+    next if exists $prev->{$key};
+    my $dist = $dir->{$key};
+
+    # Shite
+    next if $dist->{title} eq 'search.cpan.org';
+    my $desc = $dist->{title} . ' by ' . $dist->{creator};
+    update( $desc );
+}
+
+store( $dir, $STORE );
+
+sub update {
+    my $msg = shift;
+
+    print "$msg\n";
+
+    send_gtalk_message(
+        user     => 'cpanrelease@googlemail.com',
+        password => 'crabcrab',
+        # target   => 'hexten@gmail.com',
+        target  => 'plurkbuddy@im.plurk.com',
+        message => $msg,
+    );
+}
 
 sub send_gtalk_message {
     my %args = (
