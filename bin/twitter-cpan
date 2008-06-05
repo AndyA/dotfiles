@@ -1,0 +1,3 @@
+#!/bin/sh
+cd /home/andy/Works/Perl/scripts
+./twitter-cpan.pl
