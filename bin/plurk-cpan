@@ -13,7 +13,7 @@ use Storable;
 $| = 1;
 
 my $LATEST = 'http://search.cpan.org/uploads.rdf';
-my $STORE  = './plurk-cpan.store';
+my $STORE  = glob '~/plurk-cpan.store';
 
 my %EXTRACT = (
     'http://purl.org/rss/1.0/title'           => 'title',
