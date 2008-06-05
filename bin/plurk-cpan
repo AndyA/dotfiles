@@ -1,0 +1,64 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Carp;
+use Data::Dumper;
+use Net::XMPP;
+
+send_gtalk_message(
+    user     => 'cpanrelease@googlemail.com',
+    password => 'crabcrab',
+    # target   => 'hexten@gmail.com',
+    target  => 'plurkbuddy@im.plurk.com',
+    message => 'Hello, World',
+);
+
+sub send_gtalk_message {
+    my %args = (
+        port     => 5222,
+        hostname => 'talk.google.com',
+        resource => 'PerlBot',
+        @_
+    );
+
+    for ( qw(user password target message hostname resource) ) {
+        croak "send_gtalk_message requires a $_ argument."
+          unless defined $args{$_};
+    }
+
+    my ( $user, $component ) = split /\@/, $args{user};
+
+    my $gt = Net::XMPP::Client->new;
+
+    $gt->Connect(
+        hostname       => $args{hostname},
+        port           => $args{port},
+        componentname  => $component,
+        connectiontype => 'tcpip',
+        tls            => 1
+    ) or die "Connect failed: $!\n";
+
+    my $sid = $gt->{SESSION}->{id};
+    $gt->{STREAM}->{SIDS}->{$sid}->{hostname} = $component;
+
+    my @result = $gt->AuthSend(
+        username => $user,
+        password => $args{password},
+        resource => $args{resource}
+    );
+
+    die "ERROR: Authorization failed: @result\n"
+      unless $result[0] eq 'ok';
+
+    die "Could not connect to $args{hostname} server"
+      unless $gt->Connected;
+
+    $gt->MessageSend(
+        to       => $args{target},
+        resource => $args{resource},
+        body     => $args{message}
+    );
+
+    $gt->Disconnect();
+}
