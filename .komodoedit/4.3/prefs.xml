@@ -40,7 +40,7 @@
   <boolean id="donotask_startup_reopen_file_error_dialog">0</boolean>
   <string id="editor-scheme">Andy</string>
   <boolean id="encodingAutoDetect">1</boolean>
-  <string id="encodingDefault">ascii</string>
+  <string id="encodingDefault">utf8</string>
   <boolean id="encodingEnvironment">1</boolean>
   <boolean id="encodingHTML">0</boolean>
   <boolean id="encodingModeline">1</boolean>
