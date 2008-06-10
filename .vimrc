@@ -42,7 +42,7 @@ endfunction
 
 " Insert Perl boilerplate
 function PerlStart()
-    call append(0, "#!/usr/bin/perl")
+    call append(0, "#!/usr/bin/env perl")
     call append(1, "")
     call append(2, "use strict;")
     call append(3, "use warnings;")
