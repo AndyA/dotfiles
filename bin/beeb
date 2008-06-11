@@ -1,13 +1,32 @@
 #!/usr/bin/env perl
 
+use strict;
+use warnings;
+use Getopt::Long;
+
+my $visible_space = 0;
+my $show_help     = 0;
+
+GetOptions(
+    'V'       => \$visible_space,
+    'visible' => \$visible_space,
+    'help'    => \$show_help
+) or syntax();
+
+if ( $show_help ) {
+    show_help();
+    exit 0;
+}
+
 while ( <> ) {
     chomp;
-    print "\n", bigness( $_ );
+    print "\n", bigness( $_, $visible_space );
 }
 
 sub bigness {
-    my $str = join '', @_;
-    my @cdef = (
+    my $str           = shift;
+    my $visible_space = shift;
+    my @cdef          = (
         '0000000000000000', '1818181818001800',
         '6c6c6c0000000000', '36367f367f363600',
         '0c3f683e0b7e1800', '60660c1830660600',
@@ -66,10 +85,32 @@ sub bigness {
             my $byte
               = hex( substr( $cdef[ $char - 32 ], $row * 2, 2 ) );
             my $bits = sprintf( '%08b', $byte );
-            $bits =~ tr/01/ #/;
-            push @out, $bits;
+            if ( $visible_space ) {
+                $bits =~ tr/01/_#/;
+                push @out, "$bits|";
+            }
+            else {
+                $bits =~ tr/01/ #/;
+                push @out, $bits;
+            }
         }
         push @out, "\n";
     }
     return join '', @out;
+}
+
+sub show_help {
+    print <<EOH;
+Syntax: beeb [options]
+
+Options:
+    -V, --visible   Visible whitespace
+    --help          Display this text
+
+EOH
+}
+
+sub syntax {
+    show_help();
+    die "Bad syntax\n";
 }
