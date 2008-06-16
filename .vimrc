@@ -118,7 +118,8 @@ ia Therese Thérèse
 set incsearch
 set hlsearch
 set background=dark
-colorscheme kib_darktango
+"colorscheme kib_darktango
+colorscheme golden
 set title
 set shiftwidth=4
 set softtabstop=4
