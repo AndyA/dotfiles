@@ -2,5 +2,5 @@
 tags=~/.vim/perltags
 work=$tags.$$
 log=$tags.log
-ptags --abs --installed 2> $log | sort -u > $work
+ptags --sort --abs --installed 2> $log > $work
 mv $work $tags
