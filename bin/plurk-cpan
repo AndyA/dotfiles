@@ -8,6 +8,7 @@ use HTTP::Date;
 use LWP::Simple;
 use Net::XMPP;
 use RDF::Simple::Parser;
+use WWW::Plurk;
 use Storable;
 
 $| = 1;
@@ -52,65 +53,26 @@ for my $key ( @keys ) {
 
 store( $dir, $STORE );
 
-sub update {
-    my $msg = shift;
+{
+    my $plurk;
 
-    print "$msg\n";
+    sub update {
+        my $msg = shift;
 
-    send_gtalk_message(
-        user     => 'cpanrelease@googlemail.com',
-        password => 'crabcrab',
-        # target   => 'hexten@gmail.com',
-        target  => 'plurkbuddy@im.plurk.com',
-        message => $msg,
-    );
-}
+        print "$msg\n";
 
-sub send_gtalk_message {
-    my %args = (
-        port     => 5222,
-        hostname => 'talk.google.com',
-        resource => 'PerlBot',
-        @_
-    );
+        POST: {
+            $plurk ||= WWW::Plurk->new( 'cpan', 'crabcrab' );
+            eval { $plurk->add_plurk( content => $msg ) };
 
-    for ( qw(user password target message hostname resource) ) {
-        croak "send_gtalk_message requires a $_ argument."
-          unless defined $args{$_};
+            if ( $@ ) {
+                print "Plurk failed, sleeping for five minutes\n($@)\n";
+                sleep 60 * 5;
+                redo POST;
+                print "Retry $msg\n";
+            }
+
+            sleep 30;
+        }
     }
-
-    my ( $user, $component ) = split /\@/, $args{user};
-
-    my $gt = Net::XMPP::Client->new;
-
-    $gt->Connect(
-        hostname       => $args{hostname},
-        port           => $args{port},
-        componentname  => $component,
-        connectiontype => 'tcpip',
-        tls            => 1
-    ) or die "Connect failed: $!\n";
-
-    my $sid = $gt->{SESSION}->{id};
-    $gt->{STREAM}->{SIDS}->{$sid}->{hostname} = $component;
-
-    my @result = $gt->AuthSend(
-        username => $user,
-        password => $args{password},
-        resource => $args{resource}
-    );
-
-    die "ERROR: Authorization failed: @result\n"
-      unless $result[0] eq 'ok';
-
-    die "Could not connect to $args{hostname} server"
-      unless $gt->Connected;
-
-    $gt->MessageSend(
-        to       => $args{target},
-        resource => $args{resource},
-        body     => $args{message}
-    );
-
-    $gt->Disconnect();
 }
