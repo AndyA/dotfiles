@@ -1,0 +1,3 @@
+# pgsql path
+pgsql=/opt/local/lib/postgresql83/bin
+[ -d $pgsql ] && PATH=$pgsql:$PATH
