@@ -164,8 +164,8 @@ sub scan_thing {
 #   http://ctags.sourceforge.net/ctags.html
 
 sub tags {
-    my $file  = shift;
-    my $depth = shift;
+    my $file = shift;
+    my $depth = shift || 0;
     return if $done{$file}++;
     print STDERR "$file\n" if $progress;
     my $doc = PPI::Document->new( $file );
