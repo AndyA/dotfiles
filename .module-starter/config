@@ -2,4 +2,4 @@ author:  Andy Armstrong
 email:   andy@hexten.net
 builder: ExtUtils::MakeMaker Module::Build
 plugins: Module::Starter::PBP
-template_dir: /Users/andy/.module-starter/PBP
+template_dir: /home/andy/.module-starter/PBP

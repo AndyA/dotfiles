@@ -67,7 +67,8 @@ store( $dir, $STORE );
 
             if ( my $error = $@ ) {
                 $error =~ s/\s+at\s+\S+\s+line\s+\d+\s*//;
-                print "Plurk failed ($error), sleeping for five minutes\n";
+                print
+                  "Plurk failed ($error), sleeping for five minutes\n";
                 sleep 60 * 5;
                 redo POST;
                 print "Retry $msg\n";

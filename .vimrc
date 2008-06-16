@@ -115,16 +115,18 @@ ia #e andy@hexten.net
 ia Therese Thérèse
 
 " Other global options
+"colorscheme kib_darktango
+colorscheme golden
 set incsearch
 set hlsearch
 set background=dark
-"colorscheme kib_darktango
-colorscheme golden
 set title
 set shiftwidth=4
 set softtabstop=4
 set shiftround
 set expandtab
+set vb
+set t_vb=
 syntax on
 
 au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")

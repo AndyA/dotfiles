@@ -81,6 +81,7 @@ _vi
 </string>
   <string id="kpf_open_nodes_042f8423-e917-496b-bdb4-bf14210a9e9d">{}</string>
   <string id="kpf_open_nodes_9ae253dd-2b86-48fd-903b-36558d6288b1">{'9ae253dd-2b86-48fd-903b-36558d6288b1': True, u'9ae253dd-2b86-48fd-903b-36558d6288b1/2.2': True, u'9ae253dd-2b86-48fd-903b-36558d6288b1/2.2/tests': True}</string>
+  <string id="kpf_open_nodes_9edefb8c-dfa5-414a-a397-0c0a70038098">{u'9edefb8c-dfa5-414a-a397-0c0a70038098/trunk': True, '9edefb8c-dfa5-414a-a397-0c0a70038098': True, u'9edefb8c-dfa5-414a-a397-0c0a70038098/trunk/lib': True, u'9edefb8c-dfa5-414a-a397-0c0a70038098/trunk/lib/WWW': True}</string>
 <preference-set id="languages">
 <preference-set id="languages/Ada">
   <boolean id="Ada/newBOM">0</boolean>
@@ -221,12 +222,14 @@ _vi
 </preference-set>
   <string id="mappedPaths"></string>
 <ordered-preference id="mruFileList">
+  <string>file:///home/andy/Works/Perl/WWW-Plurk/trunk/lib/WWW/Plurk.pm</string>
   <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests.pl</string>
   <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests3.pl</string>
   <string>file:///home/andy/bin/mailtail</string>
 </ordered-preference>
   <long id="mruFileSize">10</long>
 <ordered-preference id="mruProjectList">
+  <string>file:///home/andy/Works/Perl/WWW-Plurk/WWW-Plurk.kpf</string>
   <string>file:///home/andy/Works/MessageSystems/eCelerity.kpf</string>
 </ordered-preference>
   <long id="mruProjectSize">5</long>
@@ -262,14 +265,14 @@ _vi
   <boolean id="start_page_mru_box_closed">0</boolean>
   <boolean id="start_page_quick_links_box_closed">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
-  <boolean id="startupMaximized">0</boolean>
+  <boolean id="startupMaximized">1</boolean>
   <boolean id="triggering_macros_enabled">1</boolean>
   <string id="uilayout_bottomTabBoxSelectedTabId">runoutput_tab</string>
   <string id="uilayout_leftTabBoxSelectedTabId">project_tab</string>
   <string id="uilayout_rightTabBoxSelectedTabId">toolbox_tab</string>
 <preference-set id="workspace">
 <ordered-preference id="opened_projects">
-  <string>file:///home/andy/Works/MessageSystems/eCelerity.kpf</string>
+  <string>file:///home/andy/Works/Perl/WWW-Plurk/WWW-Plurk.kpf</string>
 </ordered-preference>
 <preference-set id="topview">
 <ordered-preference id="childState">
@@ -277,11 +280,7 @@ _vi
   <long id="current_view_index">1</long>
 <ordered-preference id="view_prefs">
 <preference-set >
-  <string id="URI">file:///home/andy/Works/MessageSystems/2.2/tests/runtests3.pl</string>
-  <string id="viewtype">editor</string>
-</preference-set>
-<preference-set >
-  <string id="URI">file:///home/andy/Works/MessageSystems/2.2/tests/runtests.pl</string>
+  <string id="URI">file:///home/andy/Works/Perl/WWW-Plurk/trunk/lib/WWW/Plurk.pm</string>
   <string id="viewtype">editor</string>
 </preference-set>
 </ordered-preference>
@@ -289,9 +288,8 @@ _vi
 </ordered-preference>
   <string id="orientation">vertical</string>
 <ordered-preference id="viewHistoryState">
-  <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests3.pl?parentId=view-1</string>
+  <string>file:///home/andy/Works/Perl/WWW-Plurk/trunk/lib/WWW/Plurk.pm?parentId=view-1</string>
   <string>chrome://komodo/content/startpage/startpage.xml#view-startpage?parentId=view-1</string>
-  <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests.pl?parentId=view-1</string>
 </ordered-preference>
 </preference-set>
 </preference-set>
