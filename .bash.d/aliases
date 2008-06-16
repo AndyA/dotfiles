@@ -1,2 +1,4 @@
 # Sorry vi fans...
 alias vi=vim
+alias indent=gnuindent
+alias prv="make ; prove -rb --state=hot,fast,save t"
