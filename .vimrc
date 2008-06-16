@@ -36,6 +36,9 @@ function PerlSettings()
     setlocal comments=:#
     setlocal cinkeys-=0#
     setlocal keywordprg=perldoc
+    setlocal iskeyword+=:
+    setlocal tags=./tags,tags,~/.vim/perltags
+
     noremap <f2> :%!perltidy<CR>
     noremap <f12> :call PerlRun()<CR>
 endfunction
@@ -94,7 +97,7 @@ function WikipediaSettings()
     set textwidth=78
 endfunction
 
-let os_type=system('uname -s')
+let os_type=tolower(system('uname -s'))
 
 " Filetype handling
 autocmd FileType apache     :call ApacheSettings()

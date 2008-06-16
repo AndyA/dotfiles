@@ -1,0 +1,161 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+use File::Find;
+use File::Spec;
+use PPI;
+use PPI::Find;
+
+=head1 NAME
+
+ptags - generate ctags files from Perl source
+
+=head1 USAGE
+
+ ptags [options] <files or modules>
+
+=head1 OPTIONS
+
+ --abs              Emit absolute filenames
+ --installed        Scan all installed modules. Slow.
+ -Ipath             Add to search path
+ --progress         Display scanned files on STDERR
+ --help, -?         See this text
+ --man              See man page
+
+=cut
+
+my $abs           = 0;
+my $installed     = 0;
+my $only_subs     = 0;
+my $only_packages = 0;
+my $progress      = 0;
+my $help          = 0;
+my $man           = 0;
+my @libs          = ();
+
+Getopt::Long::Configure( 'bundling' );
+GetOptions(
+    'abs'       => \$abs,
+    'installed' => \$installed,
+    'subs'      => \$only_subs,
+    'packages'  => \$only_packages,
+    'I=s'       => \@libs,
+    'progress'  => \$progress,
+    'help|?'    => \$help,
+    'man'       => \$man,
+) || pod2usage( -verbose => 0 );
+
+pod2usage( -verbose => 1 ) if $help;
+pod2usage( -verbose => 2 ) if $man;
+
+die "Please specify only one of --packages, --subs\n"
+  if $only_subs && $only_packages;
+
+my $do_subs     = !$only_packages;
+my $do_packages = !$only_subs;
+
+if ( $installed ) {
+    # Check all installed modules
+    scan_files( grep { $_ ne '.' } @libs, @INC );
+}
+else {
+    pod2usage( -verbose => 0, -msg => 'Please supply some names' )
+      unless @ARGV;
+    for my $thing ( @ARGV ) {
+        scan_thing( $thing );
+    }
+}
+
+sub scan_files {
+    my @dirs = @_;
+    find(
+        {
+            no_chdir => 1,
+            wanted   => sub {
+                return unless /\.pm$/;
+                tags( $File::Find::name );
+            },
+        },
+        @dirs
+    );
+}
+
+sub package_to_file {
+    my $pkg = shift;
+    $pkg =~ s{::}{/}g;
+    $pkg .= '.pm';
+    return $pkg;
+}
+
+sub find_on_path {
+    my ( $file, @path ) = @_;
+    for my $dir ( @path ) {
+        my $ffile = File::Spec->catfile( $dir, $file );
+        return $ffile if -f $ffile;
+    }
+    return;
+}
+
+sub scan_thing {
+    my $thing = shift;
+    if ( -f $thing ) {
+        tags( $thing );
+    }
+    elsif ( -d $thing ) {
+        scan_files( $thing );
+    }
+    elsif ( $thing =~ /^\w+(?:::\w+)*$/ ) {
+        my $pfile = package_to_file( $thing );
+        if ( my $ffile
+            = find_on_path( $pfile, ( map { glob } @libs ), @INC ) ) {
+            tags( $ffile );
+        }
+        else {
+            die "Can't find $thing ($pfile)\n";
+        }
+    }
+    else {
+        die "Can't find $thing\n";
+    }
+}
+
+# TODO: Support VIM ctags syntax:
+#   http://ctags.sourceforge.net/ctags.html
+
+sub tags {
+    my $file = shift;
+    print STDERR "$file\n" if $progress;
+    my $doc = PPI::Document->new( $file );
+    unless ( $doc ) {
+        warn "Failed to parse $file\n";
+        return;
+    }
+    $doc->index_locations;
+    my $find = PPI::Find->new(
+        sub {
+            my ( $ele, $top ) = @_;
+            if (   $do_packages
+                && $ele->isa( 'PPI::Statement::Package' ) ) {
+                tag( $ele->namespace, $file, $ele->location );
+            }
+            elsif ( $do_subs && $ele->isa( 'PPI::Statement::Sub' ) ) {
+                my $name = $ele->name;
+                return if $name =~ /^[A-Z]+$/;
+                tag( $name, $file, $ele->location );
+            }
+            return 0;
+        }
+    );
+    $find->in( $doc );
+}
+
+sub tag {
+    my ( $name, $file,    $location ) = @_;
+    my ( $line, $rowchar, $col )      = @$location;
+    $file = File::Spec->rel2abs( $file ) if $abs;
+    print "$name\t$file\t$line\n";
+}
