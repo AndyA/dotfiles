@@ -94,6 +94,8 @@ function WikipediaSettings()
     set textwidth=78
 endfunction
 
+let os_type=system('uname -s')
+
 " Filetype handling
 autocmd FileType apache     :call ApacheSettings()
 autocmd FileType c          :call CSettings()
