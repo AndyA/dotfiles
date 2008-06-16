@@ -237,8 +237,8 @@ _vi
   <string id="perlDefaultInterpreter">/alt/local/bin/perl</string>
   <string id="perlExtraPaths"></string>
   <string id="perl_lintOption">cw</string>
-  <string id="prefs.fontsColorsLanguages.langSpecific.lang">Python</string>
-  <long id="prefs.fontsColorsLanguages.whichTab">0</long>
+  <string id="prefs.fontsColorsLanguages.langSpecific.lang">Perl</string>
+  <long id="prefs.fontsColorsLanguages.whichTab">3</long>
   <long id="print_lineLength">132</long>
   <double id="print_scalingRatio">1.5</double>
   <boolean id="print_showLineNos">1</boolean>
@@ -277,7 +277,7 @@ _vi
 <preference-set id="topview">
 <ordered-preference id="childState">
 <preference-set >
-  <long id="current_view_index">1</long>
+  <long id="current_view_index">0</long>
 <ordered-preference id="view_prefs">
 <preference-set >
   <string id="URI">file:///home/andy/Works/Perl/WWW-Plurk/trunk/lib/WWW/Plurk.pm</string>
@@ -289,7 +289,6 @@ _vi
   <string id="orientation">vertical</string>
 <ordered-preference id="viewHistoryState">
   <string>file:///home/andy/Works/Perl/WWW-Plurk/trunk/lib/WWW/Plurk.pm?parentId=view-1</string>
-  <string>chrome://komodo/content/startpage/startpage.xml#view-startpage?parentId=view-1</string>
 </ordered-preference>
 </preference-set>
 </preference-set>
