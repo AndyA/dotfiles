@@ -73,7 +73,7 @@ store( $dir, $STORE );
                 print "Retry $msg\n";
             }
 
-            sleep 30;
+            sleep 60;
         }
     }
 }
