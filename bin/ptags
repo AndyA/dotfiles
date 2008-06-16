@@ -22,6 +22,7 @@ ptags - generate ctags files from Perl source
  --abs              Emit absolute filenames
  --installed        Scan all installed modules. Slow.
  -Ipath             Add to search path
+ --sort             Sort the output
  --progress         Display scanned files on STDERR
  --help, -?         See this text
  --man              See man page
@@ -32,6 +33,7 @@ my $abs           = 0;
 my $installed     = 0;
 my $only_subs     = 0;
 my $only_packages = 0;
+my $sort          = 0;
 my $progress      = 0;
 my $help          = 0;
 my $man           = 0;
@@ -43,6 +45,7 @@ GetOptions(
     'installed' => \$installed,
     'subs'      => \$only_subs,
     'packages'  => \$only_packages,
+    'sort'      => \$sort,
     'I=s'       => \@libs,
     'progress'  => \$progress,
     'help|?'    => \$help,
@@ -58,6 +61,8 @@ die "Please specify only one of --packages, --subs\n"
 my $do_subs     = !$only_packages;
 my $do_packages = !$only_subs;
 
+my ( $output, $flush ) = make_output_closures( $sort );
+
 if ( $installed ) {
     # Check all installed modules
     scan_files( grep { $_ ne '.' } @libs, @INC );
@@ -67,6 +72,20 @@ else {
       unless @ARGV;
     for my $thing ( @ARGV ) {
         scan_thing( $thing );
+    }
+}
+
+$flush->();
+
+sub make_output_closures {
+    my $sort = shift;
+    if ( $sort ) {
+        my @lines = ();
+        return sub { push @lines, join '', @_ },
+          sub { print for sort @lines };
+    }
+    else {
+        return sub { print @_ }, sub { };
     }
 }
 
@@ -152,6 +171,9 @@ sub tags {
             elsif ( $do_subs && $ele->isa( 'PPI::Statement::Sub' ) ) {
                 my $name = $ele->name;
                 return if $name =~ /^[A-Z]+$/;
+                # sub names follow the same naming rules as package
+                # names.
+                return unless is_package( $name );
                 tag( $name, $file, $ele->location );
             }
             return 0;
@@ -164,5 +186,5 @@ sub tag {
     my ( $name, $file,    $location ) = @_;
     my ( $line, $rowchar, $col )      = @$location;
     $file = File::Spec->rel2abs( $file ) if $abs;
-    print "$name\t$file\t$line\n";
+    $output->( "$name\t$file\t$line\n" );
 }
