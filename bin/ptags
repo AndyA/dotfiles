@@ -23,6 +23,7 @@ ptags - generate ctags files from Perl source
  --installed        Scan all installed modules. Slow.
  -Ipath             Add to search path
  --sort             Sort the output
+ --depth=N          Follow use and require to depth N
  --progress         Display scanned files on STDERR
  --help, -?         See this text
  --man              See man page
@@ -34,6 +35,7 @@ my $installed     = 0;
 my $only_subs     = 0;
 my $only_packages = 0;
 my $sort          = 0;
+my $max_depth     = 0;
 my $progress      = 0;
 my $help          = 0;
 my $man           = 0;
@@ -46,6 +48,7 @@ GetOptions(
     'subs'      => \$only_subs,
     'packages'  => \$only_packages,
     'sort'      => \$sort,
+    'depth=i'   => \$max_depth,
     'I=s'       => \@libs,
     'progress'  => \$progress,
     'help|?'    => \$help,
@@ -63,6 +66,9 @@ my $do_packages = !$only_subs;
 
 my ( $output, $flush ) = make_output_closures( $sort );
 
+my @queue = ();
+my %done  = ();
+
 if ( $installed ) {
     # Check all installed modules
     scan_files( grep { $_ ne '.' } @libs, @INC );
@@ -73,6 +79,12 @@ else {
     for my $thing ( @ARGV ) {
         scan_thing( $thing );
     }
+}
+
+while ( my $spec = shift @queue ) {
+    my ( $module, $depth ) = @$spec;
+    eval { scan_thing( $module, $depth ) };
+    warn $@ if $@;
 }
 
 $flush->();
@@ -126,17 +138,18 @@ sub is_package {
 
 sub scan_thing {
     my $thing = shift;
+    my $depth = shift || 0;
     if ( -f $thing ) {
-        tags( $thing );
+        tags( $thing, $depth );
     }
     elsif ( -d $thing ) {
-        scan_files( $thing );
+        scan_files( $thing, $depth );
     }
     elsif ( is_package( $thing ) ) {
         my $pfile = package_to_file( $thing );
         if ( my $ffile
             = find_on_path( $pfile, ( map { glob } @libs ), @INC ) ) {
-            tags( $ffile );
+            tags( $ffile, $depth );
         }
         else {
             die "Can't find $thing ($pfile)\n";
@@ -151,7 +164,9 @@ sub scan_thing {
 #   http://ctags.sourceforge.net/ctags.html
 
 sub tags {
-    my $file = shift;
+    my $file  = shift;
+    my $depth = shift;
+    return if $done{$file}++;
     print STDERR "$file\n" if $progress;
     my $doc = PPI::Document->new( $file );
     unless ( $doc ) {
@@ -175,6 +190,11 @@ sub tags {
                 # names.
                 return unless is_package( $name );
                 tag( $name, $file, $ele->location );
+            }
+            elsif ($depth < $max_depth
+                && $ele->isa( 'PPI::Statement::Include' ) ) {
+                my $inc = $ele->module;
+                push @queue, [ $inc, $depth + 1 ] if $inc;
             }
             return 0;
         }
