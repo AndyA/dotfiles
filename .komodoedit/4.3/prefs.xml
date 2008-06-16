@@ -15,9 +15,9 @@
   <boolean id="codeintel_completion_fillups_enabled">0</boolean>
   <boolean id="codeintel_completion_triggering_enabled">1</boolean>
   <boolean id="codeintel_have_preloaded_database">1</boolean>
-  <string id="cursorColor">#003300</string>
+  <string id="cursorColor">#434443</string>
   <string id="defaultDateFormat">%a %b %d %H:%M:%S %Y</string>
-  <string id="defaultSelectedPref">editSaveItem</string>
+  <string id="defaultSelectedPref">fontsItem</string>
   <boolean id="diskBackgroundCheck">1</boolean>
   <long id="diskBackgroundMinutes">15</long>
   <string id="donotask_action_close_all_files_on_project_close"></string>
@@ -38,7 +38,7 @@
   <boolean id="donotask_reload_changed_files">0</boolean>
   <boolean id="donotask_restore_workspace">1</boolean>
   <boolean id="donotask_startup_reopen_file_error_dialog">0</boolean>
-  <string id="editor-scheme">Andy</string>
+  <string id="editor-scheme">twilight</string>
   <boolean id="encodingAutoDetect">1</boolean>
   <string id="encodingDefault">utf8</string>
   <boolean id="encodingEnvironment">1</boolean>
