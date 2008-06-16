@@ -100,6 +100,11 @@ sub find_on_path {
     return;
 }
 
+sub is_package {
+    my $name = shift;
+    return $name =~ /^\w+(?:::\w+)*$/;
+}
+
 sub scan_thing {
     my $thing = shift;
     if ( -f $thing ) {
@@ -108,7 +113,7 @@ sub scan_thing {
     elsif ( -d $thing ) {
         scan_files( $thing );
     }
-    elsif ( $thing =~ /^\w+(?:::\w+)*$/ ) {
+    elsif ( is_package( $thing ) ) {
         my $pfile = package_to_file( $thing );
         if ( my $ffile
             = find_on_path( $pfile, ( map { glob } @libs ), @INC ) ) {
@@ -140,7 +145,9 @@ sub tags {
             my ( $ele, $top ) = @_;
             if (   $do_packages
                 && $ele->isa( 'PPI::Statement::Package' ) ) {
-                tag( $ele->namespace, $file, $ele->location );
+                my $name = $ele->namespace;
+                return unless is_package( $name );
+                tag( $name, $file, $ele->location );
             }
             elsif ( $do_subs && $ele->isa( 'PPI::Statement::Sub' ) ) {
                 my $name = $ele->name;
