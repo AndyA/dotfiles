@@ -10,7 +10,7 @@ setlocal comments=:#
 setlocal cinkeys-=0#
 setlocal keywordprg=perldoc
 setlocal iskeyword+=:
-setlocal tags=./tags,tags,~/.vim/perltags
+setlocal tags=./tags,./perltags,tags,perltags,~/.vim/perltags
 
 function! s:tidy()
     let l:line = line('.')

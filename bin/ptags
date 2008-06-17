@@ -25,6 +25,7 @@ ptags - generate ctags files from Perl source
  --sort             Sort the output
  --depth=N          Follow use and require to depth N
  --progress         Display scanned files on STDERR
+ --vi               Output basic vi (non exuberant) tags
  --help, -?         See this text
  --man              See man page
 
@@ -37,6 +38,7 @@ my $only_packages = 0;
 my $sort          = 0;
 my $max_depth     = 0;
 my $progress      = 0;
+my $vi            = 0;
 my $help          = 0;
 my $man           = 0;
 my @libs          = ();
@@ -51,6 +53,7 @@ GetOptions(
     'depth=i'   => \$max_depth,
     'I=s'       => \@libs,
     'progress'  => \$progress,
+    'vi'        => \$vi,
     'help|?'    => \$help,
     'man'       => \$man,
 ) || pod2usage( -verbose => 0 );
@@ -66,8 +69,64 @@ my $do_packages = !$only_subs;
 
 my ( $output, $flush ) = make_output_closures( $sort );
 
-my @queue = ();
-my %done  = ();
+# TODO: Nasty mix of nearly OO and globals here.
+package BasicTagger;
+use strict;
+use warnings;
+
+sub tag {
+    my ( $class, $type, $name, $file, $location, $package ) = @_;
+    my ( $line, $rowchar, $col ) = @$location;
+    $file = File::Spec->rel2abs( $file ) if $abs;
+    $output->( $name, $file, $line );
+}
+
+package ExuberantTagger;
+use strict;
+use warnings;
+
+our @ISA = qw( BasicTagger );
+
+sub make_pattern {
+    my $text = shift;
+    #return "/^" . quotemeta( $text ) . "\$/";
+    return "/^$text\$/";
+}
+
+{
+    my $cur_file = undef;
+    my @cur_text = ();
+
+    sub get_line {
+        my ( $file, $line ) = @_;
+        unless ( defined $cur_file && $cur_file eq $file ) {
+            open my $fh, '<', $file or die "Can't read $file ($!)\n";
+            chomp( @cur_text = <$fh> );
+            $cur_file = $file;
+        }
+        return '' if $line < 1 || $line > @cur_text;
+        return $cur_text[ $line - 1 ];
+    }
+}
+
+#Test	something+/Test.pm	/^package Test;$/;"	p	line:3	class:Test
+#wibble	something+/Test.pm	/^sub wibble {$/;"	s	line:10	class:Test
+
+sub tag {
+    my ( $class, $type, $name, $file, $location, $package ) = @_;
+    my ( $line, $rowchar, $col ) = @$location;
+    $file = File::Spec->rel2abs( $file ) if $abs;
+    my $text = make_pattern( get_line( $file, $line ) );
+    $output->(
+        $name, $file, qq{$text;"}, $type, "line:$line", "class:$package"
+    );
+}
+
+package main;
+
+my @queue  = ();
+my %done   = ();
+my $tagger = $vi ? 'BasicTagger' : 'ExuberantTagger';
 
 if ( $installed ) {
     # Check all installed modules
@@ -93,11 +152,11 @@ sub make_output_closures {
     my $sort = shift;
     if ( $sort ) {
         my @lines = ();
-        return sub { push @lines, join '', @_ },
-          sub { print for sort @lines };
+        return sub { push @lines, join "\t", @_ },
+          sub { print "$_\n" for sort @lines };
     }
     else {
-        return sub { print @_ }, sub { };
+        return sub { print join( "\t", @_ ), "\n" }, sub { };
     }
 }
 
@@ -175,14 +234,19 @@ sub tags {
         return;
     }
     $doc->index_locations;
-    my $find = PPI::Find->new(
+    my $package = 'main';
+    my $find    = PPI::Find->new(
         sub {
             my ( $ele, $top ) = @_;
             if (   $do_packages
                 && $ele->isa( 'PPI::Statement::Package' ) ) {
                 my $name = $ele->namespace;
                 return unless is_package( $name );
-                tag( $name, $file, $ele->location );
+                $package = $name;
+                $tagger->tag(
+                    p => $name,
+                    $file, $ele->location, $package
+                );
             }
             elsif ( $do_subs && $ele->isa( 'PPI::Statement::Sub' ) ) {
                 my $name = $ele->name;
@@ -190,7 +254,10 @@ sub tags {
                 # sub names follow the same naming rules as package
                 # names.
                 return unless is_package( $name );
-                tag( $name, $file, $ele->location );
+                $tagger->tag(
+                    s => $name,
+                    $file, $ele->location, $package
+                );
             }
             elsif ($depth < $max_depth
                 && $ele->isa( 'PPI::Statement::Include' ) ) {
@@ -201,11 +268,4 @@ sub tags {
         }
     );
     $find->in( $doc );
-}
-
-sub tag {
-    my ( $name, $file,    $location ) = @_;
-    my ( $line, $rowchar, $col )      = @$location;
-    $file = File::Spec->rel2abs( $file ) if $abs;
-    $output->( "$name\t$file\t$line\n" );
 }
