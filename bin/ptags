@@ -69,64 +69,9 @@ my $do_packages = !$only_subs;
 
 my ( $output, $flush ) = make_output_closures( $sort );
 
-# TODO: Nasty mix of nearly OO and globals here.
-package BasicTagger;
-use strict;
-use warnings;
-
-sub tag {
-    my ( $class, $type, $name, $file, $location, $package ) = @_;
-    my ( $line, $rowchar, $col ) = @$location;
-    $file = File::Spec->rel2abs( $file ) if $abs;
-    $output->( $name, $file, $line );
-}
-
-package ExuberantTagger;
-use strict;
-use warnings;
-
-our @ISA = qw( BasicTagger );
-
-sub make_pattern {
-    my $text = shift;
-    #return "/^" . quotemeta( $text ) . "\$/";
-    return "/^$text\$/";
-}
-
-{
-    my $cur_file = undef;
-    my @cur_text = ();
-
-    sub get_line {
-        my ( $file, $line ) = @_;
-        unless ( defined $cur_file && $cur_file eq $file ) {
-            open my $fh, '<', $file or die "Can't read $file ($!)\n";
-            chomp( @cur_text = <$fh> );
-            $cur_file = $file;
-        }
-        return '' if $line < 1 || $line > @cur_text;
-        return $cur_text[ $line - 1 ];
-    }
-}
-
-#Test	something+/Test.pm	/^package Test;$/;"	p	line:3	class:Test
-#wibble	something+/Test.pm	/^sub wibble {$/;"	s	line:10	class:Test
-
-sub tag {
-    my ( $class, $type, $name, $file, $location, $package ) = @_;
-    my ( $line, $rowchar, $col ) = @$location;
-    $file = File::Spec->rel2abs( $file ) if $abs;
-    my $text = make_pattern( get_line( $file, $line ) );
-    $output->(
-        $name, $file, qq{$text;"}, $type, "line:$line", "class:$package"
-    );
-}
-
-package main;
-
 my @queue  = ();
 my %done   = ();
-my $tagger = $vi ? 'BasicTagger' : 'ExuberantTagger';
+my $tagger = make_tag_closure( $vi, $output );
 
 if ( $installed ) {
     # Check all installed modules
@@ -157,6 +102,30 @@ sub make_output_closures {
     }
     else {
         return sub { print join( "\t", @_ ), "\n" }, sub { };
+    }
+}
+
+sub make_tag_closure {
+    my ( $simple, $output ) = @_;
+    if ( $simple ) {
+        return sub {
+            my ( $type, $name, $file, $location, $package ) = @_;
+            my ( $line, $rowchar, $col ) = @$location;
+            $file = File::Spec->rel2abs( $file ) if $abs;
+            $output->( $name, $file, $line );
+        };
+    }
+    else {
+        return sub {
+            my ( $type, $name, $file, $location, $package ) = @_;
+            my ( $line, $rowchar, $col ) = @$location;
+            $file = File::Spec->rel2abs( $file ) if $abs;
+            my $text = make_pattern( get_line( $file, $line ) );
+            $output->(
+                $name, $file, qq{$text;"}, $type, "line:$line",
+                "class:$package"
+            );
+        };
     }
 }
 
@@ -243,7 +212,7 @@ sub tags {
                 my $name = $ele->namespace;
                 return unless is_package( $name );
                 $package = $name;
-                $tagger->tag(
+                $tagger->(
                     p => $name,
                     $file, $ele->location, $package
                 );
@@ -254,7 +223,7 @@ sub tags {
                 # sub names follow the same naming rules as package
                 # names.
                 return unless is_package( $name );
-                $tagger->tag(
+                $tagger->(
                     s => $name,
                     $file, $ele->location, $package
                 );
@@ -268,4 +237,26 @@ sub tags {
         }
     );
     $find->in( $doc );
+}
+
+sub make_pattern {
+    my $text = shift;
+    #return "/^" . quotemeta( $text ) . "\$/";
+    return "/^$text\$/";
+}
+
+{
+    my $cur_file = undef;
+    my @cur_text = ();
+
+    sub get_line {
+        my ( $file, $line ) = @_;
+        unless ( defined $cur_file && $cur_file eq $file ) {
+            open my $fh, '<', $file or die "Can't read $file ($!)\n";
+            chomp( @cur_text = <$fh> );
+            $cur_file = $file;
+        }
+        return '' if $line < 1 || $line > @cur_text;
+        return $cur_text[ $line - 1 ];
+    }
 }
