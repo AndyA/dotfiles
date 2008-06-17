@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HOSTS=surly hush blue weeble kumina voodoo 192.168.0.22
+HOSTS="surly hush blue weeble kumina voodoo 192.168.0.22"
 
 for h in $HOSTS ; do
     echo "Updating $h"
