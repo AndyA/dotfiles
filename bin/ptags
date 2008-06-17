@@ -71,7 +71,7 @@ my %done  = ();
 
 if ( $installed ) {
     # Check all installed modules
-    scan_files( grep { $_ ne '.' } @libs, @INC );
+    scan_files( grep { $_ ne '.' } @libs, @INC, 0 );
 }
 else {
     pod2usage( -verbose => 0, -msg => 'Please supply some names' )
@@ -102,13 +102,14 @@ sub make_output_closures {
 }
 
 sub scan_files {
-    my @dirs = @_;
+    my @dirs  = @_;
+    my $depth = pop @dirs;
     find(
         {
             no_chdir => 1,
             wanted   => sub {
                 return unless /\.pm$/;
-                tags( $File::Find::name );
+                tags( $File::Find::name, $depth );
             },
         },
         @dirs
