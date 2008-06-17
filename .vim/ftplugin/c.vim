@@ -10,7 +10,16 @@ setlocal keywordprg=man\ -S\ 3
 setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
 
-noremap <f2> :%!indent<CR>
+function s:tidy()
+    let l:line = line('.')
+    let l:col  = col('.')
+    exec ':%!indent'
+    exec 'normal ' . l:line . 'G'
+    exec 'normal ' . l:col . '|'
+endfunction
+
+noremap <f2> :call <SID>tidy()<CR>
+" noremap <f2> :%!indent<CR>
 
 nmap ,s :find %:t:r.c<cr> 
 nmap ,S :sf %:t:r.c<cr> 

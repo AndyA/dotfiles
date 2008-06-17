@@ -29,7 +29,7 @@ set vb
 syntax on
 filetype plugin indent on
 
-" Hmm. Whassat?
+" Jump to line we were on
 au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
   \| exe "normal g'\"" | endif
 

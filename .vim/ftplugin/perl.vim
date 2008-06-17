@@ -12,4 +12,12 @@ setlocal keywordprg=perldoc
 setlocal iskeyword+=:
 setlocal tags=./tags,tags,~/.vim/perltags
 
-noremap <f2> :%!perltidy<CR>
+function s:tidy()
+    let l:line = line('.')
+    let l:col  = col('.')
+    exec ':%!perltidy'
+    exec 'normal ' . l:line . 'G'
+    exec 'normal ' . l:col . '|'
+endfunction
+
+noremap <f2> :call <SID>tidy()<CR>
