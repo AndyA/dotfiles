@@ -19,7 +19,6 @@ function s:tidy()
 endfunction
 
 noremap <f2> :call <SID>tidy()<CR>
-" noremap <f2> :%!indent<CR>
 
 nmap ,s :find %:t:r.c<cr> 
 nmap ,S :sf %:t:r.c<cr> 
