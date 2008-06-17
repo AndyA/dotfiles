@@ -67,10 +67,10 @@ die "Please specify only one of --packages, --subs\n"
 my $do_subs     = !$only_packages;
 my $do_packages = !$only_subs;
 
-my ( $output, $flush ) = make_output_closures( $sort );
+my @queue = ();
+my %done  = ();
 
-my @queue  = ();
-my %done   = ();
+my ( $output, $flush ) = make_output_closures( $sort );
 my $tagger = make_tag_closure( $vi, $output );
 
 if ( $installed ) {
