@@ -33,3 +33,5 @@ filetype plugin indent on
 au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
   \| exe "normal g'\"" | endif
 
+nmap ,tp :tabp<cr> 
+nmap ,tn :tabn<cr> 
