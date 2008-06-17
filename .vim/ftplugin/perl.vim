@@ -12,7 +12,7 @@ setlocal keywordprg=perldoc
 setlocal iskeyword+=:
 setlocal tags=./tags,tags,~/.vim/perltags
 
-function s:tidy()
+function! s:tidy()
     let l:line = line('.')
     let l:col  = col('.')
     exec ':%!perltidy'

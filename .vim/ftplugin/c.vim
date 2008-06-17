@@ -10,7 +10,7 @@ setlocal keywordprg=man\ -S\ 3
 setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
 
-function s:tidy()
+function! s:tidy()
     let l:line = line('.')
     let l:col  = col('.')
     exec ':%!indent'
