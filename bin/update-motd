@@ -1,0 +1,11 @@
+#!/bin/sh
+for motd in /etc/motd.tail /etc/motd  ; do
+    if [ -f $motd ] ; then
+        message=`hostname -s`
+        echo $message | beeb > /tmp/motd
+        sudo mv /tmp/motd $motd
+        echo "$motd set to $message"
+        exit
+    fi
+done
+echo "No motd file found"
