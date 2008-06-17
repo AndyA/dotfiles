@@ -10,6 +10,8 @@ setlocal keywordprg=man\ -S\ 3
 setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
 
+noremap <f2> :%!indent<CR>
+
 nmap ,s :find %:t:r.c<cr> 
 nmap ,S :sf %:t:r.c<cr> 
 nmap ,h :find %:t:r.h<cr> 
