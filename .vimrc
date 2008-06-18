@@ -35,3 +35,6 @@ au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
 
 nmap ,tp :tabp<cr> 
 nmap ,tn :tabn<cr> 
+
+noremap <f3> :cprevious<cr>
+noremap <f4> :cnext<cr>
