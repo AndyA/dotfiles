@@ -26,6 +26,9 @@ set title
 set t_vb=
 set vb
 
+set laststatus=2
+set statusline=%-30(%f%m%r%h%w%)\ format:\ [%{&ff}]\ type:\ %y\ pos:\ [%4l,\ %3v,\ %3p%%]\ lines:\ [%L]\ buf:\ [%n]\ %a
+
 syntax on
 filetype plugin indent on
 

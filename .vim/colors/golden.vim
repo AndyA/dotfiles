@@ -14,33 +14,35 @@ if exists("syntax_on")
 endif
 let g:colors_name = "golden"
 hi Normal		  ctermfg=yellow guifg=#ddbb00  guibg=black
-hi Scrollbar	  ctermfg=Yellow guifg=#ddbb00  guibg=black
+hi Scrollbar	          ctermfg=Yellow guifg=#ddbb00  guibg=black
 hi Menu			  ctermfg=darkyellow guifg=#ffddaa  guibg=black
-hi SpecialKey	  ctermfg=yellow term=bold  cterm=bold  guifg=#ffddaa 
+hi SpecialKey	          ctermfg=yellow term=bold  cterm=bold  guifg=#ffddaa 
 hi NonText		  ctermfg=LightBlue term=bold  cterm=bold  gui=bold	guifg=#DBCA98
-hi Directory	  ctermfg=DarkYellow term=bold  cterm=bold  guifg=#ffddaa
+hi Directory	          ctermfg=DarkYellow term=bold  cterm=bold  guifg=#ffddaa
 hi ErrorMsg		  term=standout  cterm=bold  ctermfg=White  ctermbg=Red  guifg=White  guibg=Red
 hi Search		  term=reverse	ctermfg=white  ctermbg=red	guifg=white  guibg=Red
 hi MoreMsg		  term=bold  cterm=bold  ctermfg=Yellow	gui=bold  guifg=#ddbb00
 hi ModeMsg		  term=bold  ctermfg=DarkYellow cterm=bold  gui=bold  guifg=Black	guibg=#ddbb00
 hi LineNr		  term=underline ctermfg=Brown cterm=bold guifg=#978345
 hi Question		  term=standout  cterm=bold  ctermfg=Brown	gui=bold  guifg=#ffddaa
-hi StatusLine	  term=bold,reverse  cterm=bold ctermfg=Black ctermbg=DarkGrey gui=bold guifg=#978345 guibg=#2E2E2E
-hi StatusLineNC   term=reverse	ctermfg=white ctermbg=black guifg=grey guibg=#3E3E3E
+"hi StatusLine	  term=bold,reverse  cterm=bold ctermfg=Black ctermbg=DarkGrey gui=bold guifg=#978345 guibg=#2E2E2E
+"hi StatusLineNC   term=reverse	ctermfg=white ctermbg=black guifg=grey guibg=#3E3E3E
+hi StatusLine             guibg=White guifg=Sienna4 cterm=NONE ctermfg=Black ctermbg=Brown
+hi StatusLineNC           gui=NONE guifg=Black guibg=Gray ctermbg=Black ctermfg=Gray
 hi Title		  term=bold  cterm=bold  ctermfg=brown  gui=bold	guifg=#DBCA98
 hi Visual		  term=reverse	cterm=reverse  gui=reverse
-hi WarningMsg	  term=standout  cterm=bold  ctermfg=darkblue  guifg=Red
+hi WarningMsg	          term=standout  cterm=bold  ctermfg=darkblue  guifg=Red
 hi Cursor		  guifg=bg	guibg=#FF5E06 ctermbg=Brown
 hi Comment		  term=bold  cterm=bold ctermfg=brown  guifg=#978345
 hi Constant		  term=underline  cterm=bold ctermfg=red  guifg=Red
 hi Special		  term=bold  cterm=bold ctermfg=red guifg=Orange
-hi Identifier	  term=underline ctermfg=lightgray  guifg=#DBCA98
-hi Statement	  term=bold  cterm=bold ctermfg=lightgreen	gui=bold  guifg=#ffff60
+hi Identifier	          term=underline ctermfg=lightgray  guifg=#DBCA98
+hi Statement	          term=bold  cterm=bold ctermfg=lightgreen	gui=bold  guifg=#ffff60
 hi PreProc		  term=underline  ctermfg=brown	guifg=#ffddaa
 hi Type			  term=underline  cterm=bold ctermfg=lightgreen  gui=bold  guifg=#FFE13F
 hi Error		  term=reverse	ctermfg=darkcyan  ctermbg=black  guifg=Red	guibg=Black
 hi Todo			  term=standout  ctermfg=black	ctermbg=yellow  guifg=#FFE13F  guibg=#2E2E2E
-hi VertSplit      guifg=#2E2E2E guibg=#978345 ctermfg=black ctermbg=darkgrey
+hi VertSplit              guifg=#2E2E2E guibg=#978345 ctermfg=black ctermbg=darkgrey
 hi Folded		  guifg=orange  guibg=#2E2E2E ctermfg=yellow
 
 hi link IncSearch		Visual
