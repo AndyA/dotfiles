@@ -14,10 +14,10 @@
   <boolean id="cleanLineEnds">0</boolean>
   <boolean id="codeintel_completion_fillups_enabled">0</boolean>
   <boolean id="codeintel_completion_triggering_enabled">1</boolean>
-  <boolean id="codeintel_have_preloaded_database">1</boolean>
+  <boolean id="codeintel_have_preloaded_database">0</boolean>
   <string id="cursorColor">#434443</string>
   <string id="defaultDateFormat">%a %b %d %H:%M:%S %Y</string>
-  <string id="defaultSelectedPref">fontsItem</string>
+  <string id="defaultSelectedPref">indentItem</string>
   <boolean id="diskBackgroundCheck">1</boolean>
   <long id="diskBackgroundMinutes">15</long>
   <string id="donotask_action_close_all_files_on_project_close"></string>
@@ -38,6 +38,9 @@
   <boolean id="donotask_reload_changed_files">0</boolean>
   <boolean id="donotask_restore_workspace">1</boolean>
   <boolean id="donotask_startup_reopen_file_error_dialog">0</boolean>
+  <string id="editAutoIndentStyle">smart</string>
+  <boolean id="editBackspaceDedents">1</boolean>
+  <boolean id="editElectricBrace">1</boolean>
   <string id="editor-scheme">twilight</string>
   <boolean id="encodingAutoDetect">1</boolean>
   <string id="encodingDefault">utf8</string>
@@ -69,6 +72,7 @@
   <boolean id="import_live">1</boolean>
   <boolean id="import_recursive">1</boolean>
   <string id="import_type">useFolders</string>
+  <long id="indentWidth">4</long>
   <string id="isearchCaseSensitivity">2</string>
   <string id="isearchType">0</string>
   <string id="keybinding-scheme">Default</string>
@@ -80,6 +84,7 @@ Vi
 _vi
 </string>
   <string id="kpf_open_nodes_042f8423-e917-496b-bdb4-bf14210a9e9d">{}</string>
+  <string id="kpf_open_nodes_4c5e8017-421b-4d21-9b82-47dbe558ab17">{u'4c5e8017-421b-4d21-9b82-47dbe558ab17/lib/TAP': True, u'4c5e8017-421b-4d21-9b82-47dbe558ab17/inc': True, '4c5e8017-421b-4d21-9b82-47dbe558ab17': True, u'4c5e8017-421b-4d21-9b82-47dbe558ab17/lib': True}</string>
   <string id="kpf_open_nodes_9ae253dd-2b86-48fd-903b-36558d6288b1">{'9ae253dd-2b86-48fd-903b-36558d6288b1': True, u'9ae253dd-2b86-48fd-903b-36558d6288b1/2.2': True, u'9ae253dd-2b86-48fd-903b-36558d6288b1/2.2/tests': True}</string>
   <string id="kpf_open_nodes_9edefb8c-dfa5-414a-a397-0c0a70038098">{u'9edefb8c-dfa5-414a-a397-0c0a70038098/trunk': True, '9edefb8c-dfa5-414a-a397-0c0a70038098': True, u'9edefb8c-dfa5-414a-a397-0c0a70038098/trunk/lib': True, u'9edefb8c-dfa5-414a-a397-0c0a70038098/trunk/lib/WWW': True}</string>
 <preference-set id="languages">
@@ -222,17 +227,21 @@ _vi
 </preference-set>
   <string id="mappedPaths"></string>
 <ordered-preference id="mruFileList">
+  <string>file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/lib/TAP/Parser.pm</string>
+  <string>file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/Makefile.PL</string>
+  <string>file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/MANIFEST</string>
   <string>file:///home/andy/Works/Perl/WWW-Plurk/trunk/lib/WWW/Plurk.pm</string>
   <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests.pl</string>
   <string>file:///home/andy/Works/MessageSystems/2.2/tests/runtests3.pl</string>
   <string>file:///home/andy/bin/mailtail</string>
 </ordered-preference>
-  <long id="mruFileSize">10</long>
+  <long id="mruFileSize">20</long>
 <ordered-preference id="mruProjectList">
+  <string>file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/Test-Harness.kpf</string>
   <string>file:///home/andy/Works/Perl/WWW-Plurk/WWW-Plurk.kpf</string>
   <string>file:///home/andy/Works/MessageSystems/eCelerity.kpf</string>
 </ordered-preference>
-  <long id="mruProjectSize">5</long>
+  <long id="mruProjectSize">20</long>
   <long id="mruTemplateSize">5</long>
   <string id="perlDefaultInterpreter">/alt/local/bin/perl</string>
   <string id="perlExtraPaths"></string>
@@ -258,6 +267,7 @@ _vi
   <boolean id="scrollEndAtLastLine">0</boolean>
   <long id="scrollWidth">2000</long>
   <boolean id="showEOL">0</boolean>
+  <boolean id="showIndentationGuides">0</boolean>
   <boolean id="showLineNumbers">0</boolean>
   <boolean id="showWhitespace">0</boolean>
   <boolean id="show_start_page">1</boolean>
@@ -266,21 +276,32 @@ _vi
   <boolean id="start_page_quick_links_box_closed">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
   <boolean id="startupMaximized">1</boolean>
+  <long id="tabWidth">8</long>
   <boolean id="triggering_macros_enabled">1</boolean>
   <string id="uilayout_bottomTabBoxSelectedTabId">runoutput_tab</string>
   <string id="uilayout_leftTabBoxSelectedTabId">project_tab</string>
   <string id="uilayout_rightTabBoxSelectedTabId">toolbox_tab</string>
+  <boolean id="useSmartTabs">1</boolean>
+  <boolean id="useTabs">0</boolean>
 <preference-set id="workspace">
 <ordered-preference id="opened_projects">
-  <string>file:///home/andy/Works/Perl/WWW-Plurk/WWW-Plurk.kpf</string>
+  <string>file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/Test-Harness.kpf</string>
 </ordered-preference>
 <preference-set id="topview">
 <ordered-preference id="childState">
 <preference-set >
-  <long id="current_view_index">0</long>
+  <long id="current_view_index">3</long>
 <ordered-preference id="view_prefs">
 <preference-set >
-  <string id="URI">file:///home/andy/Works/Perl/WWW-Plurk/trunk/lib/WWW/Plurk.pm</string>
+  <string id="URI">file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/MANIFEST</string>
+  <string id="viewtype">editor</string>
+</preference-set>
+<preference-set >
+  <string id="URI">file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/Makefile.PL</string>
+  <string id="viewtype">editor</string>
+</preference-set>
+<preference-set >
+  <string id="URI">file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/lib/TAP/Parser.pm</string>
   <string id="viewtype">editor</string>
 </preference-set>
 </ordered-preference>
@@ -288,7 +309,10 @@ _vi
 </ordered-preference>
   <string id="orientation">vertical</string>
 <ordered-preference id="viewHistoryState">
-  <string>file:///home/andy/Works/Perl/WWW-Plurk/trunk/lib/WWW/Plurk.pm?parentId=view-1</string>
+  <string>file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/lib/TAP/Parser.pm?parentId=view-1</string>
+  <string>file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/Makefile.PL?parentId=view-1</string>
+  <string>file:///home/andy/Works/Perl/TAPx-Parser/tapx/trunk/MANIFEST?parentId=view-1</string>
+  <string>chrome://komodo/content/startpage/startpage.xml#view-startpage?parentId=view-1</string>
 </ordered-preference>
 </preference-set>
 </preference-set>
