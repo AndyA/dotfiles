@@ -136,7 +136,7 @@ sub scan_files {
         {
             no_chdir => 1,
             wanted   => sub {
-                return if /\./;    # ignore hidden files
+                return if /^\./;    # ignore hidden files
                 return unless /\.pm$/;
                 tags( $File::Find::name, $depth );
             },
