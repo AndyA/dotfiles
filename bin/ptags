@@ -190,9 +190,6 @@ sub scan_thing {
     }
 }
 
-# TODO: Support VIM ctags syntax:
-#   http://ctags.sourceforge.net/ctags.html
-
 sub tags {
     my $file = shift;
     my $depth = shift || 0;
