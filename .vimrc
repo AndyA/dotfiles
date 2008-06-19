@@ -65,6 +65,7 @@ autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
 
 nmap ,tp :tabp<cr> 
 nmap ,tn :tabn<cr> 
+nmap ,tl :TlistToggle<cr>
 
 noremap <f3> <esc>:previous<cr>
 noremap <f4> <esc>:next<cr>
