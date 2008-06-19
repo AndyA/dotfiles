@@ -1,0 +1,89 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use File::Basename;
+
+die "syntax: pm <name> <ext>\n" unless @ARGV == 2;
+my ( $name, $ext ) = @ARGV;
+
+my @PFX = qw( lib inc t/lib t/inc );
+
+my $package = infer_package( $name, $ext );
+
+print <<EOT;
+package $package;
+
+use strict;
+use warnings;
+
+=head1 NAME
+
+$package - do something
+
+=cut
+
+# vim:ts=4:sw=4:et:ft=perl
+EOT
+
+sub package_to_file {
+    my $pkg = shift;
+    $pkg =~ s{::}{/}g;
+    $pkg .= '.pm';
+    return $pkg;
+}
+
+sub file_to_package {
+    my $file = shift;
+    $file =~ s{\.pm$}{};
+    $file =~ s{/}{::}g;
+    return $file;
+}
+
+sub is_package {
+    my $name = shift;
+    return $name =~ /^\w+(?:::\w+)*$/;
+}
+
+sub guess_lib {
+    my $file = shift;
+    open my $th, '<', $file or return;
+    while ( <$th> ) {
+        chomp;
+        next unless /^\s*package\s+(\w+(?:::\w+)*)\b/;
+        my $pfile = package_to_file( $1 );
+        return $1 if $file =~ m{^(.*?)/\Q$pfile\E$};
+    }
+    return;
+}
+
+sub guess {
+    for ( @_ ) {
+        my $lib = guess_lib( $_ );
+        return $lib if defined $lib;
+    }
+    return;
+}
+
+sub infer_package {
+    my ( $name, $ext ) = @_;
+
+    my $in_dir  = dirname( $name );
+    my @already = glob "$in_dir/*.$ext";
+
+    if ( defined( my $lib = guess( @already ) ) ) {
+        if ( $name =~ m{^\Q$lib\E/(.*)$} ) {
+            return file_to_package( $1 );
+        }
+    }
+
+    for my $pfx ( @PFX ) {
+        if ( $name =~ m{(?:^|/)\Q$pfx\E/(.*)} ) {
+            return file_to_package( $1 );
+        }
+    }
+
+    return 'Foo::Bar';
+}
+
+# vim:ts=4:sw=4:et:ft=perl
