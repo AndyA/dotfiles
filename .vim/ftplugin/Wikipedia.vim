@@ -1,4 +1,4 @@
 " Wikipedia.vim
 
-set textwidth=78
+setlocal textwidth=72
 

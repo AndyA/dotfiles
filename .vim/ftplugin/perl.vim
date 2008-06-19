@@ -4,6 +4,7 @@ setlocal shiftwidth=4
 setlocal softtabstop=4
 setlocal shiftround
 setlocal expandtab
+setlocal textwidth=72
 
 setlocal cindent
 setlocal comments=:#
@@ -36,6 +37,7 @@ function! s:tidy()
     exec l:tidy
     exec 'normal ' . l:line . 'G'
     exec 'normal ' . l:col . '|'
+    exec 'normal zz'
 endfunction
 
 noremap <f2> :call <SID>tidy()<CR>

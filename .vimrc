@@ -29,6 +29,9 @@ set vb
 set laststatus=2
 set statusline=%-30(%f%m%r%h%w%)\ format:\ [%{&ff}]\ type:\ %y\ pos:\ [%4l,\ %3v,\ %3p%%]\ lines:\ [%L]\ buf:\ [%n]\ %a
 
+set formatprg=perl\ -MText::Autoformat\ -e'autoformat'
+
+
 syntax on
 filetype plugin indent on
 
@@ -39,5 +42,12 @@ au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
 nmap ,tp :tabp<cr> 
 nmap ,tn :tabn<cr> 
 
-noremap <f3> :cprevious<cr>
-noremap <f4> :cnext<cr>
+noremap <f3> <esc>:previous<cr>
+noremap <f4> <esc>:next<cr>
+
+noremap <f5> <esc>:bprevious<cr>
+noremap <f6> <esc>:bnext<cr>
+
+noremap <f7> <esc>:cprevious<cr>
+noremap <f8> <esc>:cnext<cr>
+

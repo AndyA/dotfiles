@@ -1,4 +1,4 @@
 " text.vim
 
-setlocal textwidth=78
+setlocal textwidth=72
 setlocal formatoptions=tcql

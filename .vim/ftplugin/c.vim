@@ -16,6 +16,7 @@ function! s:tidy()
     exec ':%!indent'
     exec 'normal ' . l:line . 'G'
     exec 'normal ' . l:col . '|'
+    exec 'normal zz'
 endfunction
 
 noremap <f2> :call <SID>tidy()<CR>

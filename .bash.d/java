@@ -1,0 +1,12 @@
+# Java path settings
+for java in /usr/java /usr/local/java ; do
+    for dir in jdk jre ; do
+        for bindir in $java/$dir*/bin ; do
+            # FIXME: Adds multiple versions and probably adds them in
+            # the wrong order.
+            if [ -d $bindir ] ; then
+                PATH=$PATH:$bindir
+            fi
+        done
+    done
+done
