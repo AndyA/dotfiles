@@ -68,7 +68,8 @@ sub guess {
 sub infer_package {
     my ( $name, $ext ) = @_;
 
-    my $in_dir  = dirname( $name );
+    my ( $base, $in_dir ) = fileparse( $name );
+
     my @already = glob "$in_dir/*.$ext";
 
     if ( defined( my $lib = guess( @already ) ) ) {
@@ -83,7 +84,7 @@ sub infer_package {
         }
     }
 
-    return 'Foo::Bar';
+    return file_to_package( $base );
 }
 
 # vim:ts=4:sw=4:et:ft=perl
