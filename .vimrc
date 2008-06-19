@@ -76,3 +76,6 @@ noremap <f6> <esc>:bnext<cr>
 noremap <f7> <esc>:cprevious<cr>
 noremap <f8> <esc>:cnext<cr>
 
+if executable('ack')
+    set grepprg=ack\ -a
+endif
