@@ -31,12 +31,14 @@ set statusline=%-30(%f%m%r%h%w%)\ format:\ [%{&ff}]\ type:\ %y\ pos:\ [%4l,\ %3v
 
 set formatprg=perl\ -MText::Autoformat\ -e'autoformat'
 
-
 syntax on
 filetype plugin indent on
 
+" Read template named after extension (not filetype)
+autocmd BufNewFile * silent! 0r ~/.vim/templates/%:e.tpl
+
 " Jump to line we were on
-au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
+autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
   \| exe "normal g'\"" | endif
 
 nmap ,tp :tabp<cr> 
