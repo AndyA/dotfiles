@@ -63,9 +63,11 @@ autocmd BufNewFile * call ExpandTemplate(expand('%'), expand('%:e'), &filetype)
 autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
   \| exe "normal g'\"" | endif
 
-nmap ,tp :tabp<cr> 
-nmap ,tn :tabn<cr> 
-nmap ,tl :TlistToggle<cr>
+let mapleader=','
+
+nmap <leader>tp :tabp<cr> 
+nmap <leader>tn :tabn<cr> 
+nmap <leader>tl :TlistToggle<cr>
 
 noremap <f3> <esc>:previous<cr>
 noremap <f4> <esc>:next<cr>
