@@ -12,6 +12,10 @@ setlocal cinkeys-=0#
 setlocal keywordprg=perldoc
 setlocal iskeyword+=:
 setlocal tags=./tags,./perltags,tags,perltags,~/.vim/perltags
+ 
+if executable('ack')
+    setlocal grepprg=ack\ --type=perl
+endif
 
 function! s:look_up(file, depth)
     let l:up = []
