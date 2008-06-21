@@ -1,14 +1,15 @@
 #!/bin/sh
-[ -e ~/.Xauthority ] || exit
-if [ -n "$SSH_CLIENT" ]
+if [ -f ~/.Xauthority ]
 then
-    remote=`echo $SSH_CLIENT | cut -d' ' -f1`
-    auth="/tmp/$remote.Xauth"
-    if scp -q -o PasswordAuthentication=no $remote:~/.Xauthority $auth && [ -s $auth ]
+    if [ -n "$SSH_CLIENT" ]
     then
-        xauth merge $auth
-        export DISPLAY=$remote:0.0      
-        echo "Remote X server is $DISPLAY"
+        remote=`echo $SSH_CLIENT | cut -d' ' -f1`
+        auth="/tmp/$remote.Xauth"
+        if scp -q -o PasswordAuthentication=no $remote:~/.Xauthority $auth && [ -s $auth ]
+        then
+            xauth merge $auth
+            export DISPLAY=$remote:0.0      
+            echo "Remote X server is $DISPLAY"
+        fi
     fi
 fi
-
