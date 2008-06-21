@@ -1,4 +1,6 @@
 #!/bin/sh
+DISPLAY=
+ATTEMPT_REMOTE_X=
 if [ -f ~/.Xauthority ]
 then
     if [ -n "$SSH_CLIENT" ]
@@ -8,9 +10,12 @@ then
         if scp -q -o PasswordAuthentication=no $remote:~/.Xauthority $auth && [ -s $auth ]
         then
             xauth merge $auth
-            export DISPLAY=$remote:0.0      
+            DISPLAY=$remote:0.0      
+            ATTEMPT_REMOTE_X=$remote
             echo "Remote X server is $DISPLAY"
             rm -f $auth
         fi
     fi
 fi
+export DISPLAY
+export ATTEMPT_REMOTE_X

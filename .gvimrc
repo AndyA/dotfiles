@@ -39,14 +39,16 @@ let s:fontparts = split( s:guifont )
 
 " If we're connected to a remote X server and it's a Mac we need to do more
 " scaling.
-let s:connection  = split( $SSH_CONNECTION )
-if len( s:connection ) == 4
-    let s:remsys = s:remote_uname( s:connection[0] )
-    if s:remsys =~ '^Darwin'
-        let s:fontparts[-1] = s:to_mac(s:fontparts[-1])
-        " Scale window down
-        let &lines = s:from_mac(&lines)
-        let &columns = s:from_mac(&columns)
+if $ATTEMPT_REMOTE_X
+    let s:connection  = split( $SSH_CONNECTION )
+    if len( s:connection ) == 4
+        let s:remsys = s:remote_uname( s:connection[0] )
+        if s:remsys =~ '^Darwin'
+            let s:fontparts[-1] = s:to_mac(s:fontparts[-1])
+            " Scale window down
+            let &lines = s:from_mac(&lines)
+            let &columns = s:from_mac(&columns)
+        endif
     endif
 endif
 
