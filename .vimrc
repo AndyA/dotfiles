@@ -7,7 +7,8 @@ ia #e andy@hexten.net
 ia Therese Thérèse
 
 "colorscheme kib_darktango
-colorscheme golden
+"colorscheme golden
+colorscheme fnaqevan 
 set autowrite       
 set background=dark
 set expandtab

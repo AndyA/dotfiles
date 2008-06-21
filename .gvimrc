@@ -3,7 +3,7 @@
 if has('mac') 
     set guifont=Bitstream_Vera_Sans_Mono:h14
 else
-    set guifont=Bitstream\ Vera\ Sans\ Mono\ 11
+    set guifont=Bitstream\ Vera\ Sans\ Mono\ 10
 endif
 colorscheme fnaqevan 
 "colorscheme candycode
