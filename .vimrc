@@ -1,7 +1,5 @@
 " ~/.vimrc
 
-"let os_type=tolower(system('uname -s'))
-
 " Abbreviations
 ia #e andy@hexten.net
 ia Therese Thérèse
@@ -26,6 +24,7 @@ set softtabstop=4
 set title
 set t_vb=
 set vb
+set backspace=indent,eol,start
 
 set laststatus=2
 set statusline=%-30(%f%m%r%h%w%)\ format:\ [%{&ff}]\ type:\ %y\ loc:\ [%4l,\ %3v,\ %3p%%]\ lines:\ [%L]\ buf:\ [%n]\ %a
