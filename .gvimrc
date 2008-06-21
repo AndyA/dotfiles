@@ -3,7 +3,7 @@
 
 let s:guifont = 'Bitstream Vera Sans Mono 10'
 
-" Convert between different DPI settings.
+" Convert between different display resolutions
 function! s:scale(n, ptfrom, ptto)
     return (a:n * a:ptfrom + a:ptfrom / 2) / a:ptto
 endfunction
@@ -44,6 +44,7 @@ if $ATTEMPT_REMOTE_X
     if len( s:connection ) == 4
         let s:remsys = s:remote_uname( s:connection[0] )
         if s:remsys =~ '^Darwin'
+            " Scale font up
             let s:fontparts[-1] = s:to_mac(s:fontparts[-1])
             " Scale window down
             let &lines = s:from_mac(&lines)
