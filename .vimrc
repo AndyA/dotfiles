@@ -1,6 +1,6 @@
 " ~/.vimrc
 
-let os_type=tolower(system('uname -s'))
+"let os_type=tolower(system('uname -s'))
 
 " Abbreviations
 ia #e andy@hexten.net

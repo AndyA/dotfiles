@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Mac::Growl ':all';
+
+use constant APP_NAME => 'Growler';
+
+my @notifications = qw( default );
+
+RegisterNotifications( APP_NAME, \@notifications, \@notifications );
+
+PostNotification(
+    APP_NAME, $notifications[0],
+    "Message from " . APP_NAME,
+    join( ' ', <> ), 1
+);
