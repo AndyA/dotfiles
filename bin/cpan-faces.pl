@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 use strict;
 use warnings;
@@ -17,9 +17,11 @@ $| = 1;
 use constant MAIL_RC => 'http://cpan.perl.org/authors/01mailrc.txt.gz';
 use constant ICON_BASE => 'http://search.cpan.org/gravatar';
 use constant AUTHOR    => 'http://search.cpan.org/~';
-use constant OUTPUT    => 'cpan-faces';
-use constant STATE     => File::Spec->catfile( OUTPUT, 'work.yml' );
-use constant SIZE      => 80;
+use constant WHO       => 'http://search.cpan.org/s/img/who.jpg';
+
+use constant OUTPUT => 'cpan-faces';
+use constant STATE  => File::Spec->catfile( OUTPUT, 'work.yml' );
+use constant SIZE   => 80;
 
 my $UPDATE = 0;
 
@@ -106,8 +108,7 @@ sub build_page {
         my $icon = $icons->{$id};
 
         if ( my $img = $icon->{name} ) {
-            push @pic,
-              (
+            push @pic, (
                 $h->div(
                     { class => 'icon' },
                     $h->a(
@@ -116,15 +117,15 @@ sub build_page {
                             {
                                 src =>
                                   File::Spec->abs2rel( $img, OUTPUT ),
-                                width  => SIZE,
-                                height => SIZE,
-                                border => 0,
-                                alt    => $id
+                                # width  => SIZE,
+                                # height => SIZE,
+                                # border => 0,
+                                alt => $id
                             }
                         ),
                     ),
                 )
-              );
+            );
         }
     }
     return $h->html(
@@ -234,7 +235,7 @@ sub get_icon {
 
 sub get_icon_new {
     my $id   = shift;
-    my $home = 'http://search.cpan.org/~' . $id . '/';
+    my $home = AUTHOR . $id . '/';
     my $resp = $ua->get( $home );
     die join ' ', $resp->code, $resp->message
       unless $resp->is_success;
@@ -245,7 +246,10 @@ sub get_icon_new {
         if ( $type eq 'S' && $tag eq 'img' ) {
             my $src = $attr->{src};
             if ( $src =~ /gravatar\.com/ ) {
-                my $icon = $ua->get( $src );
+                my $nua = LWP::UserAgent->new;
+                $nua->requests_redirectable( [] );
+                my $icon = $nua->get( $src );
+                return if $icon->is_redirect;
                 die join ' ', $icon->code, $icon->message
                   unless $icon->is_success;
                 return ( $icon->content,
