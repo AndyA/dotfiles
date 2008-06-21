@@ -5,7 +5,8 @@ if has('mac')
 else
     set guifont=Bitstream\ Vera\ Sans\ Mono\ 11
 endif
-colorscheme candycode
+colorscheme fnaqevan 
+"colorscheme candycode
 "colorscheme darkocean
 "colorscheme golden
 set guioptions=aegimrLt
