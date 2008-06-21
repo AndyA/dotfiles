@@ -5,6 +5,10 @@ if has('mac')
 else
     set guifont=Bitstream\ Vera\ Sans\ Mono\ 11
 endif
+colorscheme candycode
+"colorscheme darkocean
+"colorscheme golden
 set guioptions=aegimrLt
+set antialias
 set vb
 set t_vb=
