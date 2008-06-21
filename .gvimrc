@@ -4,11 +4,12 @@
 let s:guifont = 'Bitstream Vera Sans Mono 10'
 
 function! s:remote_uname(addr)
-    let l:uname = system('ssh ' . addr . ' uname')
-    if v:shell_error <> 0
+    " TODO: Make sure this can't prompt and hang
+    let l:uname = system('ssh -o PasswordAuthentication=no ' . a:addr . ' uname')
+    if v:shell_error != 0
         return 'not remote'
     endif
-    return substitute( l:uname, '/\s\+$/', '', '' )
+    return l:uname
 endfunction
 
 function! s:prepare_font(parts)
@@ -22,21 +23,24 @@ function! s:prepare_font(parts)
 endfunction
 
 let s:fontparts = split( s:guifont )
+
+let s:connection  = split( $SSH_CONNECTION )
+if len( s:connection ) == 4
+    let s:remsys = s:remote_uname( s:connection[0] )
+    "call append(0, s:remsys)
+    if s:remsys =~ '^Darwin'
+        "call append(0, 'Remote is Mac')
+        let s:fontparts[-1] = s:fontparts[-1] * 14 / 10
+        " Scale window down
+        let &lines = &lines * 10 / 14
+        let &columns = &columns * 10 / 14
+    endif
+endif
+
 let s:fontname  = s:prepare_font( s:fontparts )
 let &guifont = s:fontname
 "call append(0, s:prepare_font( s:fontparts ))
 
-let s:connection  = split( $SSH_CONNECTION )
-if len( s:connection ) == 4
-    let s:remsys = s:remote_uname( s:connection[2] )
-    call append(0, s:remsys)
-endif
-
-"if has('mac') 
-"    set guifont=Bitstream_Vera_Sans_Mono:h14
-"else
-"    set guifont=Bitstream\ Vera\ Sans\ Mono\ 10
-"endif
 colorscheme fnaqevan 
 "colorscheme candycode
 "colorscheme darkocean
