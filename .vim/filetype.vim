@@ -1,4 +1,9 @@
+" Override / augment default filetype detection
+if exists("did_load_filetypes")
+    finish
+endif
 augroup filetypedetect
-    au BufNewFile,BufRead *.wiki setf Wikipedia
+    au! BufRead,BufNewFile *.t      setfiletype perl
+    au! BufRead,BufNewFile *.wiki   setfiletype Wikipedia
 augroup END
 

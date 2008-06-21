@@ -10,6 +10,7 @@ colorscheme fnaqevan
 "colorscheme darkocean
 "colorscheme golden
 set guioptions=aegimrLt
+set guitablabel=%t\ %m
 set antialias
 set vb
 set t_vb=

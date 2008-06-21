@@ -236,10 +236,16 @@ sub tags {
     $find->in( $doc );
 }
 
+# Assumes default magic setting
+sub vim_quotemeta {
+    my $text = shift;
+    $text =~ s/([\$\.\*\\])/\\$1/g;
+    return $text;
+}
+
 sub make_pattern {
     my $text = shift;
-    #return "/^" . quotemeta( $text ) . "\$/";
-    return "/^$text\$/";
+    return "/^" . vim_quotemeta( $text ) . "\$/";
 }
 
 {
