@@ -3,6 +3,19 @@
 
 let s:guifont = 'Bitstream Vera Sans Mono 10'
 
+" Convert between different DPI settings.
+function! s:scale(n, ptfrom, ptto)
+    return (a:n * a:ptfrom + a:ptfrom / 2) / a:ptto
+endfunction
+
+function! s:to_mac(n)
+    return s:scale(a:n, 96, 72)
+endfunction
+
+function! s:from_mac(n)
+    return s:scale(a:n, 72, 96)
+endfunction
+
 function! s:remote_uname(addr)
     " TODO: Make sure this can't prompt and hang
     let l:uname = system('ssh -o PasswordAuthentication=no ' . a:addr . ' uname')
@@ -15,7 +28,7 @@ endfunction
 function! s:prepare_font(parts)
     if has('mac')
         let l:name = join( a:parts[0:-2], '_' )
-        let l:size = printf( ':h%d', a:parts[-1] * 14 / 10 )
+        let l:size = printf( ':h%d', s:to_mac(a:parts[-1]) )
         return l:name . l:size
     else
         return join( a:parts, ' ' )
@@ -24,22 +37,21 @@ endfunction
 
 let s:fontparts = split( s:guifont )
 
+" If we're connected to a remote X server and it's a Mac we need to do more
+" scaling.
 let s:connection  = split( $SSH_CONNECTION )
 if len( s:connection ) == 4
     let s:remsys = s:remote_uname( s:connection[0] )
-    "call append(0, s:remsys)
     if s:remsys =~ '^Darwin'
-        "call append(0, 'Remote is Mac')
-        let s:fontparts[-1] = s:fontparts[-1] * 14 / 10
+        let s:fontparts[-1] = s:to_mac(s:fontparts[-1])
         " Scale window down
-        let &lines = &lines * 10 / 14
-        let &columns = &columns * 10 / 14
+        let &lines = s:from_mac(&lines)
+        let &columns = s:from_mac(&columns)
     endif
 endif
 
 let s:fontname  = s:prepare_font( s:fontparts )
 let &guifont = s:fontname
-"call append(0, s:prepare_font( s:fontparts ))
 
 colorscheme fnaqevan 
 "colorscheme candycode
