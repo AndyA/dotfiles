@@ -31,6 +31,7 @@ set laststatus=2
 set statusline=%-30(%f%m%r%h%w%)\ format:\ [%{&ff}]\ type:\ %y\ loc:\ [%4l,\ %3v,\ %3p%%]\ lines:\ [%L]\ buf:\ [%n]\ %a
 
 set formatprg=perl\ -MText::Autoformat\ -e'autoformat'
+set formatoptions=qro
 
 syntax on
 filetype plugin indent on
