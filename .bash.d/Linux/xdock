@@ -10,6 +10,7 @@ then
             xauth merge $auth
             export DISPLAY=$remote:0.0      
             echo "Remote X server is $DISPLAY"
+            rm -f $auth
         fi
     fi
 fi
