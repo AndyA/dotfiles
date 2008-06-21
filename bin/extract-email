@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Data::Validate::Email;
+
+while (<>) {
+    chomp;
+    s/^.*?<(.+?\@.+?)>.*$/$1/;    
+    next unless / ( \w+ (?: [.] \w+ )* \@ [-\w]+ (?: [.] \w+)+ ) /x;
+    next unless Data::Validate::Email::is_email($_);
+    print "$_\n";
+}
+

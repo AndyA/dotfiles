@@ -171,7 +171,7 @@ sub get_authors {
 
 sub user_home {
     my $id = shift;
-    return AUTHOR . lc( $id );
+    return AUTHOR . lc( $id ) . '/';
 }
 
 sub save_icon {
@@ -235,7 +235,7 @@ sub get_icon {
 
 sub get_icon_new {
     my $id   = shift;
-    my $home = AUTHOR . $id . '/';
+    my $home = user_home( $id );
     my $resp = $ua->get( $home );
     die join ' ', $resp->code, $resp->message
       unless $resp->is_success;
