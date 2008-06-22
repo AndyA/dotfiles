@@ -15,6 +15,7 @@ set hlsearch
 "set ignorecase   
 set incsearch     
 "set mouse=a     
+set scrolloff=5
 set shiftround
 set shiftwidth=4
 set showcmd     
