@@ -62,7 +62,7 @@ store( $dir, $STORE );
         print "$msg\n";
 
         POST: {
-            $plurk ||= WWW::Plurk->new( 'cpan', 'crabcrab' );
+            $plurk ||= WWW::Plurk->new( 'cpan', 'changeme' );
             eval { $plurk->add_plurk( content => $msg ) };
 
             if ( my $error = $@ ) {
