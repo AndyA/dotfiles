@@ -37,7 +37,7 @@ syntax on
 filetype plugin indent on
 
 if v:version >= 700
-    source ~/.vim/vim700
+    source ~/.vim/vim700.vim
 endif
 
 " Jump to line we were on
