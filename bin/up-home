@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HOSTS="surly hush blue weeble kumina voodoo frogger midget"
+HOSTS="surly hush blue weeble voodoo frogger midget"
 
 for h in $HOSTS ; do
     echo "Updating $h"
