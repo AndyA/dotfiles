@@ -18,6 +18,7 @@ find(
         $File::Find::prune = 1;
         return;
       }
+      s/[\/\\]\.svn$//;
       print "$_\n";
     },
   },
