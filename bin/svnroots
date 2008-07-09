@@ -1,0 +1,25 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use File::Find;
+use File::Spec;
+
+@ARGV = '.' unless @ARGV;
+
+find(
+  {
+    no_chdir => 1,
+    wanted   => sub {
+      return unless $_ =~ /\.svn$/;
+      return unless -d $_;
+      my $parent_svn = File::Spec->catdir( $_, '..', '..', '.svn' );
+      if ( -d $parent_svn ) {
+        $File::Find::prune = 1;
+        return;
+      }
+      print "$_\n";
+    },
+  },
+  @ARGV
+);
