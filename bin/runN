@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#!/usr/bin/env perl
 
 # runN -- run a command on each of several arguments
 # Copyright 2007 Mark Jason Dominus <mjd@plover.com>
