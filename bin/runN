@@ -30,12 +30,12 @@ EOF
     exit 1;
 }
 
-my %opt = (j => 1);
-getopts('j:v', \%opt) or usage();
+my %opt = ( j => 1 );
+getopts( 'j:v', \%opt ) or usage();
 usage() if !@ARGV;
 
 my @command = shift @ARGV;
-if (any { $_ eq '--' } @ARGV) {
+if ( any { $_ eq '--' } @ARGV ) {
     push @command, before { $_ eq '--' } @ARGV;
     splice @ARGV, 0, @command;
 }
@@ -43,9 +43,9 @@ if (any { $_ eq '--' } @ARGV) {
 my %pid;
 my $exit_status = 0;
 
-for my $arg (@ARGV) {
+for my $arg ( @ARGV ) {
     wait_for_child() while keys %pid >= $opt{j};
-    $pid{ spawn(@command, $arg) } = 1;
+    $pid{ spawn( @command, $arg ) } = 1;
 }
 
 1 while wait_for_child();
@@ -60,11 +60,11 @@ sub wait_for_child {
 }
 
 sub spawn {
-    my ($command, @args) = @_;
+    my ( $command, @args ) = @_;
     warn "Execute: $command @args\n" if $opt{v};
     my $pid = fork;
     die "can't fork $command: $!\n" if !defined $pid;
     return $pid if $pid;
-    exec { $command } $command, @args
-        or die "can't exec $command: $!\n";
+    exec {$command} $command, @args
+      or die "can't exec $command: $!\n";
 }
