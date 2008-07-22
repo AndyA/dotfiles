@@ -189,9 +189,17 @@ sub scan_thing {
     }
 }
 
+sub is_nice_name {
+    my $name = shift;
+    my ( undef, undef, $leaf ) = File::Spec->splitpath( $name );
+    return if $leaf =~ /^\./;
+    return 1;
+}
+
 sub tags {
     my $file = shift;
     my $depth = shift || 0;
+    return unless is_nice_name( $file );
     return if $done{$file}++;
     print STDERR "$file\n" if $progress;
     my $doc = PPI::Document->new( $file );
