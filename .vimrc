@@ -14,6 +14,7 @@ set expandtab
 set hlsearch
 "set ignorecase   
 set incsearch     
+set modeline
 "set mouse=a     
 set scrolloff=5
 set shiftround
