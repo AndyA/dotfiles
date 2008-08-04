@@ -1,0 +1,39 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+
+my $width = 80;
+
+@ARGV && GetOptions( 'w=i' => \$width )
+  or die "Syntax: vccat [-w width] /dev/vcs\n";
+
+while ( my $dev = shift ) {
+    vccat( $dev, $width );
+}
+
+sub vccat {
+    my ( $file, $width ) = @_;
+    open my $vc, '<', $file or die "Can't read $file ($!)\n";
+    my $blank = 0;
+    my $bar   = '-' x $width;
+    my $hdr   = "/-$bar-\\";
+    my $ftr   = "\\-$bar-/";
+    my $gap   = '| ' . ( ' ' x $width ) . ' |';
+    my $title = " $file ";
+    substr( $hdr, 3, length $title ) = $title;
+    print "$hdr\n$gap\n";
+
+    while ( sysread $vc, my $row, $width ) {
+        if ( $row =~ /^\s+$/ ) {
+            $blank++;
+        }
+        else {
+            print "$gap\n" x $blank;
+            $blank = 0;
+            print "| $row |\n";
+        }
+    }
+    print "$gap\n$ftr\n";
+}
