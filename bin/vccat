@@ -4,36 +4,89 @@ use strict;
 use warnings;
 use Getopt::Long;
 
-my $width = 80;
+my $width  = 80;
+my $squash = 1;
 
-@ARGV && GetOptions( 'w=i' => \$width )
-  or die "Syntax: vccat [-w width] /dev/vcs\n";
+@ARGV && GetOptions( 'w=i' => \$width, 'squash=i' => \$squash )
+ or die "Syntax: vccat [-w width] /dev/vcs\n";
 
 while ( my $dev = shift ) {
-    vccat( $dev, $width );
+  vccat( $dev, get_put_row( $squash ), $width );
 }
 
 sub vccat {
-    my ( $file, $width ) = @_;
-    open my $vc, '<', $file or die "Can't read $file ($!)\n";
-    my $blank = 0;
-    my $bar   = '-' x $width;
-    my $hdr   = "/-$bar-\\";
-    my $ftr   = "\\-$bar-/";
-    my $gap   = '| ' . ( ' ' x $width ) . ' |';
-    my $title = " $file ";
-    substr( $hdr, 3, length $title ) = $title;
-    print "$hdr\n$gap\n";
-
-    while ( sysread $vc, my $row, $width ) {
-        if ( $row =~ /^\s+$/ ) {
-            $blank++;
-        }
-        else {
-            print "$gap\n" x $blank;
-            $blank = 0;
-            print "| $row |\n";
-        }
-    }
-    print "$gap\n$ftr\n";
+  my ( $file, $put, $width ) = @_;
+  open my $vc, '<', $file or die "Can't read $file ($!)\n";
+  if ( $file =~ m{^/dev/vcsa\d*$} ) {
+    vccat_raw( $vc, $put );
+  }
+  elsif ( $file =~ m{^(/dev/vcs)(\d*)$} ) {
+    my @size = get_size( "$1a$2" );
+    @size = ( undef, $width ) unless @size;
+    vccat_plain( $vc, $put, @size );
+  }
+  else {
+    vccat_plain( $vc, $put, undef, $width );
+  }
 }
+
+sub get_put_row {
+  my $squash = shift;
+  if ( $squash == 0 ) {
+    return sub {
+      my $row = shift;
+      print "$row\n";
+    };
+  }
+  else {
+    my $gap = undef;
+    return sub {
+      my $row = shift;
+      $row =~ s/\s+$//;
+      if ( $row eq '' ) {
+        defined $gap && $gap++;
+      }
+      else {
+        $gap &&= 1 if $squash > 1;
+        $gap = 0 if $squash > 2;
+        print "\n" for 1 .. ( $gap || 0 );
+        $gap = 0;
+        print "$row\n";
+      }
+    };
+  }
+}
+
+sub vccat_plain {
+  my ( $vc, $put, $h, $w, $x, $y ) = @_;
+  my $gap = undef;
+  while ( sysread $vc, my $row, $w ) {
+    $put->( $row );
+  }
+}
+
+sub vccat_raw {
+  my ( $vc, $put ) = @_;
+  my ( $h, $w, $x, $y ) = size_from_handle( $vc );
+  while ( sysread $vc, my $row, $w * 2 ) {
+    $row =~ s/(.)./$1/g;
+    $put->( $row );
+  }
+}
+
+sub size_from_handle {
+  my $vca = shift;
+  sysread $vca, my $hdr, 4;
+  return unpack( 'C*', $hdr );
+}
+
+sub get_size {
+  my $file = shift;
+  if ( open my $vca, '<', $file ) {
+    return size_from_handle( $vca );
+  }
+  warn "Can't read $file ($!)\n";
+  return;
+}
+
+# vim:ts=2:sw=2:et:ft=perl
