@@ -21,8 +21,7 @@ sub vccat {
     vccat_raw( $vc, $put );
   }
   elsif ( $file =~ m{^(/dev/vcs)(\d*)$} ) {
-    my @size = get_size( "$1a$2" );
-    @size = ( undef, $width ) unless @size;
+    my @size = defined $width ? ( undef, $width) : get_size( "$1a$2" );
     vccat_plain( $vc, $put, @size );
   }
   else {
