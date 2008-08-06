@@ -13,499 +13,479 @@ use Devel::Symdump;
 use B;
 
 my %options = (
-    show_help     => 0,
-    stop_on_error => 0,
-    quiet         => 0,
-    textmate      => 0,
-    frames        => 0,
-    output        => undef,
+  show_help     => 0,
+  stop_on_error => 0,
+  quiet         => 0,
+  textmate      => 0,
+  frames        => 0,
+  output        => undef,
 );
 
 Getopt::Long::Configure( 'bundling' );
 
 GetOptions(
-    'h|help'     => \$options{show_help},
-    'f|fatal'    => \$options{stop_on_error},
-    'q|quiet'    => \$options{quiet},
-    'o|output:s' => \$options{output},
-    'frames'     => \$options{frames},
-    'textmate'   => \$options{textmate},
+  'h|help'     => \$options{show_help},
+  'f|fatal'    => \$options{stop_on_error},
+  'q|quiet'    => \$options{quiet},
+  'o|output:s' => \$options{output},
+  'frames'     => \$options{frames},
+  'textmate'   => \$options{textmate},
 ) or syntax();
 
 if ( $options{show_help} ) {
-    syntax();
+  syntax();
 }
 else {
-    my $error
-      = $options{quiet}         ? sub { }
-      : $options{stop_on_error} ? sub { die @_ }
-      :                           sub { warn @_ };
+  my $error
+   = $options{quiet}         ? sub { }
+   : $options{stop_on_error} ? sub { die @_ }
+   :                           sub { warn @_ };
 
-    my $modules
-      = scan_files( { map { %{ load_modules( $_, $error ) } } @ARGV },
-        $error );
+  my $modules
+   = scan_files( { map { %{ load_modules( $_, $error ) } } @ARGV },
+    $error );
 
-    my $isa_map   = walk_hierarchy( $modules );
-    my $interface = walk_interface( $modules );
-    my $inherited = walk_inherited( $interface, $isa_map );
+  my $isa_map   = walk_hierarchy( $modules );
+  my $interface = walk_interface( $modules );
+  my $inherited = walk_inherited( $interface, $isa_map );
 
-    my $h = HTML::Tiny->new;
+  my $h = HTML::Tiny->new;
 
-    my $menu_link = $options{frames}
-      ? do {
-        die "--frames requires --output which must name a directory"
-          unless defined $options{output};
-        sub {
-            my ( $anchor, $text ) = @_;
-            return $h->a(
-                { href => "main.html#$anchor", target => 'hier' },
-                $text );
-        };
-      }
-      : sub {
-        my ( $anchor, $text ) = @_;
-        return $h->a( { href => "#$anchor" }, $text );
-      };
+  my $menu_link = $options{frames}
+   ? do {
+    die "--frames requires --output which must name a directory"
+     unless defined $options{output};
+    sub {
+      my ( $anchor, $text ) = @_;
+      return $h->a( { href => "main.html#$anchor", target => 'hier' },
+        $text );
+    };
+   }
+   : sub {
+    my ( $anchor, $text ) = @_;
+    return $h->a( { href => "#$anchor" }, $text );
+   };
 
-    my $output 
-      = defined $options{output}
-      ? $options{frames}
-          ? sub {
-              output_frameset( $options{output}, @_ );
-          }
-          : sub {
-              open my $oh, '>', $options{output}
-                or die "Can't write $options{output} ($!)\n";
-              output_single( $oh, @_ );
-              close $oh;
-        }
-      : sub {
-        output_single( \*STDOUT, @_ );
-      };
+  my $output 
+   = defined $options{output}
+   ? $options{frames}
+     ? sub {
+       output_frameset( $options{output}, @_ );
+     }
+     : sub {
+       open my $oh, '>', $options{output}
+        or die "Can't write $options{output} ($!)\n";
+       output_single( $oh, @_ );
+       close $oh;
+    }
+   : sub {
+    output_single( \*STDOUT, @_ );
+   };
 
-    # use Data::Dumper;
-    # print Dumper( $interface );
+  # use Data::Dumper;
+  # print Dumper( $interface );
 
-    report(
-        $output,
-        {
-            $options{textmate}
-            ? ( edit_link => mml_textmate() )
-            : (),
-            menu_link => $menu_link,
-        },
-        {
-            modules   => $modules,
-            isa_map   => $isa_map,
-            interface => $interface,
-            inherited => $inherited,
-        }
-    );
+  report(
+    $output,
+    {
+      $options{textmate}
+      ? ( edit_link => mml_textmate() )
+      : (),
+      menu_link => $menu_link,
+    },
+    {
+      modules   => $modules,
+      isa_map   => $isa_map,
+      interface => $interface,
+      inherited => $inherited,
+    }
+  );
 }
 
 sub load_modules {
-    my ( $dir, $error ) = @_;
-    my %found    = ();
-    my $strip_re = qr{^\Q$dir\E[/\\]*};
-    my $ok_re    = qr{\.pm$}i;
+  my ( $dir, $error ) = @_;
+  my %found    = ();
+  my $strip_re = qr{^\Q$dir\E[/\\]*};
+  my $ok_re    = qr{\.pm$}i;
 
-    local @INC = ( $dir, @INC );
+  local @INC = ( $dir, @INC );
 
-    find(
-        {
-            wanted => sub {
-                my $file = $_;
-                return unless s/$ok_re// && s/$strip_re//;
-                ( my $module = $_ ) =~ s{[/\\]+}{::}g;
-                eval "use $module ()";
-                if ( $@ ) {
-                    $error->( "Error loading $file: $@" );
-                    return;
-                }
-                $found{$module} = [
-                    {
-                        file => $file,
-                        line => 1
-                    },
-                ];
-            },
-            follow   => 1,
-            no_chdir => 1,
-        },
-        $dir
-    );
-    return \%found;
+  find(
+    {
+      wanted => sub {
+        my $file = $_;
+        return unless s/$ok_re// && s/$strip_re//;
+        ( my $module = $_ ) =~ s{[/\\]+}{::}g;
+        eval "use $module ()";
+        if ( $@ ) {
+          $error->( "Error loading $file: $@" );
+          return;
+        }
+        $found{$module} = [
+          {
+            file => $file,
+            line => 1
+          },
+        ];
+      },
+      follow   => 1,
+      no_chdir => 1,
+    },
+    $dir
+  );
+  return \%found;
 }
 
 sub scan_files {
-    my ( $modules, $error ) = @_;
-    my %scanned = ();
-    my %seen    = ();
-    for my $mod ( keys %$modules ) {
-        LOC:
-        for my $loc ( @{ $modules->{$mod} } ) {
-            my $file = $loc->{file};
-            next if $seen{$file}++;
-            my @found = eval { scan_file( $file ) };
-            if ( $@ ) {
-                $error->( "Error scanning $file: $@" );
-                next LOC;
-            }
-            for my $result ( @found ) {
-                my ( $pack, $line, $desc ) = @$result;
-                push @{ $scanned{$pack} },
-                  {
-                    file => $file,
-                    line => $line,
-                    defined( $desc ) ? ( description => $desc ) : ()
-                  };
-            }
-        }
+  my ( $modules, $error ) = @_;
+  my %scanned = ();
+  my %seen    = ();
+  for my $mod ( keys %$modules ) {
+    LOC:
+    for my $loc ( @{ $modules->{$mod} } ) {
+      my $file = $loc->{file};
+      next if $seen{$file}++;
+      my @found = eval { scan_file( $file ) };
+      if ( $@ ) {
+        $error->( "Error scanning $file: $@" );
+        next LOC;
+      }
+      for my $result ( @found ) {
+        my ( $pack, $line, $desc ) = @$result;
+        push @{ $scanned{$pack} },
+         {
+          file => $file,
+          line => $line,
+          defined( $desc ) ? ( description => $desc ) : ()
+         };
+      }
     }
-    return \%scanned;
+  }
+  return \%scanned;
 }
 
 sub scan_file {
-    my $file = shift;
+  my $file = shift;
 
-    my @pack    = ();
-    my $in_name = 0;
-    my @name    = ();
-    open my $fh, '<', $file or die "Can't read $file ($!)\n";
-    while ( <$fh> ) {
-        if ( /^=head\d+\s+NAME\b/ ) {
-            $in_name = 1;
-        }
-        elsif ( /^=/ ) {
-            $in_name = 0;
-            if ( @name && @pack ) {
-                my $name = join ' ', @name;
-                $name =~ s/^\s+//;
-                $name =~ s/\s+$//;
-                $name =~ s/\s+/ /;
-                $pack[-1][2] = $name;
-            }
-            @name = ();
-        }
-        elsif ( $in_name ) {
-            push @name, $_;
-        }
-        else {
-            push @pack, [ $1, $. ]
-              if /^package\s+(\w+(?:::\w+)*)\s*;/;
-        }
+  my @pack    = ();
+  my $in_name = 0;
+  my @name    = ();
+  open my $fh, '<', $file or die "Can't read $file ($!)\n";
+  while ( <$fh> ) {
+    if ( /^=head\d+\s+NAME\b/ ) {
+      $in_name = 1;
     }
-    close $fh;
-    return @pack;
+    elsif ( /^=/ ) {
+      $in_name = 0;
+      if ( @name && @pack ) {
+        my $name = join ' ', @name;
+        $name =~ s/^\s+//;
+        $name =~ s/\s+$//;
+        $name =~ s/\s+/ /;
+        $pack[-1][2] = $name;
+      }
+      @name = ();
+    }
+    elsif ( $in_name ) {
+      push @name, $_;
+    }
+    else {
+      push @pack, [ $1, $. ]
+       if /^package\s+(\w+(?:::\w+)*)\s*;/;
+    }
+  }
+  close $fh;
+  return @pack;
 }
 
 sub walk_inherited {
-    my ( $interface, $isa_map ) = @_;
-    my $cache = {};
-    return {
-        map { $_ => get_inherited( $_, $interface, $isa_map, $cache ) }
-          keys %$interface
-    };
+  my ( $interface, $isa_map ) = @_;
+  my $cache = {};
+  return {
+    map { $_ => get_inherited( $_, $interface, $isa_map, $cache ) }
+     keys %$interface
+  };
 }
 
 sub get_inherited {
-    my ( $module, $interface, $isa_map, $cache ) = @_;
-    return $cache->{$module} if $cache->{$module};
-    my $method = {};
-    for my $class ( @{ $isa_map->{$module} } ) {
-        for my $dict ( $interface->{$class},
-            get_inherited( $class, $interface, $isa_map, $cache ) ) {
-            for my $name ( keys %$dict ) {
-                $method->{$name} ||= $dict->{$name};
-            }
-        }
+  my ( $module, $interface, $isa_map, $cache ) = @_;
+  return $cache->{$module} if $cache->{$module};
+  my $method = {};
+  for my $class ( @{ $isa_map->{$module} } ) {
+    for my $dict ( $interface->{$class},
+      get_inherited( $class, $interface, $isa_map, $cache ) ) {
+      for my $name ( keys %$dict ) {
+        $method->{$name} ||= $dict->{$name};
+      }
     }
-    $cache->{$module} = $method;
-    return $method;
+  }
+  $cache->{$module} = $method;
+  return $method;
 }
 
 sub walk_interface {
-    my $modules = shift;
-    return { map { $_ => get_subs( $_ ) } keys %$modules };
+  my $modules = shift;
+  return { map { $_ => get_subs( $_ ) } keys %$modules };
 }
 
 # Stolen from Pod::Coverage with thanks
 sub get_subs {
-    my $pack = shift;
+  my $pack = shift;
 
-    my $syms = Devel::Symdump->new( $pack );
-    my %symbols;
-    for my $sym ( $syms->functions ) {
+  my $syms = Devel::Symdump->new( $pack );
+  my %symbols;
+  for my $sym ( $syms->functions ) {
 
-        # Skip imported symbols
-        my $glob = do { no strict 'refs'; \*{$sym} };
-        my $o = B::svref_2object( $glob );
-        next if $o->GvFLAGS & B::GVf_IMPORTED_CV;
+    # Skip imported symbols
+    my $glob = do { no strict 'refs'; \*{$sym} };
+    my $o = B::svref_2object( $glob );
+    next if $o->GvFLAGS & B::GVf_IMPORTED_CV;
 
-        ( my $sub_name = $sym ) =~ s/^\Q$pack\E:://;
+    ( my $sub_name = $sym ) =~ s/^\Q$pack\E:://;
 
-        $symbols{$sub_name} = {
-            file => $o->FILE,
-            line => $o->LINE
-        };
-    }
-    return \%symbols;
+    $symbols{$sub_name} = {
+      file => $o->FILE,
+      line => $o->LINE
+    };
+  }
+  return \%symbols;
 }
 
 sub walk_hierarchy {
-    my $modules = shift;
-    my %isa_map = ();
-    $isa_map{$_} = [ eval "\@${_}::ISA" ] for keys %$modules;
-    return \%isa_map;
+  my $modules = shift;
+  my %isa_map = ();
+  $isa_map{$_} = [ eval "\@${_}::ISA" ] for keys %$modules;
+  return \%isa_map;
 }
 
 sub subclass_invert {
-    my $isa_map  = shift;
-    my %subclass = ();
-    for my $class ( keys %$isa_map ) {
-        for my $super ( @{ $isa_map->{$class} } ) {
-            push @{ $subclass{$super} }, $class;
-        }
+  my $isa_map  = shift;
+  my %subclass = ();
+  for my $class ( keys %$isa_map ) {
+    for my $super ( @{ $isa_map->{$class} } ) {
+      push @{ $subclass{$super} }, $class;
     }
-    return \%subclass;
+  }
+  return \%subclass;
 }
 
 sub report {
-    my ( $output, $handlers, $data ) = @_;
+  my ( $output, $handlers, $data ) = @_;
 
-    my $edit_link = $handlers->{edit_link}
-      || sub { $_[2] };
-    my $menu_link = $handlers->{menu_link}
-      || sub { $_[1] };
+  my $edit_link = $handlers->{edit_link}
+   || sub { $_[2] };
+  my $menu_link = $handlers->{menu_link}
+   || sub { $_[1] };
 
-    my $modules = $data->{modules}
-      || die "Data must contain modules";
-    my $isa_map = $data->{isa_map}
-      || die "Data must contain isa_map";
-    my $interface = $data->{interface}
-      || die "Data must contain interface";
-    my $inherited = $data->{inherited}
-      || die "Data must contain inherited";
+  my $modules = $data->{modules}
+   || die "Data must contain modules";
+  my $isa_map = $data->{isa_map}
+   || die "Data must contain isa_map";
+  my $interface = $data->{interface}
+   || die "Data must contain interface";
+  my $inherited = $data->{inherited}
+   || die "Data must contain inherited";
 
-    my $h = HTML::Tiny->new;
+  my $h = HTML::Tiny->new;
 
-    my $pack_link = sub {
-        my $pack = shift;
-        ( my $anchor = $pack ) =~ s/:+/_/g;
-        return $menu_link->( $anchor, $pack );
-    };
+  my $pack_link = sub {
+    my $pack = shift;
+    ( my $anchor = $pack ) =~ s/:+/_/g;
+    return $menu_link->( $anchor, $pack );
+  };
 
-    my $tree;
-    $tree = sub {
-        my ( $hash, $class, $seen ) = @_;
-        my $root = !$seen;
-        $seen ||= {};
-        return $h->li( $h->span( { class => 'external' }, "$class" ) )
-          unless exists $modules->{$class};
-        return $h->li(
-            $h->span( { class => 'warning' }, "$class (recursive!)" ) )
-          if $seen->{$class}++;
-        return $h->li(
-            [
-                  $root
-                ? $h->span( { class => 'self' }, $class )
-                : $pack_link->( $class ),
-                $h->ul(
-                    [
-                        map { $tree->( $hash, $_, $seen ) }
-                          @{ $hash->{$class} }
-                    ]
+  my $tree;
+  $tree = sub {
+    my ( $hash, $class, $seen ) = @_;
+    my $root = !$seen;
+    $seen ||= {};
+    return $h->li( $h->span( { class => 'external' }, "$class" ) )
+     unless exists $modules->{$class};
+    return $h->li(
+      $h->span( { class => 'warning' }, "$class (recursive!)" ) )
+     if $seen->{$class}++;
+    return $h->li(
+      [
+          $root
+        ? $h->span( { class => 'self' }, $class )
+        : $pack_link->( $class ),
+        $h->ul(
+          [ map { $tree->( $hash, $_, $seen ) } @{ $hash->{$class} } ]
+        )
+      ]
+    );
+  };
+
+  my $subclass = subclass_invert( $isa_map );
+
+  my @index = ();
+  my @body  = ();
+
+  for my $mod ( sort keys %$modules ) {
+    ( my $anchor = $mod ) =~ s/:+/_/g;
+
+    push @index, $h->div( { class => 'index' }, $pack_link->( $mod ) );
+
+    # You know, I think I could usefully shorten this expression...
+    push @body, $h->div(
+      { class => 'entry' },
+      [
+        $h->a( { name => $anchor }, $h->h1( $mod ) ),
+        $h->p(
+          { class => 'description' },
+          grep defined,
+          map { $h->entity_encode( $_->{description} ) }
+           @{ $modules->{$mod} }
+        ),
+        $h->div(
+          { class => 'editlink' },
+          [
+            'Defined in',
+            $h->ul(
+              [
+                map {
+                  $h->li(
+                    $edit_link->(
+                      $_->{file}, $_->{line},
+                      $_->{file} . ', line ' . $_->{line}
+                    )
+                   )
+                 } @{ $modules->{$mod} }
+              ]
+            )
+          ]
+        ),
+        $h->table(
+          [
+            $h->tr(
+              [ $h->th( 'Superclass Tree', 'Subclass Tree' ) ],
+              [
+                $h->td(
+                  { valign => 'top' },
+                  map { $h->ul( $tree->( $_, $mod ) ) }
+                   ( $isa_map, $subclass )
                 )
-            ]
-        );
-    };
+              ]
+            )
+          ]
+        ),
+        $h->table(
+          [
+            $h->tr(
+              [
+                $h->th(
+                  'Locally defined methods/subs',
+                  'Inherited methods',
+                )
+              ],
+              [
+                $h->td(
+                  { valign => 'top' },
+                  map { list_subs( $_->{$mod}, $edit_link ) }
+                   ( $interface, $inherited )
+                )
+              ]
+            )
+          ]
+        ),
+      ]
+    );
+  }
 
-    my $subclass = subclass_invert( $isa_map );
-
-    my @index = ();
-    my @body  = ();
-
-    for my $mod ( sort keys %$modules ) {
-        ( my $anchor = $mod ) =~ s/:+/_/g;
-
-        push @index,
-          $h->div( { class => 'index' }, $pack_link->( $mod ) );
-
-        # You know, I think I could usefully shorten this expression...
-        push @body, $h->div(
-            { class => 'entry' },
-            [
-                $h->a( { name => $anchor }, $h->h1( $mod ) ),
-                $h->p(
-                    { class => 'description' },
-                    grep defined,
-                    map { $h->entity_encode( $_->{description} ) }
-                      @{ $modules->{$mod} }
-                ),
-                $h->div(
-                    { class => 'editlink' },
-                    [
-                        'Defined in',
-                        $h->ul(
-                            [
-                                map {
-                                    $h->li(
-                                        $edit_link->(
-                                            $_->{file},
-                                            $_->{line},
-                                            $_->{file}
-                                              . ', line '
-                                              . $_->{line}
-                                        )
-                                      )
-                                  } @{ $modules->{$mod} }
-                            ]
-                        )
-                    ]
-                ),
-                $h->table(
-                    [
-                        $h->tr(
-                            [
-                                $h->th(
-                                    'Superclass Tree',
-                                    'Subclass Tree'
-                                )
-                            ],
-                            [
-                                $h->td(
-                                    { valign => 'top' },
-                                    map {
-                                        $h->ul( $tree->( $_, $mod ) )
-                                      } ( $isa_map, $subclass )
-                                )
-                            ]
-                        )
-                    ]
-                ),
-                $h->table(
-                    [
-                        $h->tr(
-                            [
-                                $h->th(
-                                    'Locally defined methods/subs',
-                                    'Inherited methods',
-                                )
-                            ],
-                            [
-                                $h->td(
-                                    { valign => 'top' },
-                                    map {
-                                        list_subs( $_->{$mod},
-                                            $edit_link )
-                                      } ( $interface, $inherited )
-                                )
-                            ]
-                        )
-                    ]
-                ),
-            ]
-        );
-    }
-
-    $output->( \@index, \@body );
+  $output->( \@index, \@body );
 }
 
 sub list_subs {
-    my ( $subs, $edit_link ) = @_;
-    return join ', ', map {
-        $edit_link->( $subs->{$_}->{file}, $subs->{$_}->{line}, $_ )
-    } sort keys %$subs;
+  my ( $subs, $edit_link ) = @_;
+  return join ', ',
+   map { $edit_link->( $subs->{$_}->{file}, $subs->{$_}->{line}, $_ ) }
+   sort keys %$subs;
 }
 
 {
-    my $style = undef;
+  my $style = undef;
 
-    sub stylesheet {
-        $style ||= do { local $/; <DATA> }
-    }
+  sub stylesheet {
+    $style ||= do { local $/; <DATA> }
+  }
 }
 
 sub output_page {
-    my ( $fh, $title, @body ) = @_;
-    my $h = HTML::Tiny->new;
-    print $fh $h->html(
-        [
-            $h->head(
-                [ $h->title( $title ), $h->style( stylesheet() ) ]
-            ),
-            $h->body( @body )
-        ]
-    );
+  my ( $fh, $title, @body ) = @_;
+  my $h = HTML::Tiny->new;
+  print $fh $h->html(
+    [
+      $h->head( [ $h->title( $title ), $h->style( stylesheet() ) ] ),
+      $h->body( @body )
+    ]
+  );
 }
 
 sub output_single {
-    my $fh = shift;
-    output_page( $fh, 'Class Hierarchy', @_ );
+  my $fh = shift;
+  output_page( $fh, 'Class Hierarchy', @_ );
 }
 
 sub output_frameset {
-    my ( $dir, $index, $body ) = @_;
-    my $h = HTML::Tiny->new;
-    mkpath( $dir );
+  my ( $dir, $index, $body ) = @_;
+  my $h = HTML::Tiny->new;
+  mkpath( $dir );
 
-    my %maker = (
-        'index.html' => sub {
-            my $fh = shift;
-            print $fh $h->html(
-                [
-                    $h->head( $h->title( 'Class Hierarchy' ) ),
-                    $h->frameset(
-                        { cols => '280, *' },
-                        [
-                            $h->frame( { src => 'menu.html' } ),
-                            $h->frame(
-                                { src => 'main.html', name => 'hier' }
-                            )
-                        ]
-                    )
-                ]
-            );
-        },
-        'menu.html' => sub {
-            my $fh = shift;
-            output_page( $fh, 'Menu', $index );
-        },
-        'main.html' => sub {
-            my $fh = shift;
-            output_page( $fh, 'Main', $body );
-        },
-    );
+  my %maker = (
+    'index.html' => sub {
+      my $fh = shift;
+      print $fh $h->html(
+        [
+          $h->head( $h->title( 'Class Hierarchy' ) ),
+          $h->frameset(
+            { cols => '280, *' },
+            [
+              $h->frame( { src => 'menu.html' } ),
+              $h->frame( { src => 'main.html', name => 'hier' } )
+            ]
+          )
+        ]
+      );
+    },
+    'menu.html' => sub {
+      my $fh = shift;
+      output_page( $fh, 'Menu', $index );
+    },
+    'main.html' => sub {
+      my $fh = shift;
+      output_page( $fh, 'Main', $body );
+    },
+  );
 
-    while ( my ( $name, $make ) = each %maker ) {
-        my $doc = File::Spec->catfile( $dir, $name );
-        open my $dh, '>', $doc or die "Can't write $doc\n";
-        $make->( $dh );
-        close $dh;
-    }
+  while ( my ( $name, $make ) = each %maker ) {
+    my $doc = File::Spec->catfile( $dir, $name );
+    open my $dh, '>', $doc or die "Can't write $doc\n";
+    $make->( $dh );
+    close $dh;
+  }
 
 }
 
 sub mml_textmate {
-    eval "use TextMate::JumpTo";
-    die $@ if $@;
-    my $h = HTML::Tiny->new;
-    return sub {
-        my ( $file, $line, $text ) = @_;
-        return $h->a(
-            {
-                href => TextMate::JumpTo::tm_location(
-                    file => $file,
-                    line => $line
-                )
-            },
-            $text
-        );
-    };
+  eval "use TextMate::JumpTo";
+  die $@ if $@;
+  my $h = HTML::Tiny->new;
+  return sub {
+    my ( $file, $line, $text ) = @_;
+    return $h->a(
+      {
+        href => TextMate::JumpTo::tm_location(
+          file => $file,
+          line => $line
+        )
+      },
+      $text
+    );
+  };
 }
 
 sub syntax {
-    print <<EOS;
+  print <<EOS;
 Syntax: isa [options] <dir>
 
 Options:
@@ -517,7 +497,7 @@ Options:
       --frames      Output a frameset (requires --output to name a dir)
       --textmate    Generate TextMate compatible links
 EOS
-    exit;
+  exit;
 }
 
 __END__
