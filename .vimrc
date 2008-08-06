@@ -4,8 +4,6 @@
 ia #e andy@hexten.net
 ia Therese Thérèse
 
-"colorscheme kib_darktango
-"colorscheme golden
 if $COLORTERM == 'gnome-terminal'
     set t_Co=256
     colorscheme zenburn
