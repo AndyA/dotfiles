@@ -4,6 +4,7 @@
 ia #e andy@hexten.net
 ia Therese Thérèse
 
+set background=dark
 if $COLORTERM == 'gnome-terminal'
     set t_Co=256
     colorscheme zenburn
@@ -11,7 +12,6 @@ else
     colorscheme fnaqevan 
 endif
 set autowrite       
-set background=dark
 set expandtab
 "set hidden        
 set hlsearch

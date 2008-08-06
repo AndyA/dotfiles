@@ -3,7 +3,7 @@
 " Stuff that only works with Vim 7
  
 " Attempt to locate and expand a template for a new file.
-function ExpandTemplate(name, ext, type)
+function! ExpandTemplate(name, ext, type)
     let l:try = [ a:ext, a:type ]
 
     for l:hint in l:try
