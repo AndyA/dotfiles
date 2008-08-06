@@ -6,7 +6,12 @@ ia Therese Thérèse
 
 "colorscheme kib_darktango
 "colorscheme golden
-colorscheme fnaqevan 
+if $COLORTERM == 'gnome-terminal'
+    set t_Co=256
+    colorscheme zenburn
+else
+    colorscheme fnaqevan 
+endif
 set autowrite       
 set background=dark
 set expandtab
