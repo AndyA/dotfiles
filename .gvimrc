@@ -56,11 +56,7 @@ endif
 let s:fontname  = s:prepare_font( s:fontparts )
 let &guifont = s:fontname
 
-"colorscheme fnaqevan 
 colorscheme zenburn
-"colorscheme candycode
-"colorscheme darkocean
-"colorscheme golden
 set guioptions=aegimrLt
 set guitablabel=%t\ %m
 set antialias
