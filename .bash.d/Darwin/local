@@ -5,6 +5,6 @@ export CLICOLOR=1
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=1
 export COPYFILE_DISABLE=1
 export LC_CTYPE='en_US.UTF-8'
-if [ -e /Applications/MacPorts/Vim.app ] ; then
-    alias gvim="/Applications/MacPorts/Vim.app/Contents/MacOS/Vim -g"
-fi
+[ -e /Applications/MacPorts/Vim.app ] && alias gvim="/Applications/MacPorts/Vim.app/Contents/MacOS/Vim -g"
+# Having a MANPATH set overrides man's searching heuristic
+export MANPATH=
