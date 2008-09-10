@@ -9,16 +9,21 @@ use File::Basename;
 my $name_format = 'msg%06d.eml';
 my $sequence    = 1;
 my $verbose     = 0;
+my $from        = 0;
 
 GetOptions(
   'name=s'  => \$name_format,
   'seq=i'   => \$sequence,
+  'from'    => \$from,
   'verbose' => \$verbose,
 ) or help();
 
 my $fh = undef;
 while ( defined( my $line = <> ) ) {
-  undef $fh if $line =~ /^From\s/;
+  if ( $line =~ /^From\s/ ) {
+    undef $fh;
+    next unless $from;
+  }
   unless ( defined $fh ) {
     my $name = sprintf( $name_format, $sequence++ );
     my $dir = dirname( $name );
@@ -31,10 +36,11 @@ while ( defined( my $line = <> ) ) {
 
 sub help {
   print "syntax: mboxchop [options] < mboxfile\n\n"
-   . "Options:\n"
-   . "  --name     printf style format string for generated names\n"
-   . "  --seq      sequence number for generated names\n"
-   . "  --verbose  be verbose\n";
+    . "Options:\n"
+    . "  --name     printf style format string for generated names\n"
+    . "  --seq      sequence number for generated names\n"
+    . "  --from     include the ^From line in output\n"
+    . "  --verbose  be verbose\n";
   exit;
 }
 
