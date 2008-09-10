@@ -22,18 +22,20 @@ for my $dir ( @dirs ) {
 }
 
 my @files = sort keys %ct;
+my $nw    = 5;
 my $fw    = max( map length, @files );
 my $dw    = max( map length, @dirs );
 
 my $flag = 'X' . ( ' ' x ( ( $dw - 1 ) / 2 ) );
-my $fmt = "\%${fw}s" . ( ( " | \%${dw}s" ) x @dirs ) . "\n";
-my @rule = ( ( '=' x $fw ), ( '=' x $dw ) x @dirs );
-printf $fmt, '', @dirs;
+my $fmt = "\%${nw}s \%${fw}s" . ( ( " | \%${dw}s" ) x @dirs ) . "\n";
+my @rule = ( ( '=' x $nw ), ( '=' x $fw ), ( '=' x $dw ) x @dirs );
+printf $fmt, '#', 'File', @dirs;
 printf $fmt, @rule;
+my $row = 1;
 for my $fi ( @files ) {
   my @flags = map { $ct{$fi}{$_} ? $flag : '' } @dirs;
   next if $exclude && !( grep $_ eq '', @flags );
-  printf $fmt, $fi, @flags;
+  printf $fmt, $row++, $fi, @flags;
 }
 printf $fmt, @rule;
 
