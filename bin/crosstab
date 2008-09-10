@@ -22,7 +22,7 @@ for my $dir ( @dirs ) {
 }
 
 my @files = sort keys %ct;
-my $nw    = 5;
+my $nw    = length scalar @files;
 my $fw    = max( map length, @files );
 my $dw    = max( map length, @dirs );
 
