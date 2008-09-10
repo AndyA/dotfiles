@@ -25,13 +25,17 @@ my @files = sort keys %ct;
 my $fw    = max( map length, @files );
 my $dw    = max( map length, @dirs );
 
-my $fmt = "\%${fw}s" . ( ( " \%${dw}s" ) x @dirs ) . "\n";
+my $flag = 'X' . ( ' ' x ( ( $dw - 1 ) / 2 ) );
+my $fmt = "\%${fw}s" . ( ( " | \%${dw}s" ) x @dirs ) . "\n";
+my @rule = ( ( '=' x $fw ), ( '=' x $dw ) x @dirs );
 printf $fmt, '', @dirs;
+printf $fmt, @rule;
 for my $fi ( @files ) {
-  my @flags = map { $ct{$fi}{$_} ? 'X' : '' } @dirs;
+  my @flags = map { $ct{$fi}{$_} ? $flag : '' } @dirs;
   next if $exclude && !( grep $_ eq '', @flags );
   printf $fmt, $fi, @flags;
 }
+printf $fmt, @rule;
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
 
