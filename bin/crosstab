@@ -1,0 +1,37 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use List::Util qw( max );
+use Getopt::Long;
+
+my $exclude = 0;
+
+GetOptions( 'x' => \$exclude ) or die "Bad option\n";
+
+my @dirs = sort @ARGV;
+my @wtf = grep !-d, @dirs;
+die "These are not directories: ", join( ', ', @wtf ), "\n" if @wtf;
+die "Please name some directories\n" unless @dirs;
+
+my %ct;
+for my $dir ( @dirs ) {
+  opendir my $dh, $dir or die "Can't read $dir ($!)\n";
+  $ct{$_}{$dir}++ for grep /^[^.]/, readdir $dh;
+  closedir $dh;
+}
+
+my @files = sort keys %ct;
+my $fw    = max( map length, @files );
+my $dw    = max( map length, @dirs );
+
+my $fmt = "\%${fw}s" . ( ( " \%${dw}s" ) x @dirs ) . "\n";
+printf $fmt, '', @dirs;
+for my $fi ( @files ) {
+  my @flags = map { $ct{$fi}{$_} ? 'X' : '' } @dirs;
+  next if $exclude && !( grep $_ eq '', @flags );
+  printf $fmt, $fi, @flags;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
