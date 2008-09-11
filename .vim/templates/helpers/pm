@@ -23,68 +23,70 @@ $package - do something
 
 =cut
 
-# vim:ts=4:sw=4:et:ft=perl
+1;
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
 EOT
 
 sub package_to_file {
-    my $pkg = shift;
-    $pkg =~ s{::}{/}g;
-    $pkg .= '.pm';
-    return $pkg;
+  my $pkg = shift;
+  $pkg =~ s{::}{/}g;
+  $pkg .= '.pm';
+  return $pkg;
 }
 
 sub file_to_package {
-    my $file = shift;
-    $file =~ s{\.pm$}{};
-    $file =~ s{/}{::}g;
-    return $file;
+  my $file = shift;
+  $file =~ s{\.pm$}{};
+  $file =~ s{/}{::}g;
+  return $file;
 }
 
 sub is_package {
-    my $name = shift;
-    return $name =~ /^\w+(?:::\w+)*$/;
+  my $name = shift;
+  return $name =~ /^\w+(?:::\w+)*$/;
 }
 
 sub guess_lib {
-    my $file = shift;
-    open my $th, '<', $file or return;
-    while ( <$th> ) {
-        chomp;
-        next unless /^\s*package\s+(\w+(?:::\w+)*)\b/;
-        my $pfile = package_to_file( $1 );
-        return $1 if $file =~ m{^(.*?)/\Q$pfile\E$};
-    }
-    return;
+  my $file = shift;
+  open my $th, '<', $file or return;
+  while ( <$th> ) {
+    chomp;
+    next unless /^\s*package\s+(\w+(?:::\w+)*)\b/;
+    my $pfile = package_to_file( $1 );
+    return $1 if $file =~ m{^(.*?)/\Q$pfile\E$};
+  }
+  return;
 }
 
 sub guess {
-    for ( @_ ) {
-        my $lib = guess_lib( $_ );
-        return $lib if defined $lib;
-    }
-    return;
+  for ( @_ ) {
+    my $lib = guess_lib( $_ );
+    return $lib if defined $lib;
+  }
+  return;
 }
 
 sub infer_package {
-    my ( $name, $ext ) = @_;
+  my ( $name, $ext ) = @_;
 
-    my ( $base, $in_dir ) = fileparse( $name );
+  my ( $base, $in_dir ) = fileparse( $name );
 
-    my @already = glob "$in_dir/*.$ext";
+  my @already = glob "$in_dir/*.$ext";
 
-    if ( defined( my $lib = guess( @already ) ) ) {
-        if ( $name =~ m{^\Q$lib\E/(.*)$} ) {
-            return file_to_package( $1 );
-        }
+  if ( defined( my $lib = guess( @already ) ) ) {
+    if ( $name =~ m{^\Q$lib\E/(.*)$} ) {
+      return file_to_package( $1 );
     }
+  }
 
-    for my $pfx ( @PFX ) {
-        if ( $name =~ m{(?:^|/)\Q$pfx\E/(.*)} ) {
-            return file_to_package( $1 );
-        }
+  for my $pfx ( @PFX ) {
+    if ( $name =~ m{(?:^|/)\Q$pfx\E/(.*)} ) {
+      return file_to_package( $1 );
     }
+  }
 
-    return file_to_package( $base );
+  return file_to_package( $base );
 }
 
-# vim:ts=4:sw=4:et:ft=perl
+# vim:ts=2:sw=2:sts=2:et:ft=perl
