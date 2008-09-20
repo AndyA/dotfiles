@@ -213,7 +213,7 @@ endif
 
 if exists("g:zenburn_high_Contrast")
     " use new darker background
-    hi Normal          guifg=#dcdccc guibg=#0c0c08
+    hi Normal          guifg=#dcdccc guibg=#080808
     hi CursorLine      guibg=#121212 gui=bold
     hi Pmenu           guibg=#242424 guifg=#ccccbc
     hi PMenuSel        guibg=#353a37 guifg=#ccdc90 gui=bold
