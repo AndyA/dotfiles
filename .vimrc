@@ -21,11 +21,11 @@ set modeline
 "set mouse=a     
 set scrolloff=5
 set shiftround
-set shiftwidth=4
+set shiftwidth=2
+set tabstop=2
 set showcmd     
 set showmatch  
 "set smartcase  
-set softtabstop=4
 set title
 set t_vb=
 set vb
