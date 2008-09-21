@@ -1,19 +1,20 @@
 package DB::TextMate;
-our @ISA = qw( DB::Plugin );
 use File::Spec;
+our @ISA = qw( DB::Plugin );
 
-unless ( $^O eq 'darwin' ) {
+if ( $^O eq 'darwin' ) {
+  eval q{ use TextMate::JumpTo qw(jumpto) };
+  if ( !$@ ) {
+    DB::add_handler( __PACKAGE__->new );
+    print "TextMate support enabled\n";
+  }
+  else {
+    print "TextMate support disabled (TextMate::JumpTo unavailable)\n";
+  }
+}
+else {
   print "TextMate support disabled (not MacOS)\n";
-  exit;
 }
-eval q{ use TextMate::JumpTo qw(jumpto) };
-if ( $@ ) {
-  print "TextMate support disabled (TextMate::JumpTo unavailable)\n";
-  exit;
-}
-
-DB::add_handler( __PACKAGE__->new );
-print "TextMate support enabled\n";
 
 sub afterinit {
   my $self = shift;
@@ -46,3 +47,5 @@ sub watchfunction {
 }
 
 1;
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
