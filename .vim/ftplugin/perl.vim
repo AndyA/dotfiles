@@ -42,4 +42,4 @@ function! s:tidy()
     exec 'normal zz'
 endfunction
 
-noremap <f2> :call <SID>tidy()<CR>
+noremap <buffer> <f2> :call <SID>tidy()<CR>

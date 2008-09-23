@@ -21,7 +21,7 @@ if executable('ack')
     setlocal grepprg=ack\ --type=cc
 endif
 
-noremap <f2> :call <SID>tidy()<CR>
+noremap <buffer> <f2> :call <SID>tidy()<CR>
 
 nmap ,s :find %:t:r.c<cr> 
 nmap ,S :sf %:t:r.c<cr> 
