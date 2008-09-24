@@ -15,7 +15,7 @@ function cdpin() {
 function _cdpin() {
   local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=(
-    $( cat ~/.pind | grep "^$cur" | cut -d= -f1 )
+    $( hasle ~/.pind -c $cur )
   )
 }
 

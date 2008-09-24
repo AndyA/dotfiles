@@ -43,7 +43,9 @@ sub touch {
   return $val;
 }
 
-sub all { @{ shift->{order} } }
+sub all {
+  grep { $_ !~ /^!!/ } @{ shift->{order} };
+}
 
 sub post_load {
   my $self  = shift;
@@ -103,12 +105,13 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 
-my $help    = 0;
-my $man     = 0;
-my $verbose = 0;
-my $get     = 0;
-my $put     = 0;
-my $list    = 0;
+my $help     = 0;
+my $man      = 0;
+my $verbose  = 0;
+my $get      = 0;
+my $put      = 0;
+my $list     = 0;
+my $complete = 0;
 
 #print STDERR join( '|', @ARGV ), "\n";
 
@@ -119,6 +122,7 @@ GetOptions(
   'g'       => \$get,
   'p'       => \$put,
   'l'       => \$list,
+  'c'       => \$complete,
 ) or pod2usage( 2 );
 
 pod2usage( 1 ) if $help;
@@ -126,8 +130,8 @@ pod2usage( -exitstatus => 0, -verbose => 2 ) if $man;
 
 my $db = shift or die "You must name a database file\n";
 
-die "Only one of -g, -p, -l may be specified\n"
- if 1 < grep $_, $get, $put, $list;
+die "Only one of -g, -p, -l or -c may be specified\n"
+ if 1 < grep $_, $get, $put, $list, $complete;
 
 my $store = store->new;
 $store->load( $db ) if -e $db;
@@ -150,8 +154,14 @@ elsif ( $list ) {
     print "$key=", $store->get( $key ), "\n";
   }
 }
+elsif ( $complete ) {
+  my $part = shift || '';
+  for my $key ( sort grep /^\Q$part/, $store->all ) {
+    print "$key\n";
+  }
+}
 else {
-  die "No operation specified. Please use -g, -p or -l\n";
+  die "No operation specified. Please use -g, -p, -l or -c\n";
 }
 
 $store->save( $db );
@@ -174,6 +184,7 @@ hasle [options] <database> [args]
     -g <var>            get variable
     -p <var> <value>    put variable
     -l                  list all variables
+    -c <var-start>      completion list
 
 =head1 DESCRIPTION
 
