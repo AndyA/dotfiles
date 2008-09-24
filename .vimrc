@@ -58,6 +58,8 @@ nmap <leader>tp :tabp<cr>
 nmap <leader>tn :tabn<cr> 
 nmap <leader>tl :TlistToggle<cr>
 
+vmap bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
+
 noremap <f3> <esc>:previous<cr>
 noremap <f4> <esc>:next<cr>
 
