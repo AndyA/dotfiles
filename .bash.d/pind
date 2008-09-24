@@ -1,0 +1,13 @@
+# pind and cdpin
+
+# Pin the current directory.
+function pind() {
+  key=${1:-=}
+  hasle ~/.pind -p $key `pwd`
+}
+
+# CD to a pinned directory
+function cdpin() {
+  key=${1:-=}
+  cd `hasle ~/.pind -g $key`
+}

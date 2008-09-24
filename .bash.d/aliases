@@ -3,5 +3,3 @@ alias vi=vim
 alias prv="make ; prove -rb --state=hot,fast,save t"
 alias ll='ls -l'
 alias la='ls -a'
-alias pind='pwd > ~/.pind'
-alias cdpin='cd `cat ~/.pind`'

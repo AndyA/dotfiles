@@ -1,0 +1,223 @@
+#!/usr/bin/env perl
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
+package store;
+
+use constant PURGE_TOUCH => 10;
+
+sub new { bless {}, shift }
+
+sub encode {
+  my ( $self, $str ) = @_;
+  $str =~ s/([\x00-\x1f\x7f=%])/sprintf('%%%02x', ord($1))/eg;
+  return $str;
+}
+
+sub decode {
+  my ( $self, $str ) = @_;
+  $str =~ s/%([0-9a-f]{2})/chr(hex($1))/eg;
+  return $str;
+}
+
+sub put {
+  my ( $self, $k, $v ) = @_;
+  push @{ $self->{order} }, $k unless exists $self->{_}{$k};
+  $self->{_}{$k} = defined $v ? $v : '';
+}
+
+sub get {
+  my ( $self, $k ) = @_;
+  return $self->{_}{$k};
+}
+
+sub history {
+  my ( $self, $n ) = @_;
+  return $self->{touch}[$n];
+}
+
+sub touch {
+  my ( $self, $k ) = @_;
+  my $val = $self->get( $k );
+  unshift @{ $self->{touch} }, $k
+   if defined $val && $self->history( 0 ) ne $k;
+  return $val;
+}
+
+sub all { @{ shift->{order} } }
+
+sub post_load {
+  my $self  = shift;
+  my $touch = $self->get( '!!touch' );
+  $self->{touch}
+   = defined $touch
+   ? [ map { $self->decode( $_ ) } split /=/, $touch ]
+   : [];
+}
+
+sub pre_save {
+  my $self  = shift;
+  my @touch = @{ $self->{touch} };
+  splice @touch, PURGE_TOUCH if @touch > PURGE_TOUCH;
+  $self->put( '!!touch', join '=', map { $self->encode( $_ ) } @touch );
+}
+
+sub load {
+  my ( $self, $file ) = @_;
+  open my $in, '<', $file or die "Can't read $file ($!)\n";
+  while ( defined( my $line = <$in> ) ) {
+    chomp;
+    die "Badly formed line: $line ($file, $.)\n"
+     unless $line =~ m/^(.+?)=(.*)$/;
+    my ( $k, $v ) = map { $self->decode( $_ ) } $1, $2;
+    $self->put( $k, $v );
+  }
+  $self->post_load;
+}
+
+sub save {
+  my ( $self, $file ) = @_;
+  open my $out, '>', $file or die "Can't write $file ($!)\n";
+  $self->pre_save;
+  for my $k ( @{ $self->{order} } ) {
+    print $out $self->encode( $k ), '=',
+     $self->encode( $self->get( $k ) ), "\n";
+  }
+}
+
+sub magic {
+  my ( $self, $key ) = @_;
+  if ( $key eq '=' ) {
+    $key = $self->history( 0 );
+  }
+  elsif ( $key eq '-' ) {
+    $key = $self->history( 1 );
+  }
+  $key = '!!default' unless defined $key;
+  return $key;
+}
+
+package main;
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+
+my $help    = 0;
+my $man     = 0;
+my $verbose = 0;
+my $get     = 0;
+my $put     = 0;
+my $list    = 0;
+
+#print STDERR join( '|', @ARGV ), "\n";
+
+GetOptions(
+  'help|?'  => \$help,
+  'man'     => \$man,
+  'verbose' => \$verbose,
+  'g'       => \$get,
+  'p'       => \$put,
+  'l'       => \$list,
+) or pod2usage( 2 );
+
+pod2usage( 1 ) if $help;
+pod2usage( -exitstatus => 0, -verbose => 2 ) if $man;
+
+my $db = shift or die "You must name a database file\n";
+
+die "Only one of -g, -p, -l may be specified\n"
+ if 1 < grep $_, $get, $put, $list;
+
+my $store = store->new;
+$store->load( $db ) if -e $db;
+
+if ( $get ) {
+  my $key = shift or die "Please name a key to get\n";
+  my $val = $store->touch( $store->magic( $key ) );
+  $val = '' unless defined $val;
+  print "$val\n";
+}
+elsif ( $put ) {
+  my $key = shift or die "Please name a key to put\n";
+  my $val = shift or die "Please provide a value for $key\n";
+  $key = $store->magic( $key );
+  $store->put( $key, $val );
+  $store->touch( $key );
+}
+elsif ( $list ) {
+  for my $key ( $store->all ) {
+    print "$key=", $store->get( $key ), "\n";
+  }
+}
+else {
+  die "No operation specified. Please use -g, -p or -l\n";
+}
+
+$store->save( $db );
+
+__END__
+
+=head1 NAME
+
+hasle - A simple hash-like database for shell apps
+
+=head1 SYNOPSIS
+
+hasle [options] <database> [args]
+
+ Options:
+
+    -help               see this summary
+    -man                view man page for pclone
+    -verbose            say lots
+    -g <var>            get variable
+    -p <var> <value>    put variable
+    -l                  list all variables
+
+=head1 DESCRIPTION
+
+
+=head1 OPTIONS
+
+=over
+
+=back
+
+=head1 AUTHOR
+
+Andy Armstrong  C<< <andy@hexten.net> >>
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright (c) 2007, Andy Armstrong C<< <andy@hexten.net> >>. All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+## Please see file perltidy.ERR
+## Please see file perltidy.ERR
+## Please see file perltidy.ERR
+## Please see file perltidy.ERR
