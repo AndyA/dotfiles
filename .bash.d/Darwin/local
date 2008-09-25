@@ -1,5 +1,5 @@
 # local
-PATH=/opt/local/bin:/usr/local/bin:/usr/local/mysql/bin:$PATH
+PATH=/usr/local/bin:/usr/local/mysql/bin:$PATH
 PATH=/usr/local/apache2/bin:/usr/local/apache2/php/bin:$PATH
 export CLICOLOR=1
 export COPY_EXTENDED_ATTRIBUTES_DISABLE=1

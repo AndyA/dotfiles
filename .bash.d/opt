@@ -1,0 +1,1 @@
+[ -d /opt/local/bin ] && PATH=/opt/local/bin:$PATH
