@@ -7,20 +7,22 @@ use File::Spec;
 
 @ARGV = '.' unless @ARGV;
 
-find(
-  {
-    no_chdir => 1,
-    wanted   => sub {
-      return unless $_ =~ /\.svn$/;
-      return unless -d $_;
-      my $parent_svn = File::Spec->catdir( $_, '..', '..', '.svn' );
-      if ( -d $parent_svn ) {
-        $File::Find::prune = 1;
-        return;
-      }
-      s/[\/\\]\.svn$//;
-      print "$_\n";
-    },
-  },
-  @ARGV
-);
+scan( $_ ) for @ARGV;
+
+sub scan {
+  my $dir = shift;
+  if ( -d File::Spec->catdir( $dir, '.svn' ) ) {
+    print "$dir\n";
+    return;
+  }
+  if ( opendir my $dh, $dir ) {
+    my @files = grep { -d $_ }
+      map { File::Spec->catdir( $dir, $_ ) }
+      grep { $_ !~ /^\./ } readdir $dh;
+    closedir $dh;
+    scan( $_ ) for @files;
+  }
+  else {
+    warn "Can't read $dir ($!)\n";
+  }
+}
