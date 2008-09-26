@@ -4,25 +4,83 @@ use strict;
 use warnings;
 use File::Find;
 use File::Spec;
+use Getopt::Long;
+use Memoize;
+
+memoize( 'svn_info' );
+memoize( 'svn_externals' );
+
+my $all = 0;
+GetOptions( 'a' => \$all ) or die "svnroots [-a] [dir ...]\n";
 
 @ARGV = '.' unless @ARGV;
 
 scan( $_ ) for @ARGV;
 
 sub scan {
-  my $dir = shift;
+  my ( $dir, $parent ) = @_;
+  my $url = undef;
   if ( -d File::Spec->catdir( $dir, '.svn' ) ) {
-    print "$dir\n";
-    return;
+    my $info = svn_info( $dir );
+    $url = $info->{URL};
+    my @path = File::Spec->splitdir( $dir );
+    my $leaf = pop @path;
+    unless ( defined $parent && $url eq join '/', $parent, $leaf ) {
+      my $ext = svn_externals( File::Spec->catdir( @path ) )->{$leaf};
+      unless ( defined $ext && $ext eq $url ) {
+        print "$dir";
+        print "\t$url" if $all;
+        print "\n";
+      }
+    }
   }
+
   if ( opendir my $dh, $dir ) {
     my @files = grep { -d $_ }
-      map { File::Spec->catdir( $dir, $_ ) }
-      grep { $_ !~ /^\./ } readdir $dh;
+     map { File::Spec->catdir( $dir, $_ ) }
+     grep { $_ !~ /^\./ } readdir $dh;
     closedir $dh;
-    scan( $_ ) for @files;
+    scan( $_, $url ) for @files;
   }
   else {
     warn "Can't read $dir ($!)\n";
   }
+}
+
+sub tidy {
+  my $s = shift;
+  $s =~ s/^\s+//;
+  $s =~ s/\s+$//;
+  return $s;
+}
+
+sub svn_info {
+  my $dir = shift;
+  open my $sh, '-|', 'svn', 'info', $dir
+   or die "Can't svn info $dir ($!)\n";
+  my $info = {};
+  while ( defined( my $line = <$sh> ) ) {
+    chomp $line;
+    next if $line =~ /^\s*$/;
+    my ( $k, $v ) = map tidy( $_ ), split /:/, $line, 2;
+    $info->{$k} = $v;
+  }
+
+  return $info;
+}
+
+sub svn_externals {
+  my $dir = shift;
+  return {} unless -d File::Spec->catdir( $dir, '.svn' );
+  open my $sh, '-|', 'svn', 'propget', 'svn:externals', $dir
+   or die "Can't svn propget svn:externals $dir ($!)\n";
+  my $info = {};
+  while ( defined( my $line = <$sh> ) ) {
+    chomp $line;
+    next if $line =~ /^\s*$/;
+    my ( $k, $v ) = split /\s+/, $line, 2;
+    $info->{$k} = $v;
+  }
+
+  return $info;
 }
