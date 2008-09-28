@@ -22,15 +22,16 @@ sub scan {
   my $url = undef;
   if ( -d File::Spec->catdir( $dir, '.svn' ) ) {
     my $info = svn_info( $dir );
-    $url = $info->{URL};
-    my @path = File::Spec->splitdir( $dir );
-    my $leaf = pop @path;
-    unless ( defined $parent && $url eq join '/', $parent, $leaf ) {
-      my $ext = svn_externals( File::Spec->catdir( @path ) )->{$leaf};
-      unless ( defined $ext && $ext eq $url ) {
-        print "$dir";
-        print "\t$url" if $all;
-        print "\n";
+    if ( defined( $url = $info->{URL} ) ) {
+      my @path = File::Spec->splitdir( $dir );
+      my $leaf = pop @path;
+      unless ( defined $parent && $url eq join '/', $parent, $leaf ) {
+        my $ext = svn_externals( File::Spec->catdir( @path ) )->{$leaf};
+        unless ( defined $ext && $ext eq $url ) {
+          print "$dir";
+          print "\t$url" if $all;
+          print "\n";
+        }
       }
     }
   }
@@ -60,7 +61,7 @@ sub with_cmd {
   my $cmd = join ' ', @cmd;
   open my $sh, '-|', @cmd or die "Can't $cmd ($!)\n";
   while ( <$sh> ) { chomp; $code->() }
-  close $sh or die "Can't $cmd ($!)\n";
+  close $sh or warn "Can't $cmd ($!) -- at exit\n";
   return $?;
 }
 

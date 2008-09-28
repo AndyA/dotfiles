@@ -11,6 +11,7 @@ while ( <$rh> ) {
   if ( $repo =~ m{^http(://svn.hexten.net/\w+)} ) {
     my $from = "http$1";
     my $to   = "https$1";
+    local $CWD = $dir;
     print "Switching $dir from $from to $to\n";
     my @cmd = ( 'svn', 'switch', '--relocate', $from, $to );
     print '  ', join( ' ', @cmd ), "\n";
