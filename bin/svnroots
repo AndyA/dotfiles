@@ -54,33 +54,40 @@ sub tidy {
   return $s;
 }
 
-sub svn_info {
-  my $dir = shift;
-  open my $sh, '-|', 'svn', 'info', $dir
-   or die "Can't svn info $dir ($!)\n";
-  my $info = {};
-  while ( defined( my $line = <$sh> ) ) {
-    chomp $line;
-    next if $line =~ /^\s*$/;
-    my ( $k, $v ) = map tidy( $_ ), split /:/, $line, 2;
-    $info->{$k} = $v;
-  }
+sub with_cmd {
+  my ( @cmd ) = @_;
+  my $code = pop @cmd;
+  my $cmd = join ' ', @cmd;
+  open my $sh, '-|', @cmd or die "Can't $cmd ($!)\n";
+  while ( <$sh> ) { chomp; $code->() }
+  close $sh or die "Can't $cmd ($!)\n";
+  return $?;
+}
 
+sub with_svn {
+  my @cmd  = @_;
+  my $code = pop @cmd;
+  my $info = {};
+  with_cmd(
+    svn => @cmd,
+    sub {
+      return if /^\s*$/;
+      my ( $k, $v ) = $code->();
+      $info->{$k} = $v;
+    }
+  );
   return $info;
+}
+
+sub svn_info {
+  with_svn( info => shift, sub { map tidy( $_ ), split /:/, $_, 2 } );
 }
 
 sub svn_externals {
   my $dir = shift;
   return {} unless -d File::Spec->catdir( $dir, '.svn' );
-  open my $sh, '-|', 'svn', 'propget', 'svn:externals', $dir
-   or die "Can't svn propget svn:externals $dir ($!)\n";
-  my $info = {};
-  while ( defined( my $line = <$sh> ) ) {
-    chomp $line;
-    next if $line =~ /^\s*$/;
-    my ( $k, $v ) = split /\s+/, $line, 2;
-    $info->{$k} = $v;
-  }
-
-  return $info;
+  with_svn(
+    propget => 'svn:externals',
+    $dir, sub { split /\s+/, $_, 2 }
+  );
 }
