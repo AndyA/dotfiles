@@ -2,4 +2,4 @@ author:  Andy Armstrong
 email:   andy.armstrong@messagesystems.com
 builder: ExtUtils::MakeMaker
 plugins: Module::Starter::PBP
-template_dir: /Users/andy/.module-starter/PBP
+template_dir: ~/.module-starter/PBP
