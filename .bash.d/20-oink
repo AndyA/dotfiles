@@ -1,0 +1,2 @@
+[ -d /home/andy/Works/CodeAnalysis/Oink/oink-stack/oink ] && PATH=/home/andy/Works/CodeAnalysis/Oink/oink-stack/oink:$PATH
+[ -d /home/andy/Works/CodeAnalysis/Oink/oink-stack/oink-scripts/bin ] && PATH=/home/andy/Works/CodeAnalysis/Oink/oink-stack/oink-scripts/bin:$PATH
