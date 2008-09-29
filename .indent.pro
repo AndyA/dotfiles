@@ -1,5 +1,5 @@
 -kr
--i4
+-i2
 -ts8
 -nut
 -sob
