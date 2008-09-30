@@ -9,7 +9,7 @@ die "syntax: c <name> <ext>\n" unless @ARGV == 2;
 my ( $name, $ext ) = @ARGV;
 
 my @body = ();
-push @body, 'printf( "Hello, World\n" )' if $name eq 'hello.c';
+push @body, 'printf( "Hello, World\n" );' if $name eq 'hello.c';
 my $body = join '', map "  $_\n", @body;
 
 print <<EOT;
