@@ -1,0 +1,134 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use File::Spec;
+use Time::HiRes qw( sleep );
+use File::Which qw( which );
+use Getopt::Long;
+
+my $cmd     = 'make && prove -rb --state=hot,new,save t';
+my $verbose = 0;
+
+GetOptions( 'c=s' => \$cmd, 'v' => \$verbose )
+ or die "Syntax: continuous [-c command]";
+
+my @dirs = dirs_to_watch();
+watch_dirs(
+  sub {
+    my $rc = system $cmd;
+    speak( $rc ? 'fail!' : 'pass' );
+  },
+  @dirs
+);
+
+sub speak {
+  my $phrase = join '', @_;
+  my @speaker = ( ['espeak'], ['say'] );
+  for my $spk ( @speaker ) {
+    my ( $cmd, @args ) = @$spk;
+    if ( my $exe = which( $cmd ) ) {
+      system $exe, @args, $phrase;
+    }
+  }
+}
+
+sub dirs_to_watch {
+  my @dirs = ( '.' );
+  find_dirs( sub { push @dirs, $_ }, grep -d, 'lib', 't' );
+  return @dirs;
+}
+
+sub find_dirs {
+  my ( $cb, @dirs ) = @_;
+  $cb->() for @dirs;
+  _find_dirs( $cb, @dirs );
+}
+
+sub _find_dirs {
+  my ( $cb, @dirs ) = @_;
+  for my $d ( @dirs ) {
+    opendir my $dh, $d or die "Can't open $d ($!)\n";
+    my @subdir = grep { -d }
+     map { File::Spec->catdir( $d, $_ ) }
+     grep { /^[^.]/ } readdir $dh;
+    closedir $dh;
+    $cb->() for @subdir;
+    _find_dirs( $cb, @subdir );
+  }
+}
+
+sub watch_dirs {
+  #  eval "use Linux::Inotify2";
+  #  return watch_dirs_linux( @_ ) unless $@;
+  eval "use File::Monitor";
+  return watch_dirs_file_monitor( @_ ) unless $@;
+  die "Must have Linux::Inotify2 or File::Monitor installed\n";
+}
+
+sub interesting {
+  my $name = shift;
+  return if $name =~ /^\./;
+  return if $name =~ /~$/;
+  return if $name eq 'pm_to_blib';
+  return 1;
+}
+
+sub watch_dirs_linux {
+  my ( $cb, @dirs ) = @_;
+  my $inot = Linux::Inotify2->new
+   or die "Unable to create new inotify object: $!";
+
+  my $mask = eval join '|', qw(
+   IN_MODIFY IN_ATTRIB IN_CLOSE_WRITE IN_MOVE IN_CREATE IN_DELETE
+   IN_DELETE_SELF IN_MOVE_SELF
+  );
+
+  $inot->watch( $_, $mask ) for @dirs;
+  while ( 1 ) {
+    my @events = $inot->read;
+    die "Read error ($!)\n" unless @events;
+    # Collect any other events that follow
+    $inot->blocking( 0 );
+    sleep 0.25;
+    while ( my @extra = $inot->read ) {
+      push @events, @extra;
+      sleep 0.25;
+    }
+    $inot->blocking( 1 );
+    my @triggers = grep interesting( $_->name ), @events;
+    print $_->name, "\n" for @triggers;
+    $cb->() if @triggers;
+  }
+}
+
+sub files_to_watch {
+  my @dirs  = @_;
+  my @files = ();
+  for my $dir ( @dirs ) {
+    opendir my $dh, $dir or die "Can't read $dir ($!)\n";
+    push @files, grep { -f } map { File::Spec->catfile( $dir, $_ ) }
+     grep { interesting( $_ ) } readdir $dh;
+    closedir $dh;
+  }
+  return @files;
+}
+
+sub watch_dirs_file_monitor {
+  my ( $cb, @dirs ) = @_;
+  my $mon   = File::Monitor->new;
+  my @files = files_to_watch( @dirs );
+  #print "* $_\n" for @files;
+  $mon->watch( $_ ) for @files;
+  $mon->scan;    # seed it
+
+  while ( 1 ) {
+    sleep 1;
+    my @ev = $mon->scan;
+    print $_->name, "\n" for @ev;
+    $cb->() if @ev;
+  }
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
