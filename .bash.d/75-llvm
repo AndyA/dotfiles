@@ -1,0 +1,2 @@
+[ -d ~/Works/CodeAnalysis/LLVM/trunk/tools/clang/utils ] && PATH=~/Works/CodeAnalysis/LLVM/trunk/tools/clang/utils:$PATH
+[ -d ~/Works/CodeAnalysis/LLVM/trunk/Release/bin ] && PATH=~/Works/CodeAnalysis/LLVM/trunk/Release/bin:$PATH
