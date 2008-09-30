@@ -14,6 +14,7 @@ my $body = join '', map "  $_\n", @body;
 
 print <<EOT;
 /* $name */
+/* vim:ts=2:sw=2:sts=2:et:ft=c */
 
 #include <stdio.h>
 
@@ -23,6 +24,5 @@ main( void )
 $body  return 0;
 }
 
-# vim:ts=2:sw=2:sts=2:et:ft=c
 EOT
 
