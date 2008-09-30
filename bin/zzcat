@@ -2,7 +2,7 @@
 
 for f in $* ; do
   cmd='cat'
-  [[ ${f: -3:3} == '.gz' ]] && cmd='zcat'
+  [[ ${f: -3:3} == '.gz' ]] && cmd='gzip -cd'
   $cmd $f
 done
 
