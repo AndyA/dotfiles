@@ -1,0 +1,42 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use File::Basename;
+
+die "syntax: c <name> <ext>\n" unless @ARGV == 2;
+my ( $name, $ext ) = @ARGV;
+
+if ( $name eq 'hello.c' ) {
+  print <<EOT;
+/* $name */
+
+#include <stdio.h>
+
+int
+main( void )
+{
+  printf( "Hello, World\\n" );
+  return 0;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=c
+EOT
+}
+else {
+  print <<EOT;
+/* $name */
+
+#include <stdio.h>
+
+int
+main( void )
+{
+  return 0;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=c
+EOT
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
