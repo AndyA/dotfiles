@@ -14,123 +14,124 @@ my $pass    = '';
 my $fail    = '';
 my $speak   = 0;
 
-for my $d ( map glob, '.', '~' ) {
-    my $local
-      = File::Spec->rel2abs( File::Spec->catfile( $d, '.continuous' ) );
-    if ( -f $local ) {
-        $cmd = $local;
-    }
+for my $local (
+  map File::Spec->rel2abs(
+    File::Spec->catfile( glob( $_ ), '.continuous' )
+  ),
+  '.', '~'
+ ) {
+  $cmd = $local and last if -f $local;
 }
 
 GetOptions(
-    'c=s' => \$cmd,
-    'v'   => \$verbose,
-    'p=s' => \$pass,
-    'f=s' => \$fail,
-    's'   => \$speak,
+  'c=s' => \$cmd,
+  'v'   => \$verbose,
+  'p=s' => \$pass,
+  'f=s' => \$fail,
+  's'   => \$speak,
 ) or die "Syntax: continuous [-c command]";
 
 if ( $speak ) {
-    $pass ||= 'pass';
-    $fail ||= 'fail';
+  $pass ||= 'pass';
+  $fail ||= 'fail';
 }
 
 my @dirs = dirs_to_watch();
 if ( $verbose ) {
-    print "Command:\n";
-    print "  $cmd\n";
-    print "Watching:\n";
-    print "  $_\n" for @dirs;
-    my @say = ();
-    push @say, qq{for passing tests I will say "$pass"} if $pass;
-    push @say, qq{for failing tests I will say "$fail"} if $fail;
-    speak( join ' and ', @say ) if @say;
+  print "Command:\n";
+  print "  $cmd\n";
+  print "Watching:\n";
+  print "  $_\n" for @dirs;
+  my @say = ();
+  push @say, qq{for passing tests I will say "$pass"} if $pass;
+  push @say, qq{for failing tests I will say "$fail"} if $fail;
+  speak( join ' and ', @say ) if @say;
 }
 
 watch_dirs(
-    sub {
-        my $rc = system $cmd;
-        my $msg = $rc ? $fail : $pass;
-        speak( $msg ) if $msg;
-    },
-    @dirs
+  sub {
+    my $rc = system $cmd;
+    my $msg = $rc ? $fail : $pass;
+    speak( $msg ) if $msg;
+  },
+  @dirs
 );
 
 sub speak {
-    my $phrase = join '', @_;
-    my @speaker = ( ['espeak'], ['say'] );
-    for my $spk ( @speaker ) {
-        my ( $cmd, @args ) = @$spk;
-        if ( my $exe = which( $cmd ) ) {
-            system $exe, @args, $phrase;
-        }
+  my $phrase = join '', @_;
+  my @speaker = ( ['espeak'], ['say'] );
+  for my $spk ( @speaker ) {
+    my ( $cmd, @args ) = @$spk;
+    if ( my $exe = which( $cmd ) ) {
+      system $exe, @args, $phrase;
     }
+  }
 }
 
 sub dirs_to_watch {
-    my @dirs = ( '.' );
-    find_dirs( sub { push @dirs, $_ }, grep -d, 'lib', 't' );
-    return @dirs;
+  my @dirs = ( '.' );
+  find_dirs( sub { push @dirs, $_ }, grep -d, 'lib', 't' );
+  return @dirs;
 }
 
 sub find_dirs {
-    my ( $cb, @dirs ) = @_;
-    $cb->() for @dirs;
-    _find_dirs( $cb, @dirs );
+  my ( $cb, @dirs ) = @_;
+  $cb->() for @dirs;
+  _find_dirs( $cb, @dirs );
 }
 
 sub _find_dirs {
-    my ( $cb, @dirs ) = @_;
-    for my $d ( @dirs ) {
-        opendir my $dh, $d or die "Can't open $d ($!)\n";
-        my @subdir = grep { -d }
-          map { File::Spec->catdir( $d, $_ ) }
-          grep { /^[^.]/ } readdir $dh;
-        closedir $dh;
-        $cb->() for @subdir;
-        _find_dirs( $cb, @subdir );
-    }
+  my ( $cb, @dirs ) = @_;
+  for my $d ( @dirs ) {
+    opendir my $dh, $d or die "Can't open $d ($!)\n";
+    my @subdir = grep { -d }
+     map { File::Spec->catdir( $d, $_ ) }
+     grep { /^[^.]/ } readdir $dh;
+    closedir $dh;
+    $cb->() for @subdir;
+    _find_dirs( $cb, @subdir );
+  }
 }
 
 sub interesting {
-    my $name = shift;
-    return if $name =~ /^\./;
-    return if $name =~ /~$/;
-    return if $name eq 'pm_to_blib';
-    return if $name eq 'Makefile';
-    return if $name eq 'Build';
-    return 1;
+  my $name = shift;
+  return if $name =~ /^\./;
+  return if $name =~ /~$/;
+  return if $name eq 'pm_to_blib';
+  return if $name eq 'Makefile';
+  return if $name eq 'Build';
+  return 1;
 }
 
 sub files_to_watch {
-    my @dirs  = @_;
-    my @files = ();
-    for my $dir ( @dirs ) {
-        opendir my $dh, $dir or die "Can't read $dir ($!)\n";
-        push @files, grep { -f } map { File::Spec->catfile( $dir, $_ ) }
-          grep { interesting( $_ ) } readdir $dh;
-        closedir $dh;
-    }
-    return @files;
+  my @dirs  = @_;
+  my @files = ();
+  for my $dir ( @dirs ) {
+    opendir my $dh, $dir or die "Can't read $dir ($!)\n";
+    push @files, grep { -f } map { File::Spec->catfile( $dir, $_ ) }
+     grep { interesting( $_ ) } readdir $dh;
+    closedir $dh;
+  }
+  return @files;
 }
 
 sub watch_dirs {
-    my ( $cb, @dirs ) = @_;
-    my $mon   = File::Monitor->new;
-    my @files = files_to_watch( @dirs );
-    $mon->watch( $_ ) for @files;
-    $mon->scan;    # seed it
+  my ( $cb, @dirs ) = @_;
+  my $mon   = File::Monitor->new;
+  my @files = files_to_watch( @dirs );
+  $mon->watch( $_ ) for @files;
+  $mon->scan;    # seed it
 
-    while ( 1 ) {
-        sleep 1;
-        if ( my @ev = $mon->scan ) {
-            if ( $verbose ) {
-                print "Triggered by:\n";
-                print "  $_\n" for map { $_->name } @ev;
-            }
-            $cb->();
-        }
+  while ( 1 ) {
+    sleep 1;
+    if ( my @ev = $mon->scan ) {
+      if ( $verbose ) {
+        print "Triggered by:\n";
+        print "  $_\n" for map { $_->name } @ev;
+      }
+      $cb->();
     }
+  }
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
