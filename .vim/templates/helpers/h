@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
+use strict;
+use warnings;
+use File::Basename;
+
+die "syntax: h <name> <ext>\n" unless @ARGV == 2;
+my ( $name, $ext ) = @ARGV;
+( my $guard = '__' . uc $name ) =~ s/\./_/g;
+
+print <<EOT;
+/* $name */
+/* vim:ts=2:sw=2:sts=2:et:ft=c 
+ */
+
+#ifndef $guard
+#define $guard
+
+
+#endif
+EOT
+
