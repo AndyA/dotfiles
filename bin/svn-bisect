@@ -1,0 +1,128 @@
+#!/usr/bin/env perl
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+
+# svn-bisect -r<first>[:<last>] test-script
+my $help      = 0;
+my $man       = 0;
+my $verbose   = 0;
+my $revisions = undef;
+
+GetOptions(
+  'help|?'  => \$help,
+  'man'     => \$man,
+  'verbose' => \$verbose,
+  'r=s'     => \$revisions,
+) or pod2usage( 2 );
+
+pod2usage( 1 ) if $help;
+pod2usage( -exitstatus => 0, -verbose => 2 ) if $man;
+
+die "The -r <rev> switch is required\n" unless defined $revisions;
+die "Need a script to run\n" unless @ARGV;
+
+my ( $first, $last ) = get_rev_range( $revisions );
+print "$first $last\n";
+
+sub get_rev_range {
+  my $rev_spec = shift;
+  if ( $rev_spec =~ /^(\d+):(\d+)$/ ) {
+    return ( $1, $2 );
+  }
+  elsif ( $rev_spec =~ /^\d+$/ ) {
+    return ( $rev_spec, get_head() );
+  }
+  die "Bad revision: $rev_spec\n";
+}
+
+sub get_head {
+  open my $sh, '-|', qw( svn info ) or die "Can't run svn info ($!)\n";
+  my $head = undef;
+  while ( <$sh> ) {
+    $head = $1 if /^Revision:\s+(\d+)/;
+  }
+  return $head;
+}
+
+sub bisect {
+  my ( $first, $last, $test ) = @_;
+  my ( $lo, $hi ) = ( $first, $last );
+  while ( 1 ) {
+    return $lo > $last ? undef : $hi if $lo > $hi;
+    my $mid = int( ( $lo + $hi ) / 2 );
+    if ( $test->( $mid ) ) {
+      # Test passed, go forward
+      $lo = $mid + 1;
+    }
+    else {
+      # Test failed, go backwards
+      $hi = $mid - 1;
+    }
+  }
+}
+
+__END__
+
+=head1 NAME
+
+svn-bisect - Make a clone of a project
+
+=head1 SYNOPSIS
+
+pclone [options] [dir ...]
+
+ Options:
+
+    -help               see this summary
+    -man                view man page for pclone
+    -verbose            say lots
+    -r <first>[:<last>] range of revisions to try
+
+=head1 DESCRIPTION
+
+
+=head1 OPTIONS
+
+=over
+
+=back
+
+=head1 AUTHOR
+
+Andy Armstrong  C<< <andy@hexten.net> >>
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright (c) 2007, Andy Armstrong C<< <andy@hexten.net> >>. All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+
