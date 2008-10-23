@@ -2,7 +2,7 @@
 
 svnroots | while read dir ; do
     echo "Updating $dir"
-    svn up $dir
+    svn up "$dir"
 done 
 
 # vim:ts=4:sw=4:et:ft=sh
