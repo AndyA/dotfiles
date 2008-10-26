@@ -1,0 +1,47 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use File::Find;
+use Getopt::Long;
+
+my $Column   = 9;    # mtime
+my $Relative = 0;
+
+GetOptions(
+  'a' => sub { $Column = 8 },
+  'c' => sub { $Column = 10 },
+  'r' => \$Relative,
+);
+
+@ARGV = ( '.' ) unless @ARGV;
+mtime( @ARGV );
+
+sub mtime {
+  my @dirs = @_;
+  my @got  = ();
+  find(
+    {
+      no_chdir => 1,
+      wanted   => sub {
+        my $time = ( stat $File::Find::name )[$Column];
+        push @got, [ $time, $File::Find::name ];
+       }
+    },
+    @dirs
+  );
+
+  my $fmt_time
+   = $Relative
+   ? sub { require Time::Duration; Time::Duration::ago( $^T - $_[0], 2 ) }
+   : sub { scalar localtime $_[0] };
+
+  my @by_time = sort { $b->[0] <=> $a->[0] } @got;
+  for my $item ( @by_time ) {
+    printf( "%20s : %s\n", $fmt_time->( $item->[0] ), $item->[1] );
+  }
+
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
