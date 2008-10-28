@@ -31,9 +31,9 @@ set t_vb=
 set vb
 set lz
 set backspace=indent,eol,start
-set foldenable
-set foldmethod=indent
-set foldlevel=100
+"set foldenable
+"set foldmethod=indent
+"set foldlevel=100
 
 set laststatus=2
 set statusline=%f%4(%m%)%r%h%w\ format:\ %{&ff}\ type:\ %y\ loc:\ %4l,\ %3v,\ %3p%%\ lines:\ %L\ buf:\ %n\ %a
