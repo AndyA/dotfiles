@@ -35,4 +35,3 @@ MANPATH=`$HOME/bin/path_append $MANPATH`
 export PATH MANPATH
 
 [ -f ~/.aliases ] && source ~/.aliases
-
