@@ -1,1 +1,8 @@
+PATH=$PATH:/usr/bin:/usr/sbin:/sbin
+[ -d /usr/gnu/bin ] && PATH=/usr/gnu/bin:$PATH
+[ -d /usr/X11/bin ] && PATH=/usr/X11/bin:$PATH
 [ -d /usr/ccs/bin ] && PATH=/usr/ccs/bin:$PATH
+[ -d /opt/SunStudioExpress/bin ] && PATH=/opt/SunStudioExpress/bin:$PATH
+
+MANPATH=/usr/gnu/share/man:/usr/share/man:/usr/X11/share/man
+PAGER="/usr/bin/less -ins"
