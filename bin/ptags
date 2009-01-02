@@ -45,17 +45,17 @@ my @libs          = ();
 
 Getopt::Long::Configure( 'bundling' );
 GetOptions(
-    'abs'       => \$abs,
-    'installed' => \$installed,
-    'subs'      => \$only_subs,
-    'packages'  => \$only_packages,
-    'sort'      => \$sort,
-    'depth=i'   => \$max_depth,
-    'I=s'       => \@libs,
-    'progress'  => \$progress,
-    'vi'        => \$vi,
-    'help|?'    => \$help,
-    'man'       => \$man,
+  'abs'       => \$abs,
+  'installed' => \$installed,
+  'subs'      => \$only_subs,
+  'packages'  => \$only_packages,
+  'sort'      => \$sort,
+  'depth=i'   => \$max_depth,
+  'I=s'       => \@libs,
+  'progress'  => \$progress,
+  'vi'        => \$vi,
+  'help|?'    => \$help,
+  'man'       => \$man,
 ) || pod2usage( -verbose => 0 );
 
 pod2usage( -verbose => 1 ) if $help;
@@ -74,200 +74,199 @@ my ( $output, $flush ) = make_output_closures( $sort );
 my $tagger = make_tag_closure( $vi, $output );
 
 if ( $installed ) {
-    # Check all installed modules
-    scan_files( grep { $_ ne '.' } @libs, @INC, 0 );
+  # Check all installed modules
+  scan_files( grep { $_ ne '.' } @libs, @INC, 0 );
 }
 else {
-    pod2usage( -verbose => 0, -msg => 'Please supply some names' )
-      unless @ARGV;
-    for my $thing ( @ARGV ) {
-        scan_thing( $thing );
-    }
+  pod2usage( -verbose => 0, -msg => 'Please supply some names' )
+    unless @ARGV;
+  for my $thing ( @ARGV ) {
+    scan_thing( $thing );
+  }
 }
 
 while ( my $spec = shift @queue ) {
-    my ( $module, $depth ) = @$spec;
-    eval { scan_thing( $module, $depth ) };
-    warn $@ if $@;
+  my ( $module, $depth ) = @$spec;
+  eval { scan_thing( $module, $depth ) };
+  warn $@ if $@;
 }
 
 $flush->();
 
 sub make_output_closures {
-    my $sort = shift;
-    if ( $sort ) {
-        my @lines = ();
-        return sub { push @lines, join "\t", @_ },
-          sub { print "$_\n" for sort @lines };
-    }
-    else {
-        return sub { print join( "\t", @_ ), "\n" }, sub { };
-    }
+  my $sort = shift;
+  if ( $sort ) {
+    my @lines = ();
+    return sub { push @lines, join "\t", @_ },
+      sub { print "$_\n" for sort @lines };
+  }
+  else {
+    return sub { print join( "\t", @_ ), "\n" }, sub { };
+  }
 }
 
 sub make_tag_closure {
-    my ( $simple, $output ) = @_;
-    if ( $simple ) {
-        return sub {
-            my ( $type, $name, $file, $location, $package ) = @_;
-            my ( $line, $rowchar, $col ) = @$location;
-            $file = File::Spec->rel2abs( $file ) if $abs;
-            $output->( $name, $file, $line );
-        };
-    }
-    else {
-        return sub {
-            my ( $type, $name, $file, $location, $package ) = @_;
-            my ( $line, $rowchar, $col ) = @$location;
-            $file = File::Spec->rel2abs( $file ) if $abs;
-            my $text = make_pattern( get_line( $file, $line ) );
-            $output->(
-                $name, $file, qq{$text;"}, $type, "line:$line",
-                "class:$package"
-            );
-        };
-    }
+  my ( $simple, $output ) = @_;
+  if ( $simple ) {
+    return sub {
+      my ( $type, $name, $file, $location, $package ) = @_;
+      my ( $line, $rowchar, $col ) = @$location;
+      $file = File::Spec->rel2abs( $file ) if $abs;
+      $output->( $name, $file, $line );
+    };
+  }
+  else {
+    return sub {
+      my ( $type, $name, $file, $location, $package ) = @_;
+      my ( $line, $rowchar, $col ) = @$location;
+      $file = File::Spec->rel2abs( $file ) if $abs;
+      my $text = make_pattern( get_line( $file, $line ) );
+      $output->(
+        $name, $file, qq{$text;"}, $type, "line:$line", "class:$package"
+      );
+    };
+  }
 }
 
 sub scan_files {
-    my @dirs  = @_;
-    my $depth = pop @dirs;
-    find(
-        {
-            no_chdir => 1,
-            wanted   => sub {
-                return unless /\.pm$/;
-                tags( $File::Find::name, $depth );
-            },
-        },
-        @dirs
-    );
+  my @dirs  = @_;
+  my $depth = pop @dirs;
+  find(
+    {
+      no_chdir => 1,
+      wanted   => sub {
+        return unless /\.pm$/;
+        tags( $File::Find::name, $depth );
+      },
+    },
+    @dirs
+  );
 }
 
 sub package_to_file {
-    my $pkg = shift;
-    $pkg =~ s{::}{/}g;
-    $pkg .= '.pm';
-    return $pkg;
+  my $pkg = shift;
+  $pkg =~ s{::}{/}g;
+  $pkg .= '.pm';
+  return $pkg;
 }
 
 sub find_on_path {
-    my ( $file, @path ) = @_;
-    for my $dir ( @path ) {
-        my $ffile = File::Spec->catfile( $dir, $file );
-        return $ffile if -f $ffile;
-    }
-    return;
+  my ( $file, @path ) = @_;
+  for my $dir ( @path ) {
+    my $ffile = File::Spec->catfile( $dir, $file );
+    return $ffile if -f $ffile;
+  }
+  return;
 }
 
 sub is_package {
-    my $name = shift;
-    return $name =~ /^\w+(?:::\w+)*$/;
+  my $name = shift;
+  return $name =~ /^\w+(?:::\w+)*$/;
 }
 
 sub scan_thing {
-    my $thing = shift;
-    my $depth = shift || 0;
-    if ( -f $thing ) {
-        tags( $thing, $depth );
-    }
-    elsif ( -d $thing ) {
-        scan_files( $thing, $depth );
-    }
-    elsif ( is_package( $thing ) ) {
-        my $pfile = package_to_file( $thing );
-        if ( my $ffile
-            = find_on_path( $pfile, ( map { glob } @libs ), @INC ) ) {
-            tags( $ffile, $depth );
-        }
-        else {
-            die "Can't find $thing ($pfile)\n";
-        }
+  my $thing = shift;
+  my $depth = shift || 0;
+  if ( -f $thing ) {
+    tags( $thing, $depth );
+  }
+  elsif ( -d $thing ) {
+    scan_files( $thing, $depth );
+  }
+  elsif ( is_package( $thing ) ) {
+    my $pfile = package_to_file( $thing );
+    if ( my $ffile
+      = find_on_path( $pfile, ( map { glob } @libs ), @INC ) ) {
+      tags( $ffile, $depth );
     }
     else {
-        die "Can't find $thing\n";
+      die "Can't find $thing ($pfile)\n";
     }
+  }
+  else {
+    die "Can't find $thing\n";
+  }
 }
 
 sub is_nice_name {
-    my $name = shift;
-    my ( undef, undef, $leaf ) = File::Spec->splitpath( $name );
-    return if $leaf =~ /^\./;
-    return 1;
+  my $name = shift;
+  my ( undef, undef, $leaf ) = File::Spec->splitpath( $name );
+  return if $leaf =~ /^\./;
+  return 1;
 }
 
 sub tags {
-    my $file = shift;
-    my $depth = shift || 0;
-    return unless is_nice_name( $file );
-    return if $done{$file}++;
-    print STDERR "$file\n" if $progress;
-    my $doc = PPI::Document->new( $file );
-    unless ( $doc ) {
-        warn "Failed to parse $file\n";
-        return;
+  my $file = shift;
+  my $depth = shift || 0;
+  return unless is_nice_name( $file );
+  return if $done{$file}++;
+  print STDERR "$file\n" if $progress;
+  my $doc = PPI::Document->new( $file );
+  unless ( $doc ) {
+    warn "Failed to parse $file\n";
+    return;
+  }
+  $doc->index_locations;
+  my $package = 'main';
+  my $find    = PPI::Find->new(
+    sub {
+      my ( $ele, $top ) = @_;
+      if ( $do_packages
+        && $ele->isa( 'PPI::Statement::Package' ) ) {
+        my $name = $ele->namespace;
+        return unless is_package( $name );
+        $package = $name;
+        $tagger->(
+          p => $name,
+          $file, $ele->location, $package
+        );
+      }
+      elsif ( $do_subs && $ele->isa( 'PPI::Statement::Sub' ) ) {
+        my $name = $ele->name;
+        return if $name =~ /^[A-Z]+$/;
+        # sub names follow the same naming rules as package
+        # names.
+        return unless is_package( $name );
+        $tagger->(
+          s => $name,
+          $file, $ele->location, $package
+        );
+      }
+      elsif ( $depth < $max_depth
+        && $ele->isa( 'PPI::Statement::Include' ) ) {
+        my $inc = $ele->module;
+        push @queue, [ $inc, $depth + 1 ] if $inc;
+      }
+      return 0;
     }
-    $doc->index_locations;
-    my $package = 'main';
-    my $find    = PPI::Find->new(
-        sub {
-            my ( $ele, $top ) = @_;
-            if (   $do_packages
-                && $ele->isa( 'PPI::Statement::Package' ) ) {
-                my $name = $ele->namespace;
-                return unless is_package( $name );
-                $package = $name;
-                $tagger->(
-                    p => $name,
-                    $file, $ele->location, $package
-                );
-            }
-            elsif ( $do_subs && $ele->isa( 'PPI::Statement::Sub' ) ) {
-                my $name = $ele->name;
-                return if $name =~ /^[A-Z]+$/;
-                # sub names follow the same naming rules as package
-                # names.
-                return unless is_package( $name );
-                $tagger->(
-                    s => $name,
-                    $file, $ele->location, $package
-                );
-            }
-            elsif ($depth < $max_depth
-                && $ele->isa( 'PPI::Statement::Include' ) ) {
-                my $inc = $ele->module;
-                push @queue, [ $inc, $depth + 1 ] if $inc;
-            }
-            return 0;
-        }
-    );
-    $find->in( $doc );
+  );
+  $find->in( $doc );
 }
 
 # Assumes default magic setting
 sub vim_quotemeta {
-    my $text = shift;
-    $text =~ s/([\$\.\*\\])/\\$1/g;
-    return $text;
+  my $text = shift;
+  $text =~ s/([\$\.\*\\])/\\$1/g;
+  return $text;
 }
 
 sub make_pattern {
-    my $text = shift;
-    return "/^" . vim_quotemeta( $text ) . "\$/";
+  my $text = shift;
+  return "/^" . vim_quotemeta( $text ) . "\$/";
 }
 
 {
-    my $cur_file = undef;
-    my @cur_text = ();
+  my $cur_file = undef;
+  my @cur_text = ();
 
-    sub get_line {
-        my ( $file, $line ) = @_;
-        unless ( defined $cur_file && $cur_file eq $file ) {
-            open my $fh, '<', $file or die "Can't read $file ($!)\n";
-            chomp( @cur_text = <$fh> );
-            $cur_file = $file;
-        }
-        return '' if $line < 1 || $line > @cur_text;
-        return $cur_text[ $line - 1 ];
+  sub get_line {
+    my ( $file, $line ) = @_;
+    unless ( defined $cur_file && $cur_file eq $file ) {
+      open my $fh, '<', $file or die "Can't read $file ($!)\n";
+      chomp( @cur_text = <$fh> );
+      $cur_file = $file;
     }
+    return '' if $line < 1 || $line > @cur_text;
+    return $cur_text[ $line - 1 ];
+  }
 }
