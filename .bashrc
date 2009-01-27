@@ -7,6 +7,7 @@ export RCUNAME=`uname`
 shopt -s cdable_vars
 shopt -s histappend
 shopt -s checkwinsize
+shopt -s checkhash
 
 # Ignore hidden files during completion
 bind 'set match-hidden-files off' 
