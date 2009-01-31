@@ -60,7 +60,6 @@ apt-get install \
   links \
   links2 \
   lua5.1 \
-  luarocks \
   lynx \
   m4 \
   nmap \
