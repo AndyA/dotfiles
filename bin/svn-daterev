@@ -1,0 +1,110 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use File::Spec;
+use Getopt::Long;
+use Time::ParseDate;
+use Data::Dumper;
+use POSIX qw(strftime);
+
+my ( $repo, $date, $verbose );
+
+GetOptions(
+  'repo:s'  => \$repo,
+  'date:s'  => \$date,
+  'verbose' => \$verbose
+) or syntax();
+
+$repo ||= shift || syntax();
+$date ||= shift || syntax();
+
+my $when = parsedate( $date ) || die "Can't parse date \"$date\"\n";
+
+rev_for_date( $repo, $when );
+
+sub rev_for_date {
+  my ( $url, $when ) = @_;
+
+  my $latest  = svn_info( $url );
+  my $hi_date = parsedate( $latest->{LastChangedDate} );
+  my $hi_rev  = $latest->{Revision};
+  my $lo_rev  = 1;
+
+  if ( $when > $hi_date ) {
+    printf "%s is later than last commit (r%s, %s)\n",
+     fmt_date( $when ), $hi_rev, fmt_date( $hi_date );
+    return;
+  }
+
+  TRY: while ( 1 ) {
+    my $mid_rev = int( ( $lo_rev + $hi_rev ) / 2 );
+    my $info = svn_info( "-r$mid_rev", $url );
+    my $mid_date = parsedate( $info->{LastChangedDate} );
+    printf "Checking r%s (%s)\n", $mid_rev, fmt_date( $mid_date )
+     if $verbose;
+    if ( $mid_date > $when ) {
+      $hi_rev = $mid_rev - 1;
+    }
+    elsif ( $mid_date <= $when ) {
+      $lo_rev = $mid_rev + 1;
+    }
+    if ( $lo_rev >= $hi_rev ) {
+      printf "Closest: r%s (%s)\n", $mid_rev, fmt_date( $mid_date );
+      last TRY;
+    }
+  }
+}
+
+sub fmt_date {
+  my $date = shift;
+  return scalar gmtime $date;
+}
+
+sub syntax {
+  print STDERR <<EOT;
+Syntax: svn-daterev <repo-url> <date>
+EOT
+  exit( 1 );
+}
+
+sub tidy {
+  my $s = shift;
+  $s =~ s/^\s+//;
+  $s =~ s/\s+$//;
+  return $s;
+}
+
+sub with_cmd {
+  my ( @cmd ) = @_;
+  my $code = pop @cmd;
+  my $cmd = join ' ', @cmd;
+  open my $sh, '-|', @cmd or die "Can't $cmd ($!)\n";
+  while ( <$sh> ) { chomp; $code->() }
+  close $sh or warn "Can't $cmd ($!) -- at exit\n";
+  return $?;
+}
+
+sub with_svn {
+  my @cmd  = @_;
+  my $code = pop @cmd;
+  my $info = {};
+  with_cmd(
+    svn => @cmd,
+    sub {
+      return if /^\s*$/;
+      my ( $k, $v ) = $code->();
+      $k =~ s/\s+//g;
+      $info->{$k} = $v;
+    }
+  );
+  return $info;
+}
+
+sub svn_info {
+  with_svn( info => @_, sub { map tidy( $_ ), split /:/, $_, 2 } );
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
