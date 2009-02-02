@@ -9,6 +9,9 @@ use Time::ParseDate;
 use Data::Dumper;
 use POSIX qw(strftime);
 
+# Of course you don't really need this cause svn's -r switch can accept
+# dates: svn info -r {2008-10-10}. D'oh.
+
 my ( $repo, $date, $verbose );
 
 GetOptions(
