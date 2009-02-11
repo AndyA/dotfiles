@@ -16,12 +16,12 @@ export HISTFILESIZE=10000
 export HISTCONTROL=ignoredups
 
 function source_dir {
-    dir=$1
-    if [ -d $dir ] ; then
-        for rc in $dir/* ; do
-            [ -f $rc ] && source $rc
-        done
-    fi
+  dir=$1
+  if [ -d $dir ] ; then
+    for rc in $dir/* ; do
+      [ -f $rc ] && source $rc
+    done
+  fi
 }
 
 # Per platform config
