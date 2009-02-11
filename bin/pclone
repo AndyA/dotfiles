@@ -14,9 +14,9 @@ my $man     = 0;
 my $verbose = 0;
 
 GetOptions(
-    'help|?'  => \$help,
-    'man'     => \$man,
-    'verbose' => \$verbose,
+  'help|?'  => \$help,
+  'man'     => \$man,
+  'verbose' => \$verbose,
 ) or pod2usage( 2 );
 
 pod2usage( 1 ) if $help;
@@ -26,54 +26,55 @@ my $files = read_manifest( MANIFEST );
 check_manifest( $files );
 
 for my $dir ( @ARGV ) {
-    clone_dir( $dir, $files );
+  clone_dir( $dir, $files );
 }
 
 sub clone_dir {
-    my ( $dir, $files ) = @_;
+  my ( $dir, $files ) = @_;
 
-    for my $file ( @$files ) {
-        my $dst = File::Spec->catfile( $dir, $file );
-        next if -f $dst;
-        mention( "Linking $file as $dst" );
-        mkpath( dirname( $dst ) );
-        link( $file, $dst ) or die "Can't link $file as $dst ($!)";
-    }
+  for my $file ( @$files ) {
+    my $dst = File::Spec->catfile( $dir, $file );
+    next if -f $dst;
+    mention( "Linking $file as $dst" );
+    mkpath( dirname( $dst ) );
+    link( $file, $dst ) or die "Can't link $file as $dst ($!)";
+  }
 }
 
 sub check_manifest {
-    my $files = shift;
-    my @missing = grep { !-f } @$files;
-    die "The following files mentioned in the MANIFEST were not found:\n  "
-      . join( "  \n", @missing ) . "\n"
-      if @missing;
+  my $files = shift;
+  my @missing = grep { !-f } @$files;
+  die
+   "The following files mentioned in the MANIFEST were not found:\n  "
+   . join( "  \n", @missing ) . "\n"
+   if @missing;
 }
 
 sub trim($) {
-    my $str = shift;
-    $str =~ s/^\s+//;
-    $str =~ s/\s+$//;
-    return $str;
+  my $str = shift;
+  $str =~ s/^\s+//;
+  $str =~ s/\s+$//;
+  return $str;
 }
 
 sub dirname {
-    my ( $v, $d, undef ) = File::Spec->splitpath( $_[0] );
-    return File::Spec->catpath( $v, $d, '' );
+  my ( $v, $d, undef ) = File::Spec->splitpath( $_[0] );
+  return File::Spec->catpath( $v, $d, '' );
 }
 
 sub read_manifest {
-    my $manifest = shift;
-    open my $mh, '<', $manifest or die "Can't read $manifest ($!)\n";
-    my @lines = grep { /^[^#]/ }
-      grep { /^./ }
-      map { trim $_ } map { s/[\t#].*//; $_ } <$mh>;
-    close $mh;
-    return \@lines;
+  my $manifest = shift;
+  open my $mh, '<', $manifest or die "Can't read $manifest ($!)\n";
+  my @lines = grep { /^[^#]/ }
+   grep { /^./ }
+   map { trim $_ } map { s/[\t#].*//; $_ } <$mh>;
+  close $mh;
+  return \@lines;
 }
 
 sub mention {
-    return unless $verbose;
-    print join( '', @_ ), "\n";
+  return unless $verbose;
+  print join( '', @_ ), "\n";
 }
 
 __END__
