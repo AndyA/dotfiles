@@ -1,7 +1,7 @@
 # Path settings
 PATH=$HOME/bin:$PATH
 # Add sbins to the end of the path
-for d in /usr/sbin /sbin; do
+for d in /usr/local/sbin /usr/sbin /sbin; do
   [ -d $d ] && PATH=$PATH:$d
 done
 [ -d $HOME/bin/$RCUNAME ] && PATH=$HOME/bin/$RCUNAME:$PATH
