@@ -59,6 +59,7 @@ apt-get install \
   libxml2-dev \
   links \
   links2 \
+  lsof \
   lua5.1 \
   lynx \
   m4 \
