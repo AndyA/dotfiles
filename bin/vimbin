@@ -1,14 +1,25 @@
-#!/bin/sh
+#!/usr/bin/env perl
 
-editor=${EDITOR:-vim}
-switches=''
-files=''
+use strict;
+use warnings;
 
-for opt in $*; do
-  case $opt in
-    -*) switches="$switches $opt";;
-    *)  files="$files $opt";;
-  esac
-done
+use File::Which qw( which );
+use File::Temp qw( tempfile );
 
-$editor $switches `which $files`
+my @cleanup = ();
+my @argv = map { /^-/ ? $_ : cook( $_ ) } @ARGV;
+
+system $ENV{EDITOR} || 'vim', @argv;
+$_->() for @cleanup;
+
+sub cook {
+  my $file = shift;
+  my $exe = which( $file ) or return $file;
+  if ( -B $exe ) {
+    my ( undef, $hex ) = tempfile;
+    push @cleanup, sub { unlink $hex };
+    system "hexdump -C $exe > $hex";
+    return $hex;
+  }
+  return $exe;
+}
