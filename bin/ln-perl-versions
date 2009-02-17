@@ -1,0 +1,14 @@
+#!/bin/sh
+
+versions=~/Works/Perl/versions
+
+find bin -type l -name perl\* | xargs rm
+
+for v in `ls $versions`; do
+  src=$versions/$v/bin/perl
+  dst=~/bin/perl$v
+  if [ -e $src ] && [ ! -e $dst ]; then
+    echo "$src -> $dst"
+    ln -s $src $dst
+  fi
+done

@@ -9,30 +9,30 @@ my %options = ( editor => $ENV{EDITOR} || 'vim', );
 my $help_only = 0;
 
 GetOptions(
-    'e|editor=s' => \$options{editor},
-    'h|help'     => \$help_only,
+  'e|editor=s' => \$options{editor},
+  'h|help'     => \$help_only,
 ) or syntax();
 
 if ( $help_only ) {
-    syntax();
+  syntax();
 }
 else {
-    die "Please specify exactly one file to edit\n"
-      unless @ARGV == 1;
+  die "Please specify exactly one file to edit\n"
+   unless @ARGV == 1;
 
-    my $spec = shift;
-    my $ext = $spec =~ /(\.[^.]+)$/ ? $1 : '.txt';
-    my ( undef, $tf ) = tempfile( UNLINK => 1, SUFFIX => $ext );
+  my $spec = shift;
+  my $ext = $spec =~ /(\.[^.]+)$/ ? $1 : '.txt';
+  my ( undef, $tf ) = tempfile( UNLINK => 1, SUFFIX => $ext );
 
-    my @rsync = ( 'rsync', '-az', '-e', 'ssh' );
-    my $ts = -M $tf;
-    system( @rsync, $spec, $tf )
-      or system( $options{editor}, $tf )
-      or ( -M $tf < $ts and system( @rsync, $tf, $spec ) );
+  my @rsync = ( 'rsync', '-az', '-e', 'ssh' );
+  my $ts = -M $tf;
+  system( @rsync, $spec, $tf )
+   or system( $options{editor}, $tf )
+   or ( -M $tf < $ts and system( @rsync, $tf, $spec ) );
 }
 
 sub syntax {
-    print <<EOS;
+  print <<EOS;
 Syntax: red <options> remote-file
 
 The remote-file argument is an rsync style file spec.
@@ -41,5 +41,5 @@ Options:
    -e --editor  Specify the editor to use
 
 EOS
-    exit;
+  exit;
 }

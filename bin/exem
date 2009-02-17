@@ -9,10 +9,10 @@ use Email::Address;
 my %seen = ();
 my $re   = $RE{Email}{Address};
 while ( <> ) {
-    my ( @found ) = /($re)/g;
-    my ( @addrs ) = map lc( $_->address ),
-      Email::Address->parse( "@found" );
-    for ( @addrs ) {
-        print "$_\n" unless $seen{$_}++;
-    }
+  my ( @found ) = /($re)/g;
+  my ( @addrs ) = map lc( $_->address ),
+   Email::Address->parse( "@found" );
+  for ( @addrs ) {
+    print "$_\n" unless $seen{$_}++;
+  }
 }
