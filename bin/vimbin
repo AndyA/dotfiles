@@ -1,0 +1,14 @@
+#!/bin/sh
+
+editor=${EDITOR:-vim}
+switches=''
+files=''
+
+for opt in $*; do
+  case $opt in
+    -*) switches="$switches $opt";;
+    *)  files="$files $opt";;
+  esac
+done
+
+$editor $switches `which $files`
