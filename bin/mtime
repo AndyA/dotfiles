@@ -5,13 +5,18 @@ use warnings;
 use File::Find;
 use Getopt::Long;
 
-my $Column   = 9;    # mtime
-my $Relative = 0;
+my $Column  = 9;    # mtime
+my $Human   = 0;
+my $Reverse = 0;
+my $Size    = 0;
 
+Getopt::Long::Configure( 'bundling' );
 GetOptions(
   'a' => sub { $Column = 8 },
   'c' => sub { $Column = 10 },
-  'r' => \$Relative,
+  's' => sub { $Column = 7; $Size = 1 },
+  'h' => \$Human,
+  'r' => \$Reverse,
 );
 
 @ARGV = ( '.' ) unless @ARGV;
@@ -20,27 +25,46 @@ mtime( @ARGV );
 sub mtime {
   my @dirs = @_;
   my @got  = ();
+
   find(
     {
       no_chdir => 1,
       wanted   => sub {
-        my $time = ( stat $File::Find::name )[$Column];
+        my $time = ( lstat $File::Find::name )[$Column];
         push @got, [ $time, $File::Find::name ];
        }
     },
     @dirs
   );
 
-  my $fmt_time
-   = $Relative
-   ? sub { require Time::Duration; Time::Duration::ago( $^T - $_[0], 2 ) }
+  my $fmt_val 
+   = $Size
+   ? $Human
+     ? sub {
+       require Number::Bytes::Human;
+       Number::Bytes::Human::format_bytes( $_[0] );
+     }
+     : sub { $_[0] }
+   : $Human ? sub {
+    require Time::Duration;
+    Time::Duration::ago( $^T - $_[0], 2 );
+   }
    : sub { scalar localtime $_[0] };
 
-  my @by_time = sort { $b->[0] <=> $a->[0] } @got;
-  for my $item ( @by_time ) {
-    printf( "%20s : %s\n", $fmt_time->( $item->[0] ), $item->[1] );
-  }
+  my $safe_val = sub {
+    my $ts = shift;
+    return ( defined $ts ) ? $fmt_val->( $ts ) : ( '*' x 10 );
+  };
 
+  my $sorter
+   = $Reverse
+   ? sub { $a->[0] <=> $b->[0] }
+   : sub { $b->[0] <=> $a->[0] };
+
+  my @by_val = sort $sorter @got;
+  for my $item ( @by_val ) {
+    printf( "%30s : %s\n", $safe_val->( $item->[0] ), $item->[1] );
+  }
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
