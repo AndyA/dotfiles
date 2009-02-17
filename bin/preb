@@ -1,9 +1,48 @@
 #!/bin/sh
-if [ -f Makefile.PL ] ; then
-    >MANIFEST 
-    make manifest 
-    make distclean 
-    perl Makefile.PL 
+
+force=false
+clean=false
+args=''
+extra_clean=''
+for opt in $*; do
+  case $opt in
+    -f) 
+      force=true
+      ;;
+    -c)
+      clean=true
+      ;;
+    -*)
+      echo "Bad option: $opt"
+      exit 1
+      ;;
+    *)
+      [ "$opt" = "manifest" ] && extra_clean="rm -f MANIFEST"
+      args="$args $opt"
+      ;;
+  esac
+done
+
+if [ -f Build.PL ] ; then
+  mp=Build.PL
+  mf=Build
+  mk=./Build
+elif [ -f Makefile.PL ] ; then
+  mp=Makefile.PL
+  mf=Makefile
+  mk=make
 else
-    echo "No Makefile.PL"
+  echo "No Makefile.PL or Build.PL"
+  exit 1;
 fi
+
+if $clean; then
+  preb distclean
+  $extra_clean
+fi
+
+if $force || [ $mp -nt $mf ] ; then
+  perl $mp
+fi
+
+$mk $args
