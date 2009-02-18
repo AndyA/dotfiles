@@ -23,6 +23,11 @@ for opt in $*; do
   esac
 done
 
+if $clean; then
+  preb distclean
+  $extra_clean
+fi
+
 if [ -f Build.PL ] ; then
   mp=Build.PL
   mf=Build
@@ -36,12 +41,7 @@ else
   exit 1;
 fi
 
-if $clean; then
-  preb distclean
-  $extra_clean
-fi
-
-if $force || [ $mp -nt $mf ] ; then
+if $force || [ ! -e $mf -o $mp -nt $mf ] ; then
   perl $mp
 fi
 
