@@ -16,7 +16,8 @@ else {
 }
 
 sub svn_revpatches {
-  my $set  = Set::IntSpan::Fast->new( @_ );
+  my $set  = Set::IntSpan::Fast->new;
+  $set->add(@_);
   my $iter = $set->iterate_runs;
   while ( my ( $from, $to ) = $iter->() ) {
     svn_revpatch( $from - 1, $to );
