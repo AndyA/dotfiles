@@ -14,8 +14,9 @@ GetOptions(
   'o' => \$OneLine,
 ) or die "Bad options\n";
 
-my @scripts = uniq( sort map { $_->[$Select] }
-   find_scripts( @ARGV || split /:/, $ENV{PATH} ) );
+@ARGV = split /:/, $ENV{PATH} unless @ARGV;
+
+my @scripts = uniq( sort map { $_->[$Select] } find_scripts( @ARGV ) );
 if ( $OneLine ) {
   print join( ' ', @scripts ), "\n";
 }
