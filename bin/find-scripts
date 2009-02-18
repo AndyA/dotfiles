@@ -1,0 +1,46 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use File::Basename;
+use File::Spec;
+
+my $Select  = 0;
+my $OneLine = 0;
+
+Getopt::Long::Configure( 'bundling' );
+GetOptions(
+  'b' => sub { $Select = 1 },
+  'o' => \$OneLine,
+) or die "Bad options\n";
+
+my @scripts = uniq( sort map { $_->[$Select] }
+   find_scripts( @ARGV || split /:/, $ENV{PATH} ) );
+if ( $OneLine ) {
+  print join( ' ', @scripts ), "\n";
+}
+else {
+  print "$_\n" for @scripts;
+}
+
+sub uniq {
+  my %seen;
+  grep { !$seen{$_}++ } @_;
+}
+
+sub find_scripts {
+  my @dirs    = @_;
+  my @scripts = ();
+  for my $dir ( @dirs ) {
+    opendir my $dh, $dir or die "Can't read $dir ($!)\n";
+    while ( my $file = readdir $dh ) {
+      my $full = File::Spec->catfile( $dir, $file );
+      push @scripts, [ $full, $file ] if -T $full && -x _;
+    }
+  }
+  return @scripts;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+

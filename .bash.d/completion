@@ -9,4 +9,10 @@ function _perl_build() {
   )
 }
 
+function _scripts() {
+  local cur=${COMP_WORDS[COMP_CWORD]}
+  COMPREPLY=( $( find-scripts -b | grep "^$cur" ) )
+}
+
 complete -F _perl_build ./Build
+complete -F _scripts vimbin
