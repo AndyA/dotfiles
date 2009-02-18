@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 use Getopt::Long;
-use File::Basename;
 use File::Spec;
 
 my $Select  = 0;
