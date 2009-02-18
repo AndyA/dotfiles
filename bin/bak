@@ -3,7 +3,7 @@
 suffix="`date +%Y%m%d-%H%M%S`.bak"
 for obj ; do
   echo "$obj saved as $obj.$suffix"
-  cp $obj "$obj.$suffix"
+  cp -r $obj "$obj.$suffix"
 done
 
 
