@@ -65,6 +65,7 @@ sub svn_patch {
 
   if ( $set->is_simple ) {
     my ( $lo, $hi ) = $set->iterate_runs->();
+    mention( "Diffing to get patch" );
     system 'svn', 'diff', r( $lo - 1, $hi ), $url;
   }
   else {
@@ -76,7 +77,7 @@ sub svn_patch {
     my $iter = $set->iterate_runs;
     while ( my ( $lo, $hi ) = $iter->() ) {
       my $cmd = join ' ', 'svn', 'diff', r( $lo - 1, $hi ), '|',
-       'patch', '-p0', '-ts';
+        'patch', '-p0', '-ts';
       mention( "  $cmd\n" );
       system $cmd;
     }
