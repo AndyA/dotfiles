@@ -68,8 +68,8 @@ sub svn_patch {
   use autodie qw( system );
 
   if ( $set->is_simple ) {
-    my ( $from, $to ) = $set->iterate_runs->();
-    system 'svn', 'diff', r( $from - 1, $to ), $url;
+    my ( $lo, $hi ) = $set->iterate_runs->();
+    system 'svn', 'diff', r( $lo - 1, $hi ), $url;
   }
   else {
     local $CWD = File::Temp->newdir;
