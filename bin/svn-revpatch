@@ -66,8 +66,7 @@ sub svn_diffs {
     system 'svn', 'diff', r( $from - 1, $to );
   }
   else {
-    my $work = File::Temp->newdir;
-    local $CWD = $work;
+    local $CWD = File::Temp->newdir;
     my $base_rev = $set->lowest - 1;
     mention( "Checking out $url\n" );
     system 'svn', 'checkout', '-q', r( $base_rev ), $url, '.';
