@@ -23,14 +23,14 @@ GetOptions(
 $url ||= svn_info()->{URL} || die "Can't find repo URL\n";
 
 if ( @ARGV ) {
-  svn_diffs( $url, @ARGV );
+  svn_patch( $url, @ARGV );
 }
 else {
   my %rev = ();
   while ( <> ) {
     $rev{$1}++ while /\[(\d+)\]/g;
   }
-  svn_diffs( $url, sort { $a <=> $b } keys %rev );
+  svn_patch( $url, sort { $a <=> $b } keys %rev );
 }
 
 package Set::IntSpan::Fast;
@@ -58,7 +58,7 @@ sub r {
   return "-r$lo:$hi";
 }
 
-sub svn_diffs {
+sub svn_patch {
   my ( $url, @revs ) = @_;
 
   return unless @revs;
