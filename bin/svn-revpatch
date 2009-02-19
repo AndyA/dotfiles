@@ -48,10 +48,7 @@ sub is_simple {
 
 package main;
 
-sub mention {
-  return unless $verbose;
-  print STDERR @_;
-}
+sub mention { print STDERR @_ if $verbose }
 
 sub r {
   my ( $lo, $hi ) = @_;
