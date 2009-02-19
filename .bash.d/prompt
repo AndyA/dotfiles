@@ -13,3 +13,8 @@ else
 fi
 
 export PS1
+
+function vanilla_prompt {
+  PS1="\n\$ "
+  export PS1
+}
