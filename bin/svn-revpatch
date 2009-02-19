@@ -11,6 +11,7 @@ use Set::IntSpan::Fast;
 # We need this to autodie system and it's listed explicitly here so we
 # don't forget about it.
 use IPC::System::Simple;
+use autodie qw( system );
 
 my $url     = undef;
 my $verbose = 0;
@@ -64,8 +65,6 @@ sub svn_patch {
   return unless @revs;
   my $set = Set::IntSpan::Fast->new;
   $set->add( @revs );
-
-  use autodie qw( system );
 
   if ( $set->is_simple ) {
     my ( $lo, $hi ) = $set->iterate_runs->();
