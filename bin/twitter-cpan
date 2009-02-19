@@ -15,11 +15,11 @@ my $LATEST = 'http://search.cpan.org/uploads.rdf';
 my $STORE  = './twitter-cpan.store';
 
 my %EXTRACT = (
-    'http://purl.org/rss/1.0/title'           => 'title',
-    'http://purl.org/rss/1.0/link'            => 'link',
-    'http://purl.org/rss/1.0/description'     => 'description',
-    'http://purl.org/dc/elements/1.1/creator' => 'creator',
-    'http://purl.org/dc/elements/1.1/date'    => 'date',
+  'http://purl.org/rss/1.0/title'           => 'title',
+  'http://purl.org/rss/1.0/link'            => 'link',
+  'http://purl.org/rss/1.0/description'     => 'description',
+  'http://purl.org/dc/elements/1.1/creator' => 'creator',
+  'http://purl.org/dc/elements/1.1/date'    => 'date',
 );
 
 my $feed    = LWP::Simple::get( $LATEST );
@@ -30,37 +30,38 @@ my $prev = -f $STORE ? retrieve( $STORE ) : {};
 my $dir = {};
 
 for my $tri ( @triples ) {
-    my ( $key, $type, $value ) = @$tri;
-    if ( my $field = $EXTRACT{$type} ) {
-        $dir->{$key}{$field} = $value;
-    }
+  my ( $key, $type, $value ) = @$tri;
+  if ( my $field = $EXTRACT{$type} ) {
+    $dir->{$key}{$field} = $value;
+  }
 }
 
 my @keys = map { $_->[0] }
-  sort { $a->[1] <=> $b->[1] }
-  grep { defined $_->[1] }
-  map { [ $_, str2time( $dir->{$_}->{date} ) ] } keys %$dir;
+ sort { $a->[1] <=> $b->[1] }
+ grep { defined $_->[1] }
+ map { [ $_, str2time( $dir->{$_}->{date} ) ] } keys %$dir;
 
 my %LIKE = (
-    'http://search.cpan.org/~jfriedl/Yahoo-Search-1.9.12/' => {
-        'link'        => 'http://search.cpan.org/~jfriedl/Yahoo-Search-1.9.12/',
-        'creator'     => 'Jeffrey Friedl',
-        'date'        => '2007-03-20T03:14+00:00',
-        'title'       => 'Yahoo-Search-1.9.12',
-        'description' => 'Perl interface to the Yahoo! Search public API. '
-    },
+  'http://search.cpan.org/~jfriedl/Yahoo-Search-1.9.12/' => {
+    'link'    => 'http://search.cpan.org/~jfriedl/Yahoo-Search-1.9.12/',
+    'creator' => 'Jeffrey Friedl',
+    'date'    => '2007-03-20T03:14+00:00',
+    'title'   => 'Yahoo-Search-1.9.12',
+    'description' => 'Perl interface to the Yahoo! Search public API. '
+  },
 );
 
-my $twit = Net::Twitter->new( username => 'cpan', password => 'twinkle57' );
+my $twit
+ = Net::Twitter->new( username => 'cpan', password => 'twinkle57' );
 
 for my $key ( @keys ) {
-    next if exists $prev->{$key};
-    my $dist = $dir->{$key};
+  next if exists $prev->{$key};
+  my $dist = $dir->{$key};
 
-    # Shite
-    next if $dist->{title} eq 'search.cpan.org';
-    my $desc = $dist->{title} . ' by ' . $dist->{creator};
-    $twit->update( $desc );
+  # Shite
+  next if $dist->{title} eq 'search.cpan.org';
+  my $desc = $dist->{title} . ' by ' . $dist->{creator};
+  $twit->update( $desc );
 }
 
 store( $dir, $STORE );

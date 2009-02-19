@@ -1,9 +1,0 @@
-#!/usr/bin/env perl
-
-use strict;
-use warnings;
-
-my %acc = ();
-$acc{ substr( $_, 0, 1 ) }++ while <>;
-printf( "%s : %8d\n", $_, $acc{$_} )
-  for sort { $acc{$a} <=> $acc{$b} || $a cmp $b } keys %acc;

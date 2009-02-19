@@ -2,16 +2,17 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
-use YAML qw( LoadFile DumpFile );
-use File::Path;
+
 use Fcntl qw( SEEK_SET );
+use File::Path;
+use Getopt::Long;
+use IO::Handle;
+use IPC::Run qw( start pump );
 use List::Util qw( min );
 use Mail::Send;
-use IPC::Run qw( start pump );
-use IO::Handle;
 use Sys::Hostname;
 use Text::ParseWords;
+use YAML qw( LoadFile DumpFile );
 
 use constant RCFILE  => glob '~/.mailtailrc';
 use constant WORKDIR => glob '~/.mailtail';
@@ -26,212 +27,212 @@ my $report = {};
 Getopt::Long::Configure( 'bundling' );
 
 GetOptions(
-    'h|help'     => \$options{show_help},
-    'f|rcfile=s' => \$options{rcfile},
+  'h|help'     => \$options{show_help},
+  'f|rcfile=s' => \$options{rcfile},
 ) or syntax();
 
 if ( $options{show_help} ) {
-    syntax();
+  syntax();
 }
 else {
-    syntax() if @ARGV;
-    $config = read_config( $options{rcfile} || RCFILE );
+  syntax() if @ARGV;
+  $config = read_config( $options{rcfile} || RCFILE );
 
-    my $workdir = config( default => 'workdir' );
-    mkpath( $workdir );
+  my $workdir = config( default => 'workdir' );
+  mkpath( $workdir );
 
-    for my $job ( sort grep { $_ ne 'default' } keys %$config ) {
-        run_job( $job );
-    }
+  for my $job ( sort grep { $_ ne 'default' } keys %$config ) {
+    run_job( $job );
+  }
 
-    make_report( $report );
+  make_report( $report );
 }
 
 sub make_report {
-    my $report = shift;
+  my $report = shift;
 
-    for my $to ( sort keys %$report ) {
-        my $jobs = $report->{$to};
-        my $msg  = Mail::Send->new;
-        $msg->to( $to );
-        # $msg->from( config( default => 'mailfrom' ) );
-        $msg->subject( "Log activity report from " . hostname );
+  for my $to ( sort keys %$report ) {
+    my $jobs = $report->{$to};
+    my $msg  = Mail::Send->new;
+    $msg->to( $to );
+    # $msg->from( config( default => 'mailfrom' ) );
+    $msg->subject( "Log activity report from " . hostname );
 
-        my $fh = $msg->open;
+    my $fh = $msg->open;
 
-        for my $job ( sort keys %$jobs ) {
-            my $desc  = config( $job, 'description', $job );
-            my $title = "Output from $desc";
-            my $rule  = '=' x ( length $title );
-            print $fh "$title\n$rule\n\n";
-            print $fh "  $_\n" for @{ $jobs->{$job} };
-            print $fh "\n";
-        }
-
-        $fh->close;
+    for my $job ( sort keys %$jobs ) {
+      my $desc  = config( $job, 'description', $job );
+      my $title = "Output from $desc";
+      my $rule  = '=' x ( length $title );
+      print $fh "$title\n$rule\n\n";
+      print $fh "  $_\n" for @{ $jobs->{$job} };
+      print $fh "\n";
     }
+
+    $fh->close;
+  }
 }
 
 sub run_job {
-    my $job       = shift;
-    my $workdir   = config( $job, 'workdir' );
-    my $statefile = File::Spec->catfile( $workdir, $job );
-    my $state = -e $statefile ? ( load_state( $statefile ) || {} ) : {};
+  my $job       = shift;
+  my $workdir   = config( $job, 'workdir' );
+  my $statefile = File::Spec->catfile( $workdir, $job );
+  my $state = -e $statefile ? ( load_state( $statefile ) || {} ) : {};
 
-    my @files = config_list( $job, 'files' );
+  my @files = config_list( $job, 'files' );
 
-    die "No files named for $job\n"
-      unless @files;
+  die "No files named for $job\n"
+   unless @files;
 
-    for my $file ( map glob, @files ) {
-        process_file( $job, $state, $file );
-    }
+  for my $file ( map glob, @files ) {
+    process_file( $job, $state, $file );
+  }
 
-    save_state( $statefile, $state );
+  save_state( $statefile, $state );
 }
 
 sub process_file {
-    my ( $job, $state, $file ) = @_;
+  my ( $job, $state, $file ) = @_;
 
-    unless ( -e $file ) {
-        warn "$file not found\n";
-        return;
-    }
+  unless ( -e $file ) {
+    warn "$file not found\n";
+    return;
+  }
 
-    my $size = -s $file;
-    my $seen = $state->{$file}{size} || 0;
+  my $size = -s $file;
+  my $seen = $state->{$file}{size} || 0;
 
-    # Rewind?
-    $seen = 0 if $size < $seen;
+  # Rewind?
+  $seen = 0 if $size < $seen;
 
-    if ( $size > $seen ) {
-        $state->{$file}{size}
-          = filter_chunk( $job, $state, $file, $seen, $size );
-    }
+  if ( $size > $seen ) {
+    $state->{$file}{size}
+     = filter_chunk( $job, $state, $file, $seen, $size );
+  }
 }
 
 sub filter_chunk {
-    my ( $job, $state, $file, $start, $end ) = @_;
+  my ( $job, $state, $file, $start, $end ) = @_;
 
-    #### Reader ####
+  #### Reader ####
 
-    open my $fh, '<', $file or die "Can't read $file ($!)\n";
-    sysseek $fh, $start, SEEK_SET;
+  open my $fh, '<', $file or die "Can't read $file ($!)\n";
+  sysseek $fh, $start, SEEK_SET;
 
-    my $buffer = '';
-    my $pos    = $start;
+  my $buffer = '';
+  my $pos    = $start;
 
-    my $fill = sub {
-        my $to_read = min( $end - $start, 65536 ) || return 0;
-        my $did_read = sysread( $fh, my $chunk, $to_read );
-        die "Read fail on $file ($!)\n"
-          unless defined $did_read;
-        $start += $did_read;
-        $buffer .= $chunk;
-        return $did_read;
-    };
+  my $fill = sub {
+    my $to_read = min( $end - $start, 65536 ) || return 0;
+    my $did_read = sysread( $fh, my $chunk, $to_read );
+    die "Read fail on $file ($!)\n"
+     unless defined $did_read;
+    $start += $did_read;
+    $buffer .= $chunk;
+    return $did_read;
+  };
 
-    $fill->();
+  $fill->();
 
-    my $reader = sub {
-        return unless defined $buffer;
-        while ( 1 ) {
-            if ( $buffer =~ s/^(.*?\n)// ) {
-                $pos += length $1;
-                return $1;
-            }
-            unless ( $fill->() ) {
-                undef $buffer;
-                return;
-            }
-        }
-    };
-
-    my @filters = config_list( $job, 'filters' );
-
-    for my $filter ( @filters ) {
-        $reader = filter_reader( $reader, $filter );
+  my $reader = sub {
+    return unless defined $buffer;
+    while ( 1 ) {
+      if ( $buffer =~ s/^(.*?\n)// ) {
+        $pos += length $1;
+        return $1;
+      }
+      unless ( $fill->() ) {
+        undef $buffer;
+        return;
+      }
     }
+  };
 
-    my @lines = ();
+  my @filters = config_list( $job, 'filters' );
 
-    my $abstract = config( $job, 'abstract' );
-    my $overflow = 0;
+  for my $filter ( @filters ) {
+    $reader = filter_reader( $reader, $filter );
+  }
 
-    while ( defined( my $line = $reader->() ) ) {
-        chomp $line;
-        if ( defined $abstract && @lines >= $abstract ) {
-            $overflow++;
-        }
-        else {
-            push @lines, $line;
-        }
+  my @lines = ();
+
+  my $abstract = config( $job, 'abstract' );
+  my $overflow = 0;
+
+  while ( defined( my $line = $reader->() ) ) {
+    chomp $line;
+    if ( defined $abstract && @lines >= $abstract ) {
+      $overflow++;
     }
-
-    push @lines, "(dropped $overflow more matching lines)"
-      if $overflow;
-
-    if ( @lines ) {
-        for my $to ( config_list( $job, 'mailto' ) ) {
-            $report->{$to}{$job} = \@lines;
-        }
+    else {
+      push @lines, $line;
     }
+  }
 
-    return $pos;
+  push @lines, "(dropped $overflow more matching lines)"
+   if $overflow;
+
+  if ( @lines ) {
+    for my $to ( config_list( $job, 'mailto' ) ) {
+      $report->{$to}{$job} = \@lines;
+    }
+  }
+
+  return $pos;
 }
 
 sub filter_reader {
-    my ( $reader, $filter ) = @_;
+  my ( $reader, $filter ) = @_;
 
-    $filter = [ shellwords( $filter ) ] unless 'ARRAY' eq ref $filter;
+  $filter = [ shellwords( $filter ) ] unless 'ARRAY' eq ref $filter;
 
-    my $buffer = '';
-    my $h = start $filter, $reader, sub { $buffer .= join '', @_ };
+  my $buffer = '';
+  my $h = start $filter, $reader, sub { $buffer .= join '', @_ };
 
-    return sub {
-        while ( 1 ) {
-            return $1 if $buffer =~ s/^(.*?\n)//;
-            unless ( $h->pump ) {
-                $h->finish;
-                return;
-            }
-        }
-    };
+  return sub {
+    while ( 1 ) {
+      return $1 if $buffer =~ s/^(.*?\n)//;
+      unless ( $h->pump ) {
+        $h->finish;
+        return;
+      }
+    }
+  };
 }
 
 sub read_config {
-    my $name = shift;
-    return LoadFile( $name );
+  my $name = shift;
+  return LoadFile( $name );
 }
 
 sub config_list {
-    my ( $job, $name ) = @_;
-    my $val = config( $job, $name, [] );
-    return grep { defined } 'ARRAY' eq ref $val ? @$val : $val;
+  my ( $job, $name ) = @_;
+  my $val = config( $job, $name, [] );
+  return grep { defined } 'ARRAY' eq ref $val ? @$val : $val;
 }
 
 sub config {
-    my ( $job, $name, $default ) = @_;
-    die "No such job: $job\n" unless exists $config->{$job};
-    return
-        exists $config->{$job}{$name}    ? $config->{$job}{$name}
-      : exists $config->{default}{$name} ? $config->{default}{$name}
-      : exists $DEFAULT{$name}           ? $DEFAULT{$name}
-      :                                    $default;
+  my ( $job, $name, $default ) = @_;
+  die "No such job: $job\n" unless exists $config->{$job};
+  return
+     exists $config->{$job}{$name}    ? $config->{$job}{$name}
+   : exists $config->{default}{$name} ? $config->{default}{$name}
+   : exists $DEFAULT{$name}           ? $DEFAULT{$name}
+   :                                    $default;
 }
 
 sub load_state {
-    my $name = shift;
-    return LoadFile( $name );
+  my $name = shift;
+  return LoadFile( $name );
 }
 
 sub save_state {
-    my ( $name, $state ) = @_;
-    DumpFile( $name, $state );
+  my ( $name, $state ) = @_;
+  DumpFile( $name, $state );
 }
 
 sub syntax {
-    print <<EOS;
+  print <<EOS;
 Syntax: mailtail [options]
 
 Options:
@@ -239,5 +240,5 @@ Options:
    -h --help        Show this text
    -f --rcfile      Name an alternative config (default ~/.mailtailrc)
 EOS
-    exit;
+  exit;
 }
