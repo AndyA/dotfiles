@@ -2,32 +2,145 @@
 
 use strict;
 use warnings;
+
+use File::Temp;
+use File::chdir;
 use Set::IntSpan::Fast;
+use Getopt::Long;
+
+my $url     = undef;
+my $verbose = 0;
+
+GetOptions(
+  'url:s' => \$url,
+  'v'     => \$verbose
+) or syntax();
+
+$url ||= svn_info()->{URL} || die "Can't find repo URL\n";
 
 if ( @ARGV ) {
-  svn_revpatches( @ARGV );
+  svn_diffs( $url, @ARGV );
 }
 else {
   my %rev = ();
   while ( <> ) {
     $rev{$1}++ while /\[(\d+)\]/g;
   }
-  svn_revpatches( sort { $a <=> $b } keys %rev );
+  svn_diffs( $url, sort { $a <=> $b } keys %rev );
 }
 
-sub svn_revpatches {
-  my $set  = Set::IntSpan::Fast->new;
-  $set->add(@_);
-  my $iter = $set->iterate_runs;
-  while ( my ( $from, $to ) = $iter->() ) {
-    svn_revpatch( $from - 1, $to );
+package Set::IntSpan::Fast;
+
+sub lowest { ( shift->iterate_runs->() )[0] }
+
+sub is_simple {
+  my $self = shift;
+  my $iter = $self->iterate_runs;
+  $iter->() or return;
+  $iter->() and return;
+  return 1;
+}
+
+package main;
+
+sub mention {
+  return unless $verbose;
+  print STDERR @_;
+}
+
+sub r {
+  my ( $lo, $hi ) = @_;
+  return "-r$lo" unless defined $hi;
+  return "-r$lo:$hi";
+}
+
+sub svn_diffs {
+  my ( $url, @revs ) = @_;
+
+  return unless @revs;
+  my $set = Set::IntSpan::Fast->new;
+  $set->add( @revs );
+
+  if ( $set->is_simple ) {
+    my ( $from, $to ) = $set->iterate_runs->();
+    system 'svn', 'diff', r( $from - 1, $to );
+  }
+  else {
+    my $work = File::Temp->newdir;
+    local $CWD = $work;
+    my $base_rev = $set->lowest - 1;
+    mention( "Checking out $url\n" );
+    system 'svn', 'checkout', '-q', r( $base_rev ), $url, '.';
+    mention( "Applying patches\n" );
+    my $iter = $set->iterate_runs;
+    while ( my ( $lo, $hi ) = $iter->() ) {
+      my $cmd = join ' ', 'svn', 'diff', r( $lo - 1, $hi ), '|',
+       'patch', '-p0', '-ts';
+      mention( "  $cmd\n" );
+      system $cmd;
+    }
+    svn_addnew();
+    system 'svn', 'diff';
   }
 }
 
-sub svn_revpatch {
-  my ( $from, $to ) = @_;
-  print STDERR "svn diff -r${from}:${to}\n";
-  system 'svn', 'diff', "-r${from}:${to}";
+sub svn_addnew {
+  my @add = ();
+  with_cmd(
+    'svn', 'st',
+    sub {
+      return unless /^\?\s+(.+)/;
+      push @add, $1;
+    }
+  );
+  if ( @add ) {
+    mention( "Adding files created since first rev\n" );
+    system 'svn', 'add', '-q', @add;
+  }
+}
+
+sub tidy {
+  my $s = shift;
+  $s =~ s/^\s+//;
+  $s =~ s/\s+$//;
+  return $s;
+}
+
+sub with_cmd {
+  my ( @cmd ) = @_;
+  my $code = pop @cmd;
+  my $cmd = join ' ', @cmd;
+  open my $sh, '-|', @cmd or die "Can't $cmd ($!)\n";
+  while ( <$sh> ) { chomp; $code->() }
+  close $sh or warn "Can't $cmd ($!) -- at exit\n";
+  return $?;
+}
+
+sub with_svn {
+  my @cmd  = @_;
+  my $code = pop @cmd;
+  my $info = {};
+  with_cmd(
+    svn => @cmd,
+    sub {
+      return if /^\s*$/;
+      my ( $k, $v ) = $code->();
+      $k =~ s/\s+//g;
+      $info->{$k} = $v;
+    }
+  );
+  return $info;
+}
+
+sub svn_info {
+  with_svn( info => @_, sub { map tidy( $_ ), split /:/, $_, 2 } );
+}
+
+sub syntax {
+  print STDERR <<EOT;
+Syntax: svn-revpatch [ --url <repo-url> ] [ <rev> ... ]
+EOT
+  exit( 1 );
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
