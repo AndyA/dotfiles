@@ -5,8 +5,9 @@ use warnings;
 
 use File::Temp;
 use File::chdir;
-use Set::IntSpan::Fast;
 use Getopt::Long;
+use IPC::System::Simple;
+use Set::IntSpan::Fast;
 
 my $url     = undef;
 my $verbose = 0;
@@ -60,6 +61,8 @@ sub svn_diffs {
   return unless @revs;
   my $set = Set::IntSpan::Fast->new;
   $set->add( @revs );
+
+  use autodie qw( system );
 
   if ( $set->is_simple ) {
     my ( $from, $to ) = $set->iterate_runs->();
