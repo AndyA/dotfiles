@@ -63,7 +63,7 @@ sub svn_diffs {
 
   if ( $set->is_simple ) {
     my ( $from, $to ) = $set->iterate_runs->();
-    system 'svn', 'diff', r( $from - 1, $to );
+    system 'svn', 'diff', r( $from - 1, $to ), $url;
   }
   else {
     local $CWD = File::Temp->newdir;
