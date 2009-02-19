@@ -6,8 +6,11 @@ use warnings;
 use File::Temp;
 use File::chdir;
 use Getopt::Long;
-use IPC::System::Simple;
 use Set::IntSpan::Fast;
+
+# We need this to autodie system and it's listed explicitly here so we
+# don't forget about it.
+use IPC::System::Simple;
 
 my $url     = undef;
 my $verbose = 0;
