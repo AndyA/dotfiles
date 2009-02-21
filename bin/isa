@@ -30,9 +30,9 @@ GetOptions(
   'f|fatal'    => \$options{stop_on_error},
   'q|quiet'    => \$options{quiet},
   'o|output:s' => \$options{output},
-  'frames'     => \$options{frames},
-  'source'     => \$options{source},
-  'textmate'   => \$options{textmate},
+  'F|frames'     => \$options{frames},
+  's|source'     => \$options{source},
+  't|textmate'   => \$options{textmate},
 ) or syntax();
 
 if ( $options{show_help} ) {
@@ -556,9 +556,9 @@ Options:
    -h --help        Show this text
    -q --quiet       Don't report errors
    -o --output      Specify the output filename (default: STDOUT)
-      --frames      Output a frameset (requires --output to name a dir)
-      --source      Generate HTML representations of source files
-      --textmate    Generate TextMate compatible links
+   -F --frames      Output a frameset (requires --output to name a dir)
+   -s --source      Generate HTML representations of source files
+   -t --textmate    Generate TextMate compatible links
 EOS
   exit;
 }
