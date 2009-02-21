@@ -1,0 +1,61 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use CPAN;
+use Data::Dumper;
+use Getopt::Long;
+use File::Basename;
+use File::Copy::Recursive qw( rcopy );
+
+my $Recurse = 0;
+my $Verbose = 0;
+
+GetOptions(
+  'v' => \$Verbose,
+  'r' => \$Recurse
+) or syntax();
+
+die "Recurisive fetching doesn't work" if $Recurse;
+
+CPAN::Index->reload;
+
+fetch( @ARGV );
+
+sub mention { print @_ if $Verbose }
+
+sub clean_basename {
+  my $name = shift;
+  ( my $base = basename( $name ) ) =~ s/-\w+$//;
+  return $base;
+}
+
+sub fetch {
+  my @queue = @_;
+  my %done = map { $_ => 1 } @queue;
+
+  while ( my $pkg = shift @queue ) {
+    my $dist = CPAN::Shell->expand( 'Module', $pkg )->distribution;
+    mention( "Fetching $pkg\n" );
+    $dist->get;
+    my $from = $dist->dir;
+    my $to   = clean_basename( $from );
+    rcopy( $from, $to );
+
+    if ( $Recurse ) {
+      my $deps = $dist->prereq_pm;
+      print Dumper( $deps );
+      push @queue, grep { !$done{$_}++ } keys %{ $deps->{requires} };
+    }
+  }
+
+}
+
+sub syntax {
+  print STDERR "cpan-fetch [-v] [-r] dist ...\n";
+  exit 1;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
