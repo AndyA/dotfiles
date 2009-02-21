@@ -5,6 +5,7 @@ use warnings;
 
 use File::Find;
 use File::Path;
+use File::Which;
 use File::Spec;
 use Getopt::Long;
 use HTML::Tiny;
@@ -17,6 +18,7 @@ my %options = (
   stop_on_error => 0,
   quiet         => 0,
   textmate      => 0,
+  source        => 0,
   frames        => 0,
   output        => undef,
 );
@@ -29,6 +31,7 @@ GetOptions(
   'q|quiet'    => \$options{quiet},
   'o|output:s' => \$options{output},
   'frames'     => \$options{frames},
+  'source'     => \$options{source},
   'textmate'   => \$options{textmate},
 ) or syntax();
 
@@ -50,6 +53,11 @@ else {
   my $inherited = walk_inherited( $interface, $isa_map );
 
   my $h = HTML::Tiny->new;
+
+  die "--textmate and --source are mutually exclusive\n"
+   if $options{textmate} and $options{source};
+  die "--source requires --frames\n"
+   if $options{source} and !$options{frames};
 
   my $menu_link = $options{frames}
    ? do {
@@ -82,15 +90,15 @@ else {
     output_single( \*STDOUT, @_ );
    };
 
-  # use Data::Dumper;
-  # print Dumper( $interface );
+  my $edit_link
+   = $options{textmate} ? mml_textmate()
+   : $options{source}   ? mml_source( $options{output} )
+   :                      undef;
 
   report(
     $output,
     {
-      $options{textmate}
-      ? ( edit_link => mml_textmate() )
-      : (),
+      edit_link => $edit_link,
       menu_link => $menu_link,
     },
     {
@@ -484,6 +492,60 @@ sub mml_textmate {
   };
 }
 
+sub mml_source {
+  my $dir = shift;
+  mkpath( $dir );
+  my %html = ();
+  my $h    = HTML::Tiny->new;
+  return sub {
+    my ( $file, $line, $text ) = @_;
+    my $addr = $html{$file} ||= render_source( $dir, $file );
+    return $h->a( { href => "$addr#$line" }, $text );
+  };
+}
+
+sub html_name {
+  my $file = shift;
+  ( my $url = $file ) =~ s/(\W)/sprintf('-%02x-', ord $1)/eg;
+  return "$url.html";
+}
+
+sub render_source {
+  my ( $dir, $file ) = @_;
+  my $name = html_name( $file );
+  my $fn = File::Spec->catfile( $dir, $name );
+  open my $fh, '>', $fn or die "Can't write $fn ($!)\n";
+  print $fh html_source( $file );
+  return $name;
+}
+
+sub html_source {
+  my $src = shift;
+
+  die "Can't find $src\n" unless -f $src;
+
+  my $perltidy = which( 'perltidy' )
+   or die "Need perltidy to generate HTML from source\n";
+
+  my @cmd = ( $perltidy, qw( -npro -html -nnn -npod -ntoc -st ), $src );
+  my $cmd = join ' ', @cmd;
+
+  my @lines = ();
+  my $h     = HTML::Tiny->new;
+
+  my $anchor = sub {
+    my $ln = shift;
+    return $h->a( { name => $ln }, $ln );
+  };
+
+  open my $th, '-|', @cmd or die "Can't execute $cmd ($?)\n";
+  while ( defined( my $line = <$th> ) ) {
+    $line =~ s/^( \s* (?: < .*? > \s* )* )(\d+)/$1.$anchor->($2)/xe;
+    push @lines, $line;
+  }
+  return join '', @lines;
+}
+
 sub syntax {
   print <<EOS;
 Syntax: isa [options] <dir>
@@ -495,6 +557,7 @@ Options:
    -q --quiet       Don't report errors
    -o --output      Specify the output filename (default: STDOUT)
       --frames      Output a frameset (requires --output to name a dir)
+      --source      Generate HTML representations of source files
       --textmate    Generate TextMate compatible links
 EOS
   exit;
