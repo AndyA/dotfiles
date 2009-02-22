@@ -30,9 +30,9 @@ GetOptions(
   'f|fatal'    => \$options{stop_on_error},
   'q|quiet'    => \$options{quiet},
   'o|output:s' => \$options{output},
-  'F|frames'     => \$options{frames},
-  's|source'     => \$options{source},
-  't|textmate'   => \$options{textmate},
+  'F|frames'   => \$options{frames},
+  's|source'   => \$options{source},
+  't|textmate' => \$options{textmate},
 ) or syntax();
 
 if ( $options{show_help} ) {
@@ -177,29 +177,35 @@ sub scan_file {
 
   my @pack    = ();
   my $in_name = 0;
+  my $in_pod  = 0;
   my @name    = ();
   open my $fh, '<', $file or die "Can't read $file ($!)\n";
   while ( <$fh> ) {
-    if ( /^=head\d+\s+NAME\b/ ) {
-      $in_name = 1;
-    }
-    elsif ( /^=/ ) {
-      $in_name = 0;
-      if ( @name && @pack ) {
-        my $name = join ' ', @name;
-        $name =~ s/^\s+//;
-        $name =~ s/\s+$//;
-        $name =~ s/\s+/ /;
-        $pack[-1][2] = $name;
+    if    ( /^=cut\b/ ) { $in_pod = 0; }
+    elsif ( /^=/ )      { $in_pod = 1; }
+
+    if ( $in_pod ) {
+      if ( /^=head\d+\s+NAME\b/ ) {
+        $in_name = 1;
       }
-      @name = ();
-    }
-    elsif ( $in_name ) {
-      push @name, $_;
+      elsif ( /^=/ ) {
+        $in_name = 0;
+        if ( @name && @pack ) {
+          my $name = join ' ', @name;
+          $name =~ s/^\s+//;
+          $name =~ s/\s+$//;
+          $name =~ s/\s+/ /;
+          $pack[-1][2] = $name;
+        }
+        @name = ();
+      }
+      elsif ( $in_name ) {
+        push @name, $_;
+      }
     }
     else {
       push @pack, [ $1, $. ]
-       if /^package\s+(\w+(?:::\w+)*)\s*;/;
+       if /^\s*package\s+(\w+(?:::\w+)*)\s*;/;
     }
   }
   close $fh;
