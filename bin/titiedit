@@ -1,0 +1,9 @@
+#!/bin/sh
+
+file=$1
+temp="$file.tmp"
+echo > $temp
+titi get >> $temp
+cat $file >> $temp
+mv $temp $file
+$TITI_EDITOR $*

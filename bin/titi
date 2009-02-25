@@ -30,6 +30,21 @@ my %verb = (
       return;
     },
   },
+  commit => {
+    action => sub {
+      local $ENV{TITI_EDITOR} = $ENV{EDITOR} || 'vim';
+      local $ENV{EDITOR} = 'titiedit';
+      system 'svn', 'commit', @_;
+    },
+    desc => sub {
+      return '[<ticket #>]',
+       "Do an svn commit with prefilled commit message.",
+       "Defaults to the last ticket you worked on.";
+    },
+    opts => sub {
+      return;
+    },
+  },
   get => {
     action => sub {
       my $ticket  = get_real_ticket( @_ );
@@ -54,17 +69,6 @@ my %verb = (
       return '[<ticket #>]',
        "Forget most recent get on a ticket.",
        "Defaults to the last ticket you worked on.";
-    },
-    opts => sub {
-      return;
-    },
-  },
-  what => {
-    action => sub {
-      no_args( @_ );
-    },
-    desc => sub {
-      return undef, "What are you working on?";
     },
     opts => sub {
       return;
