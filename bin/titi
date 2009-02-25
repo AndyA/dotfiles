@@ -1,0 +1,76 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use constant CONFIG => glob( '~/.titi' );
+
+my %verb = (
+  list => {
+    action => sub {
+      print "Working on...\n";
+    },
+    desc => sub {
+      return undef, "List all known tickets.";
+    },
+    opts => sub {
+      return;
+    },
+  },
+  get => {
+    action => sub {
+      print "Working on...\n";
+    },
+    desc => sub {
+      return '[<ticket #>]',
+       "Get elapsed time on ticket since last get. ",
+       "Defaults to the last ticket you worked on.";
+    },
+    opts => sub {
+      return;
+    },
+  },
+  unget => {
+    action => sub {
+      print "Working on...\n";
+    },
+    desc => sub {
+      return '[<ticket #>]',
+       "Forget most recent get on a ticket. ",
+       "Defaults to the last ticket you worked on.";
+    },
+    opts => sub {
+      return;
+    },
+  },
+  stop => {
+    action => sub {
+      print "Working on...\n";
+    },
+    desc => sub {
+      return undef, "Stop all work.";
+    },
+    opts => sub {
+      return;
+    },
+  },
+  start => {
+    action => sub {
+      print "Working on...\n";
+    },
+    desc => sub {
+      return '[<ticket #>]',
+       "Start work on a ticket. ",
+       "Defaults to the last ticket you worked on.";
+    },
+    opts => sub {
+      return;
+    },
+  },
+);
+
+my $act = shift @ARGV or bail( 'No verb specified' );
+my $vb  = $verb{$act} or bail( "Unknown action: $act" );
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
