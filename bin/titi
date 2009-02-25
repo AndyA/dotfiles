@@ -3,7 +3,20 @@
 use strict;
 use warnings;
 
+use Data::Dumper;
+use Getopt::Long;
+use POSIX qw(strftime);
+use Time::ParseDate;
+use YAML qw( DumpFile LoadFile );
+
 use constant CONFIG => glob( '~/.titi' );
+
+my $wrk = -f CONFIG ? LoadFile( CONFIG ) : {};
+
+my %opt = (
+  verbose => 0,
+  help    => 0,
+);
 
 my %verb = (
   list => {
@@ -19,11 +32,14 @@ my %verb = (
   },
   get => {
     action => sub {
-      print "Working on...\n";
+      my $ticket  = get_real_ticket( @_ );
+      my $elapsed = elapsed( $ticket );
+      print "Refs #", $ticket, " (spent ", fmt_hours( $elapsed ), ")\n";
+      checkpoint( $ticket );
     },
     desc => sub {
       return '[<ticket #>]',
-       "Get elapsed time on ticket since last get. ",
+       "Get elapsed time on ticket since last get.",
        "Defaults to the last ticket you worked on.";
     },
     opts => sub {
@@ -32,12 +48,23 @@ my %verb = (
   },
   unget => {
     action => sub {
-      print "Working on...\n";
+      die "Not implemented\n";
     },
     desc => sub {
       return '[<ticket #>]',
-       "Forget most recent get on a ticket. ",
+       "Forget most recent get on a ticket.",
        "Defaults to the last ticket you worked on.";
+    },
+    opts => sub {
+      return;
+    },
+  },
+  what => {
+    action => sub {
+      no_args( @_ );
+    },
+    desc => sub {
+      return undef, "What are you working on?";
     },
     opts => sub {
       return;
@@ -45,7 +72,13 @@ my %verb = (
   },
   stop => {
     action => sub {
-      print "Working on...\n";
+      no_args( @_ );
+      if ( my $cur = $wrk->{current} ) {
+        stop( $cur );
+      }
+      else {
+        mention( "you weren't working on anything" );
+      }
     },
     desc => sub {
       return undef, "Stop all work.";
@@ -56,7 +89,17 @@ my %verb = (
   },
   start => {
     action => sub {
-      print "Working on...\n";
+      my $ticket = get_ticket( @_ );
+      my $cur = $wrk->{current} || 0;
+      if ( $ticket == $cur && state( $cur ) eq 'working' ) {
+        mention( "you are already working on $ticket" );
+      }
+      else {
+        stop( $cur ) if $cur;
+        mark( working => $ticket );
+        mention( "working on $ticket" );
+        $wrk->{current} = $ticket;
+      }
     },
     desc => sub {
       return '[<ticket #>]',
@@ -69,8 +112,141 @@ my %verb = (
   },
 );
 
+my %optspec = (
+  'v|verbose' => \$opt{verbose},
+  'h|help'    => \$opt{help},
+);
+
 my $act = shift @ARGV or bail( 'No verb specified' );
 my $vb  = $verb{$act} or bail( "Unknown action: $act" );
+
+%optspec = ( %optspec, $vb->{opts}->() )
+ if $vb->{opts};
+
+Getopt::Long::Configure( "bundling" );
+GetOptions( %optspec ) or bail();
+
+$vb->{action}->( @ARGV );
+
+DumpFile( CONFIG, $wrk );
+
+sub bail {
+  my $msg = join '', @_;
+  die "$msg\n";
+}
+
+sub fmt_time {
+  my $tm = shift || $^T;
+  return strftime '%Y/%m/%d %H:%M:%S', localtime $tm;
+}
+
+sub fmt_hours {
+  sprintf '%.2f', shift() / 3600;
+}
+
+sub mention {
+  my $msg = join '', @_;
+  print fmt_time(), " $msg\n";
+}
+
+sub no_args {
+  die "No args allowed\n" if @_;
+}
+
+sub state {
+  my $ticket = shift;
+  return 'missing' unless @{ $wrk->{ticket}{$ticket} || [] };
+  return $wrk->{ticket}{$ticket}[-1][0] || 'missing';
+}
+
+# Get all the active time slots since the last 'cp' mark
+sub elapsed {
+  my $ticket = shift;
+  my @marks
+   = reverse @{ $wrk->{ticket}{$ticket} || [ [ 'working', $^T ] ] };
+  unshift @marks, [ 'stopped', $^T ]
+   unless $marks[0][0] eq 'stopped';
+  my @slots = ();
+  my $lt;
+  for my $mark ( @marks ) {
+    my ( $state, $time ) = @$mark;
+    if ( $state eq 'stopped' ) {
+      $lt = $time;
+    }
+    elsif ( $state eq 'working' ) {
+      die "*** No last time - shouldn't happen"
+       unless $lt;
+      unshift @slots, [ $time, $lt ];
+    }
+    elsif ( $state eq 'cp' ) {
+      last;
+    }
+    else {
+      die "*** Bad state: $state - shouldn't happen";
+    }
+  }
+
+  return @slots if wantarray;
+
+  my $total = 0;
+  for my $slot ( @slots ) {
+    my ( $from, $to ) = @$slot;
+    $total += $to - $from - 1;
+  }
+
+  return $total;
+}
+
+sub mark {
+  my ( $state, $ticket ) = @_;
+  push @{ $wrk->{ticket}{$ticket} }, [ $state => $^T ];
+}
+
+sub checkpoint {
+  my $ticket = shift;
+  my $state  = state( $ticket );
+  if ( $state eq 'working' ) {
+    mark( stopped => $ticket );
+    mark( cp      => $ticket );
+    mark( working => $ticket );
+  }
+  elsif ( $state eq 'stopped' ) {
+    mark( cp => $ticket );
+  }
+}
+
+sub stop {
+  my $ticket = shift;
+  my $state  = state( $ticket );
+  if ( $state eq 'working' ) {
+    mark( stopped => $ticket );
+    mention( "stopped work on $ticket" );
+  }
+  else {
+    mention( "you weren't working on $ticket ($state)" );
+  }
+}
+
+sub get_ticket {
+  my @args = @_;
+  my $ticket 
+   = shift @args
+   || $wrk->{current}
+   || die "No ticket specified and no active ticket\n";
+  $ticket =~ s/ ^    #//;
+  die "Ticket number \"$ticket\" is not numeric\n"
+   unless $ticket =~ /^\d+$/;
+  die "Too many args - expected a single ticket number\n"
+   if @args;
+  return $ticket;
+## Please see file perltidy.ERR
+}
+
+sub get_real_ticket {
+  my $ticket = get_ticket( @_ );
+  die "No ticket $ticket\n" unless $wrk->{ticket}{$ticket};
+  return $ticket;
+}
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
 
