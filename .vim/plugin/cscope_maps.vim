@@ -26,7 +26,7 @@
 
 " This tests to see if vim was configured with the '--enable-cscope' option
 " when it was compiled.  If it wasn't, time to recompile vim... 
-if 0 && has("cscope")
+if has("cscope")
 
     """"""""""""" Standard cscope/vim boilerplate
 
