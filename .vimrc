@@ -36,7 +36,7 @@ set backspace=indent,eol,start
 "set foldlevel=100
 
 set laststatus=2
-set statusline=%f%4(%m%)%r%h%w\ format:\ %{&ff}\ type:\ %y\ loc:\ %4l,\ %3v,\ %3p%%\ lines:\ %L\ buf:\ %n\ %a
+set statusline=%f%4(%m%)%r%h%w\ format:\ %{&ff}\ type:\ %y\ %4l/%L(%3p%%),\ %3v
 
 set formatprg=perl\ -MText::Autoformat\ -e'autoformat'
 set formatoptions=qro
