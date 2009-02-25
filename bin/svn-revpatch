@@ -65,7 +65,7 @@ sub svn_patch {
 
   if ( $set->is_simple ) {
     my ( $lo, $hi ) = $set->iterate_runs->();
-    mention( "Diffing to get patch" );
+    mention( "Diffing to get patch\n" );
     system 'svn', 'diff', r( $lo - 1, $hi ), $url;
   }
   else {
