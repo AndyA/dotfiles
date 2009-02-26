@@ -22,7 +22,7 @@ my %opt = (
 my %verb = (
   list => {
     action => sub {
-      print "Working on...\n";
+      die "Not implemented\n";
     },
     desc => sub {
       return undef, "List all known tickets.";
@@ -43,7 +43,7 @@ my %verb = (
       }
     },
     desc => sub {
-      return '[<ticket #>]',
+      return undef,
        "Do an svn commit with prefilled commit message.",
        "Defaults to the last ticket you worked on.";
     },
@@ -170,7 +170,7 @@ sub state {
   return $wrk->{ticket}{$ticket}[-1][0] || 'missing';
 }
 
-# Get all the active time slots since the last 'cp' mark
+# Get all the active time slots since the last 'commit' mark
 sub elapsed {
   my $ticket = shift;
   my @marks
@@ -189,7 +189,7 @@ sub elapsed {
        unless $lt;
       unshift @slots, [ $time, $lt ];
     }
-    elsif ( $state eq 'cp' ) {
+    elsif ( $state eq 'commit' ) {
       last;
     }
     else {
@@ -218,13 +218,13 @@ sub checkpoint {
   my $state = state( $ticket );
   if ( $state eq 'working' ) {
     mark( stopped => $ticket );
-    mark( cp      => $ticket, @extra );
+    mark( commit  => $ticket, @extra );
     mark( working => $ticket );
   }
   elsif ( $state eq 'stopped' ) {
-    mark( cp => $ticket );
+    mark( commit => $ticket );
   }
-  elsif ( $state eq 'cp' ) {
+  elsif ( $state eq 'commit' ) {
     push @{ $wrk->{ticket}{$ticket}[-1] }, @extra;
   }
 }
