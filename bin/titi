@@ -223,6 +223,9 @@ sub checkpoint {
   elsif ( $state eq 'stopped' ) {
     mark( cp => $ticket );
   }
+  elsif ( $state eq 'cp' ) {
+    push @{ $wrk->{ticket}{$ticket}[-1] }, @extra;
+  }
 }
 
 sub stop {
