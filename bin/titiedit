@@ -3,7 +3,7 @@
 file=$1
 temp="$file.tmp"
 echo > $temp
-titi get >> $temp
+titi get --nowrite >> $temp
 cat $file >> $temp
 mv $temp $file
 $TITI_EDITOR $*

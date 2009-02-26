@@ -16,6 +16,7 @@ my $wrk = -f CONFIG ? LoadFile( CONFIG ) : {};
 my %opt = (
   verbose => 0,
   help    => 0,
+  nowrite => 0,
 );
 
 my %verb = (
@@ -32,9 +33,13 @@ my %verb = (
   },
   commit => {
     action => sub {
+      my $ticket = $wrk->{current} || die "No current ticket\n";
       local $ENV{TITI_EDITOR} = $ENV{EDITOR} || 'vim';
       local $ENV{EDITOR} = 'titiedit';
-      system 'svn', 'commit', @_;
+      unless ( system 'svn', 'commit', @_ ) {
+        my $info = svn_info();
+        checkpoint( $ticket, $info->{Revision} );
+      }
     },
     desc => sub {
       return '[<ticket #>]',
@@ -119,6 +124,7 @@ my %verb = (
 my %optspec = (
   'v|verbose' => \$opt{verbose},
   'h|help'    => \$opt{help},
+  'N|nowrite' => \$opt{nowrite},
 );
 
 my $act = shift @ARGV or bail( 'No verb specified' );
@@ -132,7 +138,7 @@ GetOptions( %optspec ) or bail();
 
 $vb->{action}->( @ARGV );
 
-DumpFile( CONFIG, $wrk );
+DumpFile( CONFIG, $wrk ) unless $opt{nowrite};
 
 sub bail {
   my $msg = join '', @_;
@@ -202,16 +208,16 @@ sub elapsed {
 }
 
 sub mark {
-  my ( $state, $ticket ) = @_;
-  push @{ $wrk->{ticket}{$ticket} }, [ $state => $^T ];
+  my ( $state, $ticket, @extra ) = @_;
+  push @{ $wrk->{ticket}{$ticket} }, [ $state => $^T, @extra ];
 }
 
 sub checkpoint {
-  my $ticket = shift;
-  my $state  = state( $ticket );
+  my ( $ticket, @extra ) = @_;
+  my $state = state( $ticket );
   if ( $state eq 'working' ) {
     mark( stopped => $ticket );
-    mark( cp      => $ticket );
+    mark( cp      => $ticket, @extra );
     mark( working => $ticket );
   }
   elsif ( $state eq 'stopped' ) {
@@ -243,13 +249,49 @@ sub get_ticket {
   die "Too many args - expected a single ticket number\n"
    if @args;
   return $ticket;
-## Please see file perltidy.ERR
 }
 
 sub get_real_ticket {
   my $ticket = get_ticket( @_ );
   die "No ticket $ticket\n" unless $wrk->{ticket}{$ticket};
   return $ticket;
+}
+
+sub tidy {
+  my $s = shift;
+  $s =~ s/^\s+//;
+  $s =~ s/\s+$//;
+  return $s;
+}
+
+sub with_cmd {
+  my ( @cmd ) = @_;
+  my $code = pop @cmd;
+  my $cmd = join ' ', @cmd;
+  open my $sh, '-|', @cmd or die "Can't $cmd ($!)\n";
+  while ( <$sh> ) { chomp; $code->() }
+  close $sh or warn "Can't $cmd ($!) -- at exit\n";
+  return $?;
+}
+
+sub with_svn {
+  my @cmd  = @_;
+  my $code = pop @cmd;
+  my $info = {};
+  with_cmd(
+    svn => @cmd,
+    sub {
+      return if /^\s*$/;
+      my ( $k, $v ) = $code->();
+      $k =~ s/\s+//g;
+      $info->{$k} = $v;
+    }
+  );
+  return $info;
+}
+
+sub svn_info {
+  with_svn( info => @_, sub { map tidy( $_ ), split /:/, $_, 2 } );
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
