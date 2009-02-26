@@ -76,7 +76,7 @@ my %verb = (
         push @rev, $1 if /^Committed\srevision\s(\d+)/;
       }
       close $ch or die "$cmd failed\n";
-      checkpoint( $ticket, @rev ) unless $?;
+      checkpoint( $ticket, @rev ) if @rev;
     },
     desc => sub {
       return undef,
