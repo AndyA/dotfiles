@@ -1,9 +1,16 @@
 #!/bin/sh
 
 file=$1
-temp="$file.tmp"
+temp="$file.work"
+orig="$file.orig"
 echo > $temp
 titi get --nowrite >> $temp
 cat $file >> $temp
-mv $temp $file
+mv $file $orig
+cp $temp $file
 $TITI_EDITOR $* < /dev/tty > /dev/tty 2> /dev/tty
+
+# If we didn't edit the message restore svn's original so it doesn't
+# see an edit
+diff -q $temp $file > /dev/null && mv $orig $file
+rm -f $temp $orig

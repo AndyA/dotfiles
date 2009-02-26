@@ -310,6 +310,7 @@ sub elapsed {
   return slots_to_seconds( @slots );
 }
 
+
 sub total { elapsed( shift(), 'nostop' ) }
 
 sub mark {
