@@ -26,10 +26,12 @@ my %verb = (
       my $worked = total( $ticket );
       my $commit = elapsed( $ticket );
       my $status = get_state( $ticket );
-      print "Ticket:      $ticket\n";
-      print "Worked:      ", fmt_duration( $worked, 2 ), "\n";
-      print "Last commit: ", fmt_duration( $commit, 2 ), " ago\n";
-      print "State:       $status\n";
+      print table(
+        [ 'Ticket:', $ticket ],
+        [ 'Total work:',             fmt_duration( $worked, 2 ) ],
+        [ 'Work since last commit:', fmt_duration( $commit, 2 ) ],
+        [ 'State:',                  $status ]
+      );
     },
     desc => sub {
       return undef, "Get current status.";
@@ -173,6 +175,24 @@ DumpFile( CONFIG, $wrk ) unless $opt{nowrite};
 sub bail {
   my $msg = join '', @_;
   die "$msg\n";
+}
+
+sub table {
+  my @row   = @_;
+  my @width = ();
+  for my $r ( @row ) {
+    for my $c ( 0 .. $#$r ) {
+      my $len = length $r->[$c];
+      $width[$c] = $len if ( $width[$c] || 0 ) < $len;
+    }
+  }
+  $width[-1] = '';
+  my $fmt = join ' ', map "%-${_}s", @width;
+  my @table = ();
+  for my $r ( @row ) {
+    push @table, sprintf $fmt, @$r;
+  }
+  return join "\n", @table, '';
 }
 
 sub abbrev {
@@ -323,7 +343,7 @@ sub checkpoint {
 
 sub stop {
   my $ticket = shift;
-  my $state  = state( $ticket );
+  my $state  = get_state( $ticket );
   if ( $state eq 'working' ) {
     mark( stopped => $ticket );
     mention( "stopped work on $ticket" );
