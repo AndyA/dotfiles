@@ -269,7 +269,7 @@ sub marks_for {
   my $ticket = shift;
   my @marks = @{ $wrk->{ticket}{$ticket} || [ [ 'working', $^T ] ] };
   push @marks, [ 'stopped', $^T ]
-   unless $marks[0][0] eq 'stopped';
+   unless $marks[-1][0] eq 'stopped';
   return @marks;
 }
 
@@ -289,6 +289,7 @@ sub total {
       push @slots, [ $lt, $time ];
     }
   }
+  print Dumper(\@slots);
   return @slots if wantarray;
   return slots_to_seconds( @slots );
 }
