@@ -111,7 +111,7 @@ my %verb = (
       return;
     },
   },
-  stop => {
+  break => {
     action => sub {
       no_args( @_ );
       if ( my $cur = $wrk->{current} ) {
@@ -289,7 +289,6 @@ sub total {
       push @slots, [ $lt, $time ];
     }
   }
-  print Dumper(\@slots);
   return @slots if wantarray;
   return slots_to_seconds( @slots );
 }
