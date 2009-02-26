@@ -339,11 +339,8 @@ sub checkpoint {
     mark( commit  => $ticket, @extra );
     mark( working => $ticket );
   }
-  elsif ( $state eq 'stopped' ) {
-    mark( commit => $ticket );
-  }
-  elsif ( $state eq 'commit' ) {
-    push @{ $wrk->{ticket}{$ticket}[-1] }, @extra;
+  else {
+    mark( commit => $ticket, @extra );
   }
 }
 
