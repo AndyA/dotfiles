@@ -1,4 +1,13 @@
 #!/usr/bin/env perl
+#
+# TODO
+#
+# Implement reports.
+#
+# Make it possible to
+#  * backdate work/break
+#  * swap between current/previous ticket
+#  * purge old data
 
 use strict;
 use warnings;
@@ -6,16 +15,18 @@ use warnings;
 use Data::Dumper;
 use Getopt::Long;
 use POSIX qw(strftime);
+use Text::Wrap qw( wrap );
 use Time::ParseDate;
 use YAML qw( DumpFile LoadFile );
 
-use constant CONFIG => glob( '~/.titi' );
+use constant CONFIG  => glob( '~/.titi' );
+use constant STDHELP => "Type 'titi help' for a "
+ . "list of supported subcommands and their options.";
 
 my $wrk = -f CONFIG ? LoadFile( CONFIG ) : {};
 
 my %opt = (
   verbose => 0,
-  help    => 0,
   nowrite => 0,
 );
 
@@ -34,29 +45,27 @@ my %verb = (
       );
     },
     desc => sub {
-      return undef, "Get current status.";
+      return '[<ticket-id>]', "Get current status.";
     },
     opts => sub {
       return;
     },
   },
-  today => {
-    action => sub {
-      die "Not implemented\n";
-    },
-    desc => sub {
-      return undef, "What have you done today?";
+  help => {
+    action => sub { help( @_ ) },
+    desc   => sub {
+      return undef, "Get help.";
     },
     opts => sub {
       return;
     },
   },
-  list => {
+  report => {
     action => sub {
       die "Not implemented\n";
     },
     desc => sub {
-      return undef, "List all known tickets.";
+      return "<report-id> ...", "Generate reports.";
     },
     opts => sub {
       return;
@@ -64,7 +73,7 @@ my %verb = (
   },
   commit => {
     action => sub {
-      my $ticket = $wrk->{current} || die "No current ticket\n";
+      my $ticket = $wrk->{current} || bail( "No current ticket" );
       local $ENV{TITI_EDITOR} = $ENV{EDITOR} || 'vim';
       local $ENV{EDITOR} = 'titiedit';
       my @cmd = ( 'svn', 'commit', @_ );
@@ -83,8 +92,20 @@ my %verb = (
     },
     desc => sub {
       return undef,
-        "Do an svn commit with prefilled commit message.",
-        "Defaults to the last ticket you worked on.";
+       "Do an svn commit with prefilled commit message.",
+       "There must be a currently selected ticket. "
+       . "Any additional arguments are passed through to svn commit.",
+       "If the commit is successful the current ticket will be "
+       . "checkpointed - so that successive commits record the "
+       . "time since the previous commit.",
+       [
+        '-f',
+        '--foo',
+        'this is the description of the foo command '
+         . '(which is a really useful command, you know). Do you like it?'
+       ],
+       [ '',   '--bar', 'something else' ],
+       [ '-v', '',      'verbose. say lots.' ];
     },
     opts => sub {
       return;
@@ -98,9 +119,9 @@ my %verb = (
       checkpoint( $ticket );
     },
     desc => sub {
-      return '[<ticket #>]',
-        "Get elapsed time on ticket since last get.",
-        "Defaults to the last ticket you worked on.";
+      return '[<ticket-id>]',
+       "Get elapsed time on ticket since last get.",
+       "Defaults to the last ticket you worked on.";
     },
     opts => sub {
       return;
@@ -111,9 +132,9 @@ my %verb = (
       die "Not implemented\n";
     },
     desc => sub {
-      return '[<ticket #>]',
-        "Forget most recent get on a ticket.",
-        "Defaults to the last ticket you worked on.";
+      return '[<ticket-id>]',
+       "Forget most recent get on a ticket.",
+       "Defaults to the last ticket you worked on.";
     },
     opts => sub {
       return;
@@ -151,9 +172,9 @@ my %verb = (
       }
     },
     desc => sub {
-      return '[<ticket #>]',
-        "Start work on a ticket. ",
-        "Defaults to the last ticket you worked on.";
+      return '[<ticket-id>]',
+       "Start work on a ticket. ",
+       "Defaults to the last ticket you worked on.";
     },
     opts => sub {
       return;
@@ -163,26 +184,36 @@ my %verb = (
 
 my %optspec = (
   'v|verbose' => \$opt{verbose},
-  'h|help'    => \$opt{help},
   'N|nowrite' => \$opt{nowrite},
 );
 
-my $act = shift @ARGV or bail( 'No verb specified' );
+my @opthelp = (
+  [ '-v', '--verbose', 'Be verbose.' ],
+  [
+    '-N',
+    '--nowrite',
+    "Do not update ~/.titi. "
+     . "Use to run commands without altering the saved state."
+  ]
+);
+
+my $act = shift @ARGV
+ or bail( "No subcommand specified. ", STDHELP );
 my $vb = $verb{ abbrev( \%verb, $act ) };
 
 %optspec = ( %optspec, $vb->{opts}->() )
-  if $vb->{opts};
+ if $vb->{opts};
 
 Getopt::Long::Configure( "bundling" );
-GetOptions( %optspec ) or bail();
+GetOptions( %optspec ) or bail( STDHELP );
 
 $vb->{action}->( @ARGV );
 
 DumpFile( CONFIG, $wrk ) unless $opt{nowrite};
 
 sub bail {
-  my $msg = join '', @_;
-  die "$msg\n";
+  $Text::Wrap::columns = 68;
+  die wrap( '', '', join '', @_ ), "\n";
 }
 
 sub table {
@@ -206,8 +237,9 @@ sub table {
 sub abbrev {
   my ( $hash, $got ) = @_;
   my @hit = grep /^\Q$got/, keys %$hash;
-  die "No action matches $got\n" unless @hit;
-  die "$got is ambiguous: ", ( join ', ', sort @hit ), "\n" if @hit > 1;
+  bail( "No subcommand matches $got\n", STDHELP ) unless @hit;
+  bail( "$got is ambiguous: ", ( join ', ', sort @hit ), "\n", STDHELP )
+   if @hit > 1;
   return $hit[0];
 }
 
@@ -248,7 +280,7 @@ sub fmt_duration {
     }
   }
   return join ', ',
-    map { join ' ', $_->[0], $_->[0] == 1 ? $_->[1] : $_->[2] } @parts;
+   map { join ' ', $_->[0], $_->[0] == 1 ? $_->[1] : $_->[2] } @parts;
 }
 
 sub mention {
@@ -257,7 +289,7 @@ sub mention {
 }
 
 sub no_args {
-  die "No args allowed\n" if @_;
+  bail( "No args allowed" ) if @_;
 }
 
 sub get_state {
@@ -281,7 +313,7 @@ sub marks_for {
   my $ticket = shift;
   my @marks = @{ $wrk->{ticket}{$ticket} || [ [ 'working', $^T ] ] };
   push @marks, [ 'stopped', $^T ]
-    unless $marks[-1][0] eq 'stopped';
+   unless $marks[-1][0] eq 'stopped';
   return @marks;
 }
 
@@ -298,7 +330,7 @@ sub elapsed {
     }
     elsif ( $state eq 'working' ) {
       die "*** No last time - shouldn't happen"
-        unless $lt;
+       unless $lt;
       unshift @slots, [ $time, $lt ];
     }
     elsif ( $state eq 'commit' ) {
@@ -348,19 +380,76 @@ sub stop {
 sub get_ticket {
   my @args = @_;
   my $ticket 
-    = shift @args
-    || $wrk->{current}
-    || die "No ticket specified and no active ticket\n";
+   = shift @args
+   || $wrk->{current}
+   || bail( "No ticket specified and no active ticket" );
   $ticket =~ s/^#//;
-  die "Too many args - expected a single ticket number\n"
-    if @args;
+  bail( "Too many args - expected a single ticket number" )
+   if @args;
   return $ticket;
 }
 
 sub get_real_ticket {
   my $ticket = get_ticket( @_ );
-  die "No ticket $ticket\n" unless $wrk->{ticket}{$ticket};
+  bail( "No ticket $ticket" ) unless $wrk->{ticket}{$ticket};
   return $ticket;
+}
+
+sub fmt_opt {
+  my ( $tbl, $spec ) = @_;
+  local $Text::Wrap::columns = 50;
+  my ( $short, $long, $desc ) = @$spec;
+  $short .= ',' if $short and $long;
+  my @lines = split /\n/, wrap( '', '', $desc );
+  push @$tbl, [ ' ', $short, $long, ':', shift @lines ];
+  push @$tbl, map { [ '', '', '', '', $_ ] } @lines;
+}
+
+sub help {
+  my @args   = @_;
+  my $indent = '  ';
+  if ( @args ) {
+    my $v = shift @args;
+    bail( "usage: titi help <subcommand>" )
+     if @args;
+    my $vv = abbrev( \%verb, $v );
+    my ( $args, $desc, @paras ) = $verb{$vv}{desc}->();
+    print "$vv: $desc\n";
+    print "usage: titi ", join( ' ', grep defined, $vv, $args ), "\n";
+    my @text   = ();
+    my @table  = ();
+    my @global = ();
+
+    for my $p ( @paras ) {
+      if ( 'ARRAY' eq ref $p ) {
+        fmt_opt( \@table, $p );
+      }
+      else {
+        local $Text::Wrap::columns = 68;
+        push @text, wrap( $indent, $indent, $p );
+      }
+    }
+
+    fmt_opt( \@global, $_ ) for @opthelp;
+
+    print "\n", join( "\n\n", @text ), "\n" if @text;
+    print "\nValid options:\n", table( @table ) if @table;
+    print "\nGlobal options:\n", table( @global ), "\n";
+  }
+  else {
+    my @table = ();
+
+    for my $v ( sort keys %verb ) {
+      my ( $args, $desc ) = $verb{$v}{desc}->();
+      push @table, [ $indent, $v, $args || '', $desc ];
+    }
+
+    print "usage: titi <subcommand> [options] [args]\n\n",
+     "Subcommands:\n",
+     table( @table ),
+     "\nType titi 'help <subcommand>' for help ",
+     "on a specific command.\n";
+  }
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
