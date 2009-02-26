@@ -214,7 +214,7 @@ sub fmt_time {
 }
 
 sub fmt_human {
-  sprintf '%s (%s)', fmt_duration(@_), fmt_hours(@_);
+  sprintf '%s (%s)', fmt_duration( @_ ), fmt_hours( @_ );
 }
 
 sub fmt_hours {
@@ -282,31 +282,13 @@ sub marks_for {
   return @marks;
 }
 
-sub total {
-  my $ticket = shift;
-  my @marks  = marks_for( $ticket );
-  my @slots  = ();
-  my $lt;
-  for my $mark ( @marks ) {
-    my ( $state, $time ) = @$mark;
-    if ( $state eq 'working' ) {
-      $lt = $time;
-    }
-    elsif ( $state eq 'stopped' ) {
-      die "*** No last time - shouldn't happen"
-       unless $lt;
-      push @slots, [ $lt, $time ];
-    }
-  }
-  return @slots if wantarray;
-  return slots_to_seconds( @slots );
-}
+sub total { elapsed( shift(), 'nostop' ) }
 
 # Get all the active time slots since the last 'commit' mark
 sub elapsed {
-  my $ticket = shift;
-  my @marks  = reverse marks_for( $ticket );
-  my @slots  = ();
+  my ( $ticket, $nostop ) = @_;
+  my @marks = reverse marks_for( $ticket );
+  my @slots = ();
   my $lt;
   for my $mark ( @marks ) {
     my ( $state, $time ) = @$mark;
@@ -319,7 +301,7 @@ sub elapsed {
       unshift @slots, [ $time, $lt ];
     }
     elsif ( $state eq 'commit' ) {
-      last;
+      last unless $nostop;
     }
     else {
       die "*** Bad state: $state - shouldn't happen";
