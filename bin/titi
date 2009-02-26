@@ -241,7 +241,7 @@ sub fmt_duration {
     while ( @parts > $prec ) {
       my $drop = pop @parts;
       my ( $sz, $si, $pl, $half ) = @$drop;
-      $parts[-1][0]++ if $sz >= $half;
+      $parts[-1][0]++ if @parts && $sz >= $half;
     }
   }
   return join ', ',
