@@ -282,8 +282,6 @@ sub marks_for {
   return @marks;
 }
 
-sub total { elapsed( shift(), 'nostop' ) }
-
 # Get all the active time slots since the last 'commit' mark
 sub elapsed {
   my ( $ticket, $nostop ) = @_;
@@ -311,6 +309,8 @@ sub elapsed {
   return @slots if wantarray;
   return slots_to_seconds( @slots );
 }
+
+sub total { elapsed( shift(), 'nostop' ) }
 
 sub mark {
   my ( $state, $ticket, @extra ) = @_;
