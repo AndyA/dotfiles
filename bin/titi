@@ -214,6 +214,7 @@ sub fmt_hours {
 
 sub fmt_duration {
   my ( $dur, $prec ) = @_;
+  return 'none' if $dur == 0;
   my @units = (
     [ 60,      'second', 'seconds' ],
     [ 60,      'minute', 'minutes' ],
