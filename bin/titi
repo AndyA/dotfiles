@@ -76,12 +76,15 @@ my %verb = (
         push @rev, $1 if /^Committed\srevision\s(\d+)/;
       }
       close $ch or die "$cmd failed\n";
-      checkpoint( $ticket, @rev ) if @rev;
+      if ( @rev ) {
+        checkpoint( $ticket, @rev );
+        mention( "$ticket committed" );
+      }
     },
     desc => sub {
       return undef,
-       "Do an svn commit with prefilled commit message.",
-       "Defaults to the last ticket you worked on.";
+        "Do an svn commit with prefilled commit message.",
+        "Defaults to the last ticket you worked on.";
     },
     opts => sub {
       return;
@@ -96,8 +99,8 @@ my %verb = (
     },
     desc => sub {
       return '[<ticket #>]',
-       "Get elapsed time on ticket since last get.",
-       "Defaults to the last ticket you worked on.";
+        "Get elapsed time on ticket since last get.",
+        "Defaults to the last ticket you worked on.";
     },
     opts => sub {
       return;
@@ -109,8 +112,8 @@ my %verb = (
     },
     desc => sub {
       return '[<ticket #>]',
-       "Forget most recent get on a ticket.",
-       "Defaults to the last ticket you worked on.";
+        "Forget most recent get on a ticket.",
+        "Defaults to the last ticket you worked on.";
     },
     opts => sub {
       return;
@@ -149,8 +152,8 @@ my %verb = (
     },
     desc => sub {
       return '[<ticket #>]',
-       "Start work on a ticket. ",
-       "Defaults to the last ticket you worked on.";
+        "Start work on a ticket. ",
+        "Defaults to the last ticket you worked on.";
     },
     opts => sub {
       return;
@@ -168,7 +171,7 @@ my $act = shift @ARGV or bail( 'No verb specified' );
 my $vb = $verb{ abbrev( \%verb, $act ) };
 
 %optspec = ( %optspec, $vb->{opts}->() )
- if $vb->{opts};
+  if $vb->{opts};
 
 Getopt::Long::Configure( "bundling" );
 GetOptions( %optspec ) or bail();
@@ -245,7 +248,7 @@ sub fmt_duration {
     }
   }
   return join ', ',
-   map { join ' ', $_->[0], $_->[0] == 1 ? $_->[1] : $_->[2] } @parts;
+    map { join ' ', $_->[0], $_->[0] == 1 ? $_->[1] : $_->[2] } @parts;
 }
 
 sub mention {
@@ -278,7 +281,7 @@ sub marks_for {
   my $ticket = shift;
   my @marks = @{ $wrk->{ticket}{$ticket} || [ [ 'working', $^T ] ] };
   push @marks, [ 'stopped', $^T ]
-   unless $marks[-1][0] eq 'stopped';
+    unless $marks[-1][0] eq 'stopped';
   return @marks;
 }
 
@@ -295,7 +298,7 @@ sub elapsed {
     }
     elsif ( $state eq 'working' ) {
       die "*** No last time - shouldn't happen"
-       unless $lt;
+        unless $lt;
       unshift @slots, [ $time, $lt ];
     }
     elsif ( $state eq 'commit' ) {
@@ -345,12 +348,12 @@ sub stop {
 sub get_ticket {
   my @args = @_;
   my $ticket 
-   = shift @args
-   || $wrk->{current}
-   || die "No ticket specified and no active ticket\n";
+    = shift @args
+    || $wrk->{current}
+    || die "No ticket specified and no active ticket\n";
   $ticket =~ s/^#//;
   die "Too many args - expected a single ticket number\n"
-   if @args;
+    if @args;
   return $ticket;
 }
 
