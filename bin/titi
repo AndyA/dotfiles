@@ -22,7 +22,14 @@ my %opt = (
 my %verb = (
   status => {
     action => sub {
-      die "Not implemented\n";
+      my $ticket = get_real_ticket( @_ );
+      my $worked = total( $ticket );
+      my $commit = elapsed( $ticket );
+      my $status = get_state( $ticket );
+      print "Ticket:      $ticket\n";
+      print "Worked:      ", fmt_duration( $worked, 2 ), "\n";
+      print "Last commit: ", fmt_duration( $commit, 2 ), " ago\n";
+      print "State:       $status\n";
     },
     desc => sub {
       return undef, "Get current status.";
@@ -119,11 +126,11 @@ my %verb = (
       return;
     },
   },
-  start => {
+  work => {
     action => sub {
       my $ticket = get_ticket( @_ );
       my $cur = $wrk->{current} || 0;
-      if ( $ticket == $cur && state( $cur ) eq 'working' ) {
+      if ( $ticket == $cur && get_state( $cur ) eq 'working' ) {
         mention( "you are already working on $ticket" );
       }
       else {
@@ -185,6 +192,32 @@ sub fmt_hours {
   sprintf '%.2f', shift() / 3600;
 }
 
+sub fmt_duration {
+  my ( $dur, $prec ) = @_;
+  my @units = (
+    [ 60,      'second', 'seconds' ],
+    [ 60,      'minute', 'minutes' ],
+    [ 24,      'hour',   'hours' ],
+    [ 7,       'day',    'days' ],
+    [ 1000000, 'week',   'weeks' ],
+  );
+  my @parts = ();
+  for my $u ( @units ) {
+    my ( $sz, $si, $pl ) = @$u;
+    unshift @parts, [ $dur % $sz, $si, $pl, $sz / 2 ];
+    $dur = int( $dur / $sz ) or last;
+  }
+  if ( defined $prec ) {
+    while ( @parts > $prec ) {
+      my $drop = pop @parts;
+      my ( $sz, $si, $pl, $half ) = @$drop;
+      $parts[-1][0]++ if $sz >= $half;
+    }
+  }
+  return join ', ',
+   map { join ' ', $_->[0], $_->[0] == 1 ? $_->[1] : $_->[2] } @parts;
+}
+
 sub mention {
   my $msg = join '', @_;
   print fmt_time(), " $msg\n";
@@ -194,20 +227,56 @@ sub no_args {
   die "No args allowed\n" if @_;
 }
 
-sub state {
+sub get_state {
   my $ticket = shift;
   return 'missing' unless @{ $wrk->{ticket}{$ticket} || [] };
   return $wrk->{ticket}{$ticket}[-1][0] || 'missing';
 }
 
+sub slots_to_seconds {
+  my @slots = @_;
+  my $total = 0;
+  for my $slot ( @slots ) {
+    my ( $from, $to ) = @$slot;
+    $total += $to - $from - 1;
+  }
+
+  return $total;
+}
+
+sub marks_for {
+  my $ticket = shift;
+  my @marks = @{ $wrk->{ticket}{$ticket} || [ [ 'working', $^T ] ] };
+  push @marks, [ 'stopped', $^T ]
+   unless $marks[0][0] eq 'stopped';
+  return @marks;
+}
+
+sub total {
+  my $ticket = shift;
+  my @marks  = marks_for( $ticket );
+  my @slots  = ();
+  my $lt;
+  for my $mark ( @marks ) {
+    my ( $state, $time ) = @$mark;
+    if ( $state eq 'working' ) {
+      $lt = $time;
+    }
+    elsif ( $state eq 'stopped' ) {
+      die "*** No last time - shouldn't happen"
+       unless $lt;
+      push @slots, [ $lt, $time ];
+    }
+  }
+  return @slots if wantarray;
+  return slots_to_seconds( @slots );
+}
+
 # Get all the active time slots since the last 'commit' mark
 sub elapsed {
   my $ticket = shift;
-  my @marks
-   = reverse @{ $wrk->{ticket}{$ticket} || [ [ 'working', $^T ] ] };
-  unshift @marks, [ 'stopped', $^T ]
-   unless $marks[0][0] eq 'stopped';
-  my @slots = ();
+  my @marks  = reverse marks_for( $ticket );
+  my @slots  = ();
   my $lt;
   for my $mark ( @marks ) {
     my ( $state, $time ) = @$mark;
@@ -228,14 +297,7 @@ sub elapsed {
   }
 
   return @slots if wantarray;
-
-  my $total = 0;
-  for my $slot ( @slots ) {
-    my ( $from, $to ) = @$slot;
-    $total += $to - $from - 1;
-  }
-
-  return $total;
+  return slots_to_seconds( @slots );
 }
 
 sub mark {
@@ -245,7 +307,7 @@ sub mark {
 
 sub checkpoint {
   my ( $ticket, @extra ) = @_;
-  my $state = state( $ticket );
+  my $state = get_state( $ticket );
   if ( $state eq 'working' ) {
     mark( stopped => $ticket );
     mark( commit  => $ticket, @extra );
