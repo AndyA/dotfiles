@@ -28,8 +28,8 @@ my %verb = (
       my $status = get_state( $ticket );
       print table(
         [ 'Ticket:', $ticket ],
-        [ 'Total work:',             fmt_duration( $worked, 2 ) ],
-        [ 'Work since last commit:', fmt_duration( $commit, 2 ) ],
+        [ 'Total work:',             fmt_human( $worked, 2 ) ],
+        [ 'Work since last commit:', fmt_human( $commit, 2 ) ],
         [ 'State:',                  $status ]
       );
     },
@@ -137,7 +137,7 @@ my %verb = (
     action => sub {
       my $ticket = get_ticket( @_ );
       my $cur = $wrk->{current} || 0;
-      if ( $ticket == $cur && get_state( $cur ) eq 'working' ) {
+      if ( $ticket eq $cur && get_state( $cur ) eq 'working' ) {
         mention( "you are already working on $ticket" );
       }
       else {
@@ -211,6 +211,10 @@ sub abbrev {
 sub fmt_time {
   my $tm = shift || $^T;
   return strftime '%Y/%m/%d %H:%M:%S', localtime $tm;
+}
+
+sub fmt_human {
+  sprintf '%s (%s)', fmt_duration(@_), fmt_hours(@_);
 }
 
 sub fmt_hours {
@@ -363,8 +367,6 @@ sub get_ticket {
    || $wrk->{current}
    || die "No ticket specified and no active ticket\n";
   $ticket =~ s/ ^    #//;
-  die "Ticket number \"$ticket\" is not numeric\n"
-   unless $ticket =~ /^\d+$/;
   die "Too many args - expected a single ticket number\n"
    if @args;
   return $ticket;
@@ -374,43 +376,6 @@ sub get_real_ticket {
   my $ticket = get_ticket( @_ );
   die "No ticket $ticket\n" unless $wrk->{ticket}{$ticket};
   return $ticket;
-}
-
-sub tidy {
-  my $s = shift;
-  $s =~ s/^\s+//;
-  $s =~ s/\s+$//;
-  return $s;
-}
-
-sub with_cmd {
-  my ( @cmd ) = @_;
-  my $code = pop @cmd;
-  my $cmd = join ' ', @cmd;
-  open my $sh, '-|', @cmd or die "Can't $cmd ($!)\n";
-  while ( <$sh> ) { chomp; $code->() }
-  close $sh or warn "Can't $cmd ($!) -- at exit\n";
-  return $?;
-}
-
-sub with_svn {
-  my @cmd  = @_;
-  my $code = pop @cmd;
-  my $info = {};
-  with_cmd(
-    svn => @cmd,
-    sub {
-      return if /^\s*$/;
-      my ( $k, $v ) = $code->();
-      $k =~ s/\s+//g;
-      $info->{$k} = $v;
-    }
-  );
-  return $info;
-}
-
-sub svn_info {
-  with_svn( info => @_, sub { map tidy( $_ ), split /:/, $_, 2 } );
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
