@@ -20,6 +20,28 @@ my %opt = (
 );
 
 my %verb = (
+  status => {
+    action => sub {
+      die "Not implemented\n";
+    },
+    desc => sub {
+      return undef, "Get current status.";
+    },
+    opts => sub {
+      return;
+    },
+  },
+  today => {
+    action => sub {
+      die "Not implemented\n";
+    },
+    desc => sub {
+      return undef, "What have you done today?";
+    },
+    opts => sub {
+      return;
+    },
+  },
   list => {
     action => sub {
       die "Not implemented\n";
@@ -129,7 +151,7 @@ my %optspec = (
 );
 
 my $act = shift @ARGV or bail( 'No verb specified' );
-my $vb  = $verb{$act} or bail( "Unknown action: $act" );
+my $vb = $verb{ abbrev( \%verb, $act ) };
 
 %optspec = ( %optspec, $vb->{opts}->() )
  if $vb->{opts};
@@ -144,6 +166,14 @@ DumpFile( CONFIG, $wrk ) unless $opt{nowrite};
 sub bail {
   my $msg = join '', @_;
   die "$msg\n";
+}
+
+sub abbrev {
+  my ( $hash, $got ) = @_;
+  my @hit = grep /^\Q$got/, keys %$hash;
+  die "No action matches $got\n" unless @hit;
+  die "$got is ambiguous: ", ( join ', ', sort @hit ), "\n" if @hit > 1;
+  return $hit[0];
 }
 
 sub fmt_time {
