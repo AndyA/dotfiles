@@ -37,7 +37,8 @@ my %verb = (
       local $ENV{TITI_EDITOR} = $ENV{EDITOR} || 'vim';
       local $ENV{EDITOR} = 'titiedit';
       unless ( system 'svn', 'commit', @_ ) {
-        my $info = svn_info();
+        my $local_info = svn_info();
+        my $info       = svn_info( $local_info->{URL} );
         checkpoint( $ticket, $info->{Revision} );
       }
     },
