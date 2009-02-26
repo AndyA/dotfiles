@@ -185,7 +185,8 @@ my @opthelp = (
   [
     '-N',
     '--nowrite',
-    "Do not update ~/.titi. "
+    "Do not update '" 
+     . CONFIG . "'. "
      . "Use to run commands without altering the saved state."
   ]
 );
