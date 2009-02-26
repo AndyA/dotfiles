@@ -25,7 +25,10 @@ use constant STDHELP => "Type 'titi help' for a "
 
 my $wrk = -f CONFIG ? LoadFile( CONFIG ) : {};
 
-my %opt = ( nowrite => 0, );
+my %opt = (
+  quiet   => 0,
+  nowrite => 0,
+);
 
 my %verb = (
   status => {
@@ -171,9 +174,13 @@ my %verb = (
   },
 );
 
-my %optspec = ( 'N|nowrite' => \$opt{nowrite}, );
+my %optspec = (
+  'q|quiet'   => \$opt{quiet},
+  'N|nowrite' => \$opt{nowrite},
+);
 
 my @opthelp = (
+  [ '-q', '--quiet', 'Say as little as possible.' ],
   [
     '-N',
     '--nowrite',
@@ -269,6 +276,7 @@ sub fmt_duration {
 }
 
 sub mention {
+  return if $opt{quiet};
   my $msg = join '', @_;
   print fmt_time(), " $msg\n";
 }
@@ -386,8 +394,14 @@ sub fmt_opt {
   my ( $short, $long, $desc ) = @$spec;
   $short .= ',' if $short and $long;
   my @lines = split /\n/, wrap( '', '', $desc );
-  push @$tbl, [ ' ', $short, $long, ':', shift @lines ];
+  push @$tbl, [ '  ', $short, $long, ':', shift @lines ];
   push @$tbl, map { [ '', '', '', '', $_ ] } @lines;
+}
+
+sub globals {
+  my @global = ();
+  fmt_opt( \@global, $_ ) for @opthelp;
+  return "\nGlobal options:\n", table( @global ), "\n";
 }
 
 sub help {
@@ -401,9 +415,8 @@ sub help {
     my ( $args, $desc, @paras ) = $verb{$vv}{desc}->();
     print "$vv: $desc\n";
     print "usage: titi ", join( ' ', grep defined, $vv, $args ), "\n";
-    my @text   = ();
-    my @table  = ();
-    my @global = ();
+    my @text  = ();
+    my @table = ();
 
     for my $p ( @paras ) {
       if ( 'ARRAY' eq ref $p ) {
@@ -415,11 +428,9 @@ sub help {
       }
     }
 
-    fmt_opt( \@global, $_ ) for @opthelp;
-
     print "\n", join( "\n\n", @text ), "\n" if @text;
     print "\nValid options:\n", table( @table ) if @table;
-    print "\nGlobal options:\n", table( @global ), "\n";
+    print globals();
   }
   else {
     my @table = ();
@@ -431,8 +442,8 @@ sub help {
 
     print "usage: titi <subcommand> [options] [args]\n\n",
      "Subcommands:\n",
-     table( @table ),
-     "\nType titi 'help <subcommand>' for help ",
+     table( @table ), globals(),
+     "Type titi 'help <subcommand>' for help ",
      "on a specific command.\n";
   }
 }
