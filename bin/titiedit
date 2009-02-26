@@ -6,4 +6,4 @@ echo > $temp
 titi get --nowrite >> $temp
 cat $file >> $temp
 mv $temp $file
-$TITI_EDITOR $*
+$TITI_EDITOR $* < /dev/tty > /dev/tty 2> /dev/tty

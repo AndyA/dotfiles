@@ -67,11 +67,16 @@ my %verb = (
       my $ticket = $wrk->{current} || die "No current ticket\n";
       local $ENV{TITI_EDITOR} = $ENV{EDITOR} || 'vim';
       local $ENV{EDITOR} = 'titiedit';
-      unless ( system 'svn', 'commit', @_ ) {
-        my $local_info = svn_info();
-        my $info       = svn_info( $local_info->{URL} );
-        checkpoint( $ticket, $info->{Revision} );
+      my @cmd = ( 'svn', 'commit', @_ );
+      my $cmd = join ' ', @cmd;
+      my @rev = ();
+      open my $ch, '-|', @cmd or die "$cmd failed\n";
+      while ( <$ch> ) {
+        print;
+        push @rev, $1 if /^Committed\srevision\s(\d+)/;
       }
+      close $ch or die "$cmd failed\n";
+      checkpoint( $ticket, @rev ) unless $?;
     },
     desc => sub {
       return undef,
