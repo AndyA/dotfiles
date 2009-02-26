@@ -310,7 +310,6 @@ sub elapsed {
   return slots_to_seconds( @slots );
 }
 
-
 sub total { elapsed( shift(), 'nostop' ) }
 
 sub mark {
@@ -349,7 +348,7 @@ sub get_ticket {
    = shift @args
    || $wrk->{current}
    || die "No ticket specified and no active ticket\n";
-  $ticket =~ s/ ^    #//;
+  $ticket =~ s/^#//;
   die "Too many args - expected a single ticket number\n"
    if @args;
   return $ticket;
