@@ -25,10 +25,7 @@ use constant STDHELP => "Type 'titi help' for a "
 
 my $wrk = -f CONFIG ? LoadFile( CONFIG ) : {};
 
-my %opt = (
-  verbose => 0,
-  nowrite => 0,
-);
+my %opt = ( nowrite => 0, );
 
 my %verb = (
   status => {
@@ -97,15 +94,7 @@ my %verb = (
        . "Any additional arguments are passed through to svn commit.",
        "If the commit is successful the current ticket will be "
        . "checkpointed - so that successive commits record the "
-       . "time since the previous commit.",
-       [
-        '-f',
-        '--foo',
-        'this is the description of the foo command '
-         . '(which is a really useful command, you know). Do you like it?'
-       ],
-       [ '',   '--bar', 'something else' ],
-       [ '-v', '',      'verbose. say lots.' ];
+       . "time since the previous commit.";
     },
     opts => sub {
       return;
@@ -182,13 +171,9 @@ my %verb = (
   },
 );
 
-my %optspec = (
-  'v|verbose' => \$opt{verbose},
-  'N|nowrite' => \$opt{nowrite},
-);
+my %optspec = ( 'N|nowrite' => \$opt{nowrite}, );
 
 my @opthelp = (
-  [ '-v', '--verbose', 'Be verbose.' ],
   [
     '-N',
     '--nowrite',
