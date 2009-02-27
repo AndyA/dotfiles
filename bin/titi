@@ -20,6 +20,7 @@ use Time::ParseDate;
 use YAML qw( DumpFile LoadFile );
 
 use constant CONFIG  => glob( '~/.titi' );
+use constant COLUMNS => 72;
 use constant STDHELP => "Type 'titi help' for a "
  . "list of supported subcommands and their options.";
 
@@ -208,24 +209,43 @@ $vb->{action}->( @ARGV );
 DumpFile( CONFIG, $wrk ) unless $opt{nowrite};
 
 sub bail {
-  $Text::Wrap::columns = 68;
+  $Text::Wrap::columns = COLUMNS;
   die wrap( '', '', join '', @_ ), "\n";
 }
 
 sub table {
   my @row   = @_;
   my @width = ();
+  my %opts  = ();
   for my $r ( @row ) {
-    for my $c ( 0 .. $#$r ) {
-      my $len = length $r->[$c];
-      $width[$c] = $len if ( $width[$c] || 0 ) < $len;
+    if ( 'HASH' eq ref $r ) {
+      %opts = ( %opts, %$r );
+    }
+    else {
+      for my $c ( 0 .. $#$r ) {
+        my $len = length $r->[$c];
+        $width[$c] = $len if ( $width[$c] || 0 ) < $len;
+      }
     }
   }
+
   $width[-1] = '';
   my $fmt = join ' ', map "%-${_}s", @width;
+  my $pad = length sprintf $fmt, ( '' ) x @width;
   my @table = ();
-  for my $r ( @row ) {
-    push @table, sprintf $fmt, @$r;
+  for my $r ( grep { 'ARRAY' eq ref $_ } @row ) {
+    if ( $opts{columns} && @$r == @width ) {
+      my $cols = $opts{columns} - $pad;
+      $cols = 20 if $cols < 20;
+      local $Text::Wrap::columns = $cols;
+      my @row = @$r;
+      my @para = split /\n/, wrap( '', '', pop @row );
+      push @table, sprintf $fmt, @row, shift @para;
+      push @table, map { sprintf $fmt, ( '' ) x @row, $_ } @para;
+    }
+    else {
+      push @table, sprintf $fmt, @$r;
+    }
   }
   return join "\n", @table, '';
 }
@@ -397,15 +417,13 @@ sub fmt_opt {
   local $Text::Wrap::columns = 50;
   my ( $short, $long, $desc ) = @$spec;
   $short .= ',' if $short and $long;
-  my @lines = split /\n/, wrap( '', '', $desc );
-  push @$tbl, [ '  ', $short, $long, ':', shift @lines ];
-  push @$tbl, map { [ '', '', '', '', $_ ] } @lines;
+  push @$tbl, [ '  ', $short, $long, ':', $desc ];
 }
 
 sub globals {
   my @global = ();
   fmt_opt( \@global, $_ ) for @opthelp;
-  return "Global options:\n", table( @global );
+  return "Global options:\n", table( { columns => COLUMNS }, @global );
 }
 
 sub conj_list {
@@ -426,7 +444,7 @@ sub noun {
 sub passthru {
   my @pt = @_ ? @_ : sort grep { $verb{$_}{passthru} } keys %verb;
   return unless @pt;
-  $Text::Wrap::columns = 68;
+  $Text::Wrap::columns = COLUMNS - 3;
   return wrap(
     '   ', '   ',
     join(
@@ -464,13 +482,14 @@ sub help {
         fmt_opt( \@table, $p );
       }
       else {
-        local $Text::Wrap::columns = 68;
+        local $Text::Wrap::columns = COLUMNS - 3;
         push @text, wrap( '   ', '   ', $p );
       }
     }
 
     print "\n", join( "\n\n", @text ), "\n" if @text;
-    print "\nValid options:\n", table( @table ) if @table;
+    print "\nValid options:\n", table( { columns => COLUMNS }, @table )
+     if @table;
     print "\n";
     print $verb{$vv}{passthru} ? passthru( $vv ) : globals();
     print "\n";
@@ -485,7 +504,8 @@ sub help {
 
     print "usage: titi <subcommand> [options] [args]\n\n",
      "Subcommands:\n",
-     table( @table ), "\n", globals(), "\nExceptions:\n", passthru(),
+     table( { columns => COLUMNS }, @table ), "\n", globals(),
+     "\nExceptions:\n", passthru(),
      "\nType titi 'help <subcommand>' for help ",
      "on a specific command.\n";
   }
