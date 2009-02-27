@@ -16,6 +16,7 @@ use Data::Dumper;
 use Getopt::Long;
 use POSIX qw(strftime);
 use Text::Wrap qw( wrap );
+use Time::Local;
 use Time::ParseDate;
 use YAML qw( DumpFile LoadFile );
 
@@ -31,6 +32,22 @@ my $wrk = -f CONFIG ? LoadFile( CONFIG ) : {};
 my %opt = (
   quiet   => 0,
   nowrite => 0,
+);
+
+my %report = (
+  log => {
+    action => sub {
+      my @flat = @_;
+      my @report = ( [ 'Time', 'Ticket', 'Event' ], '=' );
+      for my $elt ( @flat ) {
+        my ( undef, $ticket, $state, $time, @extra ) = @$elt;
+        push @report, [ fmt_time( $time ), $ticket, $state, @extra ];
+      }
+      print table( @report );
+    },
+    desc => sub {
+    },
+  },
 );
 
 my %verb = (
@@ -65,13 +82,69 @@ my %verb = (
   },
   report => {
     action => sub {
-      die "Not implemented\n";
+      my @args    = @_;
+      my @tickets = ();
+
+      for my $arg ( @args ) {
+        if ( $arg =~ /^[@](.+)/ ) { push @{ $opt{report} }, $1 }
+        else                      { push @tickets, split /,/, $arg }
+      }
+
+      unless ( @tickets ) {
+        bail( 'No tickets named and no current ticket.' )
+         unless $wrk->{current};
+        push @tickets, $wrk->{current};
+      }
+
+      @tickets = sort keys %{ $wrk->{ticket} } if $opt{all};
+
+      my @reports = uniq( map { split /,/ } @{ $opt{report} } );
+      @reports = sort keys %report unless @reports;
+      need( 'report', 'reports', \%report,       @reports );
+      need( 'ticket', 'tickets', $wrk->{ticket}, @tickets );
+
+      my @filters = ();
+      if ( $opt{today} ) {
+        my $midnight = midnight();
+        push @filters, sub { $_->[1] >= $midnight };
+      }
+
+      push @filters, sub { 1 }
+       unless @filters;
+      my @flat = flatten_ticket( pred_and( @filters ), @tickets );
+      for my $rep ( @reports ) {
+        print "Report: $rep\n";
+        $report{$rep}{action}( @flat );
+      }
     },
     desc => sub {
-      return "[report id ...]", "Generate reports.";
+      my @avail = sort keys %report;
+      return "[ticket id ...]", "Generate reports.",
+         "By default all known reports are generated; use -R to "
+       . "limit which reports are shown. If no tickets are nominated "
+       . "reports will be generated for the current ticket, if any.",
+       "The following "
+       . noun( scalar @avail, 'report is', 'reports are' )
+       . " available: "
+       . and_list( @avail ),
+       [ '-A', '--all', 'Report on all tickets.' ],
+       [
+        '-R',
+        '--report <report id>',
+        'Select a report. May be used more than once.'
+       ],
+       [ '-T', '--today', 'Limit report to today.' ];
     },
     opts => sub {
-      return;
+      %opt = (
+        %opt,
+        all    => 0,
+        report => [],
+        today  => 0
+      );
+      return 'A|all' => \$opt{all},
+       'R|report=s@' => \$opt{report},
+       'T|today'     => \$opt{today};
     },
   },
   commit => {
@@ -233,6 +306,7 @@ sub table {
   my @width = ();
   my %opts  = ();
   for my $r ( @row ) {
+    next unless ref $r;
     if ( 'HASH' eq ref $r ) {
       %opts = ( %opts, %$r );
     }
@@ -244,22 +318,32 @@ sub table {
     }
   }
 
+  my $mkfmt = sub { join ' ', map "%-${_}s", @_ };
+  my $tw = $opts{columns} || length sprintf $mkfmt->( @width ),
+   ( '' ) x @width;
+
   $width[-1] = '';
-  my $fmt = join ' ', map "%-${_}s", @width;
-  my $pad = length sprintf $fmt, ( '' ) x @width;
+  my $fmt   = $mkfmt->( @width );
+  my $pad   = length sprintf $fmt, ( '' ) x @width;
   my @table = ();
-  for my $r ( grep { 'ARRAY' eq ref $_ } @row ) {
-    if ( $opts{columns} && @$r == @width ) {
-      my $cols = $opts{columns} - $pad;
-      $cols = 20 if $cols < 20;
-      local $Text::Wrap::columns = $cols;
-      my @row = @$r;
-      my @para = split /\n/, wrap( '', '', pop @row );
-      push @table, sprintf $fmt, @row, shift @para;
-      push @table, map { sprintf $fmt, ( '' ) x @row, $_ } @para;
+  for my $r ( @row ) {
+    next if 'HASH' eq ref $r;
+    if ( 'ARRAY' eq ref $r ) {
+      my @row = ( @$r, ( '' ) x ( @width - @$r ) );
+      if ( $opts{columns} && @$r == @width ) {
+        my $cols = $opts{columns} - $pad;
+        $cols = 20 if $cols < 20;
+        local $Text::Wrap::columns = $cols;
+        my @para = split /\n/, wrap( '', '', pop @row );
+        push @table, sprintf $fmt, @row, shift @para;
+        push @table, map { sprintf $fmt, ( '' ) x @row, $_ } @para;
+      }
+      else {
+        push @table, sprintf $fmt, @row;
+      }
     }
     else {
-      push @table, sprintf $fmt, @$r;
+      push @table, $r =~ /^\W$/ ? $r x $tw : $r;
     }
   }
   return join "\n", @table, '';
@@ -450,6 +534,7 @@ sub conj_list {
 }
 
 sub and_list { conj_list( and => @_ ) }
+sub or_list  { conj_list( or  => @_ ) }
 
 sub noun {
   my ( $n, $si, $pl ) = @_;
@@ -525,6 +610,57 @@ sub help {
      "\nType titi 'help <subcommand>' for help ",
      "on a specific command.\n";
   }
+}
+
+sub flatten_ticket {
+  my ( $filter, @tickets ) = @_;
+  my @flat = ();
+  my $idx  = 0;
+  for my $ticket ( @tickets ) {
+    for ( @{ $wrk->{ticket}{$ticket} || [] } ) {
+      # Add an index so we can ensure the sort is stable
+      push @flat, [ $idx++, $ticket, @$_ ] if $filter->();
+    }
+  }
+  return sort { $a->[3] <=> $b->[3] || $a->[0] <=> $b->[0] } @flat;
+}
+
+sub midnight {
+  my $time = shift || $^T;
+  my ( undef, undef, undef, $mday, $mon, $year ) = localtime( $time );
+  return timelocal( 0, 0, 0, $mday, $mon, $year );
+}
+
+sub uniq {
+  my %seen = ();
+  grep { !$seen{$_}++ } @_;
+}
+
+sub missing {
+  my ( $hash, @keys ) = @_;
+  grep { !exists $hash->{$_} } @keys;
+}
+
+sub need {
+  my ( $si, $pl, $hash, @keys ) = @_;
+  my @missing = missing( $hash, @keys );
+  return unless @missing;
+  bail( 'No ', noun( scalar @missing, $si, $pl ),
+    ' with id ', or_list( @missing ), '.' );
+}
+
+sub pred_and {
+  my @pred = @_;
+  return sub { return }
+   if @pred == 0;
+  return $pred[0]
+   if @pred == 1;
+  return sub {
+    for my $p ( @pred ) {
+      return 1 if $p->();
+    }
+    return;
+  };
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
