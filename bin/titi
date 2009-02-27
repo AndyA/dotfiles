@@ -14,6 +14,7 @@ use warnings;
 
 use Data::Dumper;
 use Getopt::Long;
+use List::Util qw( min );
 use POSIX qw(strftime);
 use Text::Wrap qw( wrap );
 use Time::Local;
@@ -29,6 +30,13 @@ use constant STDHELP => "Type 'titi help' for a "
 
 my $wrk = -f CONFIG ? LoadFile( CONFIG ) : {};
 
+my %config = (
+  date_fmt        => '%Y/%m/%d',
+  time_fmt        => '%H:%M:%S',
+  date_pretty_fmt => '%a, %e %b, %Y',
+  %{ $wrk->{options} || {} }
+);
+
 my %opt = (
   quiet   => 0,
   nowrite => 0,
@@ -37,13 +45,65 @@ my %opt = (
 my %report = (
   log => {
     action => sub {
-      my @flat = @_;
-      my @report = ( [ 'Time', 'Ticket', 'Event' ], '=' );
+      my @flat   = @_;
+      my @report = ();
       for my $elt ( @flat ) {
         my ( undef, $ticket, $state, $time, @extra ) = @$elt;
-        push @report, [ fmt_time( $time ), $ticket, $state, @extra ];
+        push @report,
+         [ fmt_datetime( $time ), $ticket, join ' ', $state, @extra ];
       }
-      print table( @report );
+      print table( [ 'time', 'ticket', 'event' ], '=*', @report );
+    },
+    desc => sub {
+    },
+  },
+  timesheet => {
+    action => sub {
+      my @flat        = @_;
+      my @report      = ();
+      my $grand_total = 0;
+
+      my $quant = quantize( sub { midnight( shift ) }, @flat );
+      for my $day ( sort { $a <=> $b } keys %$quant ) {
+        my $day_total = 0;
+        push @report,
+         '==[ ' . fmt_date( $day, 'date_pretty_fmt' ) . ' ]=*', '';
+        my @log = @{ $quant->{$day} };
+        if ( $log[0][2] eq 'stopped' ) {
+          unshift @log, [ undef, $log[0][1], 'working', $day ];
+        }
+        if ( $log[-1][2] eq 'working' ) {
+          my $end = min( $day + 60 * 60 * 24, $^T );
+          push @log, [ undef, $log[-1][1], 'stopped', $end ];
+        }
+        while ( my $elt = shift @log ) {
+          my ( undef, $ticket, $state, $time, @extra ) = @$elt;
+          if ( $elt->[2] eq 'working'
+            && @log
+            && $log[0][2] eq 'stopped' ) {
+            my $nelt = shift @log;
+            my $span = $nelt->[3] - $time;
+            $day_total   += $span;
+            $grand_total += $span;
+            push @report,
+             [
+              fmt_time( $time ),
+              $ticket,
+              join( ' ', $state, @extra ),
+              fmt_human( $span, 2 )
+             ];
+          }
+          else {
+            push @report,
+             [ fmt_time( $time ), $ticket, join ' ', $state, @extra ];
+          }
+        }
+        push @report, '',
+         [ 'total', '', '', fmt_human( $day_total, 2 ) ], '';
+      }
+
+      print table( @report, '-*',
+        [ 'grand total', '', '', fmt_human( $grand_total, 2 ) ] );
     },
     desc => sub {
     },
@@ -112,9 +172,11 @@ my %verb = (
       push @filters, sub { 1 }
        unless @filters;
       my @flat = flatten_ticket( pred_and( @filters ), @tickets );
+      print "\n";
       for my $rep ( @reports ) {
-        print "Report: $rep\n";
+        print "Report: $rep\n\n";
         $report{$rep}{action}( @flat );
+        print "\n";
       }
     },
     desc => sub {
@@ -292,6 +354,7 @@ unless ( $vb->{passthru} ) {
 
 $vb->{action}->( @ARGV );
 
+$wrk->{options} = \%config;
 DumpFile( CONFIG, $wrk ) unless $opt{nowrite};
 
 sub bail {
@@ -343,7 +406,9 @@ sub table {
       }
     }
     else {
-      push @table, $r =~ /^\W$/ ? $r x $tw : $r;
+      $r = $1 . ( $2 x ( $tw - length $1 ) )
+       if $r =~ /(.*)(\W)\*$/;
+      push @table, $r;
     }
   }
   return join "\n", @table, '';
@@ -358,9 +423,17 @@ sub abbrev {
   return $hit[0];
 }
 
-sub fmt_time {
+sub fmt_date {
+  my $time = shift;
+  my $fmt = shift || 'date_fmt';
+  strftime $config{$fmt}, localtime $time;
+}
+
+sub fmt_time { fmt_date( $_[0], 'time_fmt' ) }
+
+sub fmt_datetime {
   my $tm = shift || $^T;
-  return strftime '%Y/%m/%d %H:%M:%S', localtime $tm;
+  return join ' ', fmt_date( $tm ), fmt_time( $tm );
 }
 
 sub fmt_human {
@@ -401,7 +474,7 @@ sub fmt_duration {
 sub mention {
   return if $opt{quiet};
   my $msg = join '', @_;
-  print fmt_time(), " $msg\n";
+  print fmt_datetime(), " $msg\n";
 }
 
 sub no_args {
@@ -661,6 +734,16 @@ sub pred_and {
     }
     return;
   };
+}
+
+sub quantize {
+  my ( $qf, @flat ) = @_;
+  my $by_quant = {};
+  for my $elt ( @flat ) {
+    my $quanta = $qf->( $elt->[3] );
+    push @{ $by_quant->{$quanta} }, $elt;
+  }
+  return $by_quant;
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
