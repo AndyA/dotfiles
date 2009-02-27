@@ -21,6 +21,8 @@ use YAML qw( DumpFile LoadFile );
 
 use constant CONFIG  => glob( '~/.titi' );
 use constant COLUMNS => 72;
+use constant INDENT  => 3;
+
 use constant STDHELP => "Type 'titi help' for a "
  . "list of supported subcommands and their options.";
 
@@ -417,7 +419,7 @@ sub fmt_opt {
   local $Text::Wrap::columns = 50;
   my ( $short, $long, $desc ) = @$spec;
   $short .= ',' if $short and $long;
-  push @$tbl, [ '  ', $short, $long, ':', $desc ];
+  push @$tbl, [ ' ' x ( INDENT - 1 ), $short, $long, ':', $desc ];
 }
 
 sub globals {
@@ -444,9 +446,10 @@ sub noun {
 sub passthru {
   my @pt = @_ ? @_ : sort grep { $verb{$_}{passthru} } keys %verb;
   return unless @pt;
-  $Text::Wrap::columns = COLUMNS - 3;
+  $Text::Wrap::columns = COLUMNS - INDENT;
+  my $pad = ' ' x INDENT;
   return wrap(
-    '   ', '   ',
+    $pad, $pad,
     join(
       '', "The ",
       and_list( @pt ),
@@ -466,6 +469,7 @@ sub passthru {
 
 sub help {
   my @args = @_;
+  my $pad  = ' ' x INDENT;
   if ( @args ) {
     my $v = shift @args;
     bail( "usage: titi help <subcommand>" )
@@ -482,8 +486,8 @@ sub help {
         fmt_opt( \@table, $p );
       }
       else {
-        local $Text::Wrap::columns = COLUMNS - 3;
-        push @text, wrap( '   ', '   ', $p );
+        local $Text::Wrap::columns = COLUMNS - INDENT;
+        push @text, wrap( $pad, $pad, $p );
       }
     }
 
@@ -499,7 +503,7 @@ sub help {
 
     for my $v ( sort keys %verb ) {
       my ( $args, $desc ) = $verb{$v}{desc}->();
-      push @table, [ '  ', $v, $args || '', $desc ];
+      push @table, [ ' ' x ( INDENT - 1 ), $v, $args || '', $desc ];
     }
 
     print "usage: titi <subcommand> [options] [args]\n\n",
