@@ -21,7 +21,7 @@ use YAML qw( DumpFile LoadFile );
 
 use constant CONFIG  => glob( '~/.titi' );
 use constant COLUMNS => 72;
-use constant INDENT  => 3;
+use constant INDENT  => 2;
 
 use constant STDHELP => "Type 'titi help' for a "
  . "list of supported subcommands and their options.";
@@ -48,7 +48,7 @@ my %verb = (
       );
     },
     desc => sub {
-      return '[<ticket-id>]', "Get current status.";
+      return '[ticket id]', "Get a summary of current status.";
     },
     opts => sub {
       return;
@@ -57,7 +57,7 @@ my %verb = (
   help => {
     action => sub { help( @_ ) },
     desc   => sub {
-      return undef, "Get help.";
+      return '[subcommand]', "Get help.";
     },
     opts => sub {
       return;
@@ -68,7 +68,7 @@ my %verb = (
       die "Not implemented\n";
     },
     desc => sub {
-      return "<report-id> ...", "Generate reports.";
+      return "[report id ...]", "Generate reports.";
     },
     opts => sub {
       return;
@@ -95,13 +95,13 @@ my %verb = (
     },
     passthru => 1,
     desc     => sub {
-      return undef,
+      return '[svn commit options]',
        "Do an svn commit with prefilled commit message.",
        "There must be a currently selected ticket. "
        . "Any additional arguments are passed through to svn commit.",
        "If the commit is successful the current ticket will be "
-       . "checkpointed - so that successive commits record the "
-       . "time since the previous commit.";
+       . "checkpointed so that successive commits record the "
+       . "time since the previous commit or get.";
     },
     opts => sub {
       return;
@@ -115,8 +115,12 @@ my %verb = (
       checkpoint( $ticket );
     },
     desc => sub {
-      return '[<ticket-id>]',
-       "Get elapsed time on ticket since last get.",
+      return '[ticket id]',
+       "Get elapsed time on a ticket.",
+       "Gets the time since the last checkpoint on the ticket "
+       . "and adds a new checkpoint. Each get (or "
+       . "commit) gets the time worked on that ticket since the "
+       . "last get (or commit).",
        "Defaults to the last ticket you worked on.";
     },
     opts => sub {
@@ -128,7 +132,7 @@ my %verb = (
       die "Not implemented\n";
     },
     desc => sub {
-      return '[<ticket-id>]',
+      return '[ticket id]',
        "Forget most recent get on a ticket.",
        "Defaults to the last ticket you worked on.";
     },
@@ -147,7 +151,8 @@ my %verb = (
       }
     },
     desc => sub {
-      return undef, "Stop all work.";
+      return undef, "Stop all work.",
+       "Used to indicate that you are not working on any ticket";
     },
     opts => sub {
       return;
@@ -168,7 +173,7 @@ my %verb = (
       }
     },
     desc => sub {
-      return '[<ticket-id>]',
+      return '[ticket id]',
        "Start work on a ticket. ",
        "Defaults to the last ticket you worked on.";
     },
@@ -184,6 +189,7 @@ my %optspec = (
 );
 
 my @opthelp = (
+  [ '-h', '--help',  'Get help.' ],
   [ '-q', '--quiet', 'Say as little as possible.' ],
   [
     '-N',
@@ -194,6 +200,7 @@ my @opthelp = (
   ]
 );
 
+@ARGV = 'help' if grep /^(?:-h|--help)$/, @ARGV;
 my $act = shift @ARGV
  or bail( "No subcommand specified. ", STDHELP );
 my $vb = $verb{ abbrev( \%verb, $act ) };
@@ -433,7 +440,7 @@ sub conj_list {
   return unless @list;
   my $last = pop @list;
   return $last unless @list;
-  return join $conj, join( ', ', @list ), $last;
+  return join " $conj ", join( ', ', @list ), $last;
 }
 
 sub and_list { conj_list( and => @_ ) }
@@ -475,8 +482,7 @@ sub help {
     bail( "usage: titi help <subcommand>" )
      if @args;
     my $vv = abbrev( \%verb, $v );
-    my ( $args, $desc, @paras ) = $verb{$vv}{desc}->();
-    print "$vv: $desc\n";
+    my ( $args, @paras ) = $verb{$vv}{desc}->();
     print "usage: titi ", join( ' ', grep defined, $vv, $args ), "\n";
     my @text  = ();
     my @table = ();
