@@ -58,7 +58,8 @@ my %report = (
     },
   },
   timesheet => {
-    action => sub {
+    default => 10,
+    action  => sub {
       my @flat        = @_;
       my @report      = ();
       my $grand_total = 0;
@@ -159,7 +160,7 @@ my %verb = (
       @tickets = sort keys %{ $wrk->{ticket} } if $opt{all};
 
       my @reports = uniq( map { split /,/ } @{ $opt{report} } );
-      @reports = sort keys %report unless @reports;
+      @reports = default_reports() unless @reports;
       need( 'report', 'reports', \%report,       @reports );
       need( 'ticket', 'tickets', $wrk->{ticket}, @tickets );
 
@@ -180,19 +181,24 @@ my %verb = (
       }
     },
     desc => sub {
-      my @avail = sort keys %report;
+      my @avail   = sort keys %report;
+      my @default = default_reports();
       return "[ticket id ...]", "Generate reports.",
-         "By default all known reports are generated; use -R to "
-       . "limit which reports are shown. If no tickets are nominated "
-       . "reports will be generated for the current ticket, if any.",
-       "The following "
+         "If no "
+       . "tickets are nominated reports will be generated for the "
+       . "current ticket, if any.",
+       "By default the "
+       . and_list( map { qq{"$_"} } @default ) . ' '
+       . noun( scalar @default, 'report is', 'reports are' )
+       . " generated; use -R to control which reports are shown. "
+       . "The following "
        . noun( scalar @avail, 'report is', 'reports are' )
        . " available: "
-       . and_list( @avail ),
-       [ '-A', '--all', 'Report on all tickets.' ],
+       . and_list( map { qq{"$_"} } @avail )
+       . ".", [ '-A', '--all', 'Report on all tickets.' ],
        [
         '-R',
-        '--report <report id>',
+        '--report <report>',
         'Select a report. May be used more than once.'
        ],
        [ '-T', '--today', 'Limit report to today.' ];
@@ -744,6 +750,12 @@ sub quantize {
     push @{ $by_quant->{$quanta} }, $elt;
   }
   return $by_quant;
+}
+
+sub default_reports {
+  sort  { $report{$a}{default} <=> $report{$b}{default} }
+   grep { $report{$_}{default} }
+   keys %report;
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
