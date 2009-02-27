@@ -126,7 +126,7 @@ my %verb = (
       );
     },
     desc => sub {
-      return '[ticket id]', "Get a summary of current status.";
+      return '[ticket]', "Get a summary of current status.";
     },
     opts => sub {
       return;
@@ -183,7 +183,7 @@ my %verb = (
     desc => sub {
       my @avail   = sort keys %report;
       my @default = default_reports();
-      return "[ticket id ...]", "Generate reports.",
+      return "[ticket] ...", "Generate reports.",
          "If no "
        . "tickets are nominated reports will be generated for the "
        . "current ticket, if any.",
@@ -256,7 +256,7 @@ my %verb = (
       checkpoint( $ticket );
     },
     desc => sub {
-      return '[ticket id]',
+      return '[ticket]',
        "Get elapsed time on a ticket.",
        "Gets the time since the last checkpoint on the ticket "
        . "and adds a new checkpoint. Each get (or "
@@ -273,7 +273,7 @@ my %verb = (
       die "Not implemented\n";
     },
     desc => sub {
-      return '[ticket id]',
+      return '[ticket]',
        "Edit the timeline for a ticket using " . editor() . ".",
        "Set the EDITOR environment variable to use an editor other than "
        . editor() . ".",
@@ -318,7 +318,7 @@ my %verb = (
       }
     },
     desc => sub {
-      return '[ticket id]',
+      return '[ticket]',
        "Start work on a ticket. ",
        "Defaults to the last ticket you worked on.";
     },
