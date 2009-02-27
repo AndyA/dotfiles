@@ -152,7 +152,9 @@ my %verb = (
     },
     desc => sub {
       return undef, "Stop all work.",
-       "Used to indicate that you are not working on any ticket";
+       "Used to indicate that you are not working on any ticket.",
+       "The last ticket you worked on is remembered so that "
+       . "you can resume work by typing 'titi work'.";
     },
     opts => sub {
       return;
