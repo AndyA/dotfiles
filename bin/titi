@@ -373,7 +373,7 @@ sub editor { $ENV{EDITOR} || 'vim' }
 sub table {
   my @row   = @_;
   my @width = ();
-  my %opts  = ();
+  my %opts  = ( sep => ' ' );
   for my $r ( @row ) {
     next unless ref $r;
     if ( 'HASH' eq ref $r ) {
@@ -387,7 +387,7 @@ sub table {
     }
   }
 
-  my $mkfmt = sub { join ' ', map "%-${_}s", @_ };
+  my $mkfmt = sub { join $opts{sep}, map "%-${_}s", @_ };
   my $tw = $opts{columns} || length sprintf $mkfmt->( @width ),
    ( '' ) x @width;
 
