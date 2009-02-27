@@ -133,9 +133,8 @@ my %verb = (
     },
     desc => sub {
       return '[ticket id]',
-         "Edit the timeline for a ticket using "
-       . editor() . ". "
-       . "Set the EDITOR environment variable to use an editor other than "
+       "Edit the timeline for a ticket using " . editor() . ".",
+       "Set the EDITOR environment variable to use an editor other than "
        . editor() . ".",
        "Defaults to the last ticket you worked on.";
     },
@@ -475,7 +474,7 @@ sub passthru {
       ),
       ' arguments directly to the command that ',
       noun( scalar @pt, 'it invokes. It does', 'they invoke. They do' ),
-      ' not accept the standard titi switches.'
+      ' not accept the standard titi options.'
     )
    ),
    "\n";
