@@ -5,9 +5,9 @@
 # Implement reports.
 #
 # Make it possible to
-#  * backdate work/break
 #  * swap between current/previous ticket
 #  * purge old data
+#  * edit ticket timeline
 
 use strict;
 use warnings;
@@ -77,8 +77,8 @@ my %verb = (
   commit => {
     action => sub {
       my $ticket = $wrk->{current} || bail( "No current ticket" );
-      local $ENV{TITI_EDITOR} = $ENV{EDITOR} || 'vim';
-      local $ENV{EDITOR} = 'titiedit';
+      local $ENV{TITI_EDITOR} = editor();
+      local $ENV{EDITOR}      = 'titiedit';
       my @cmd = ( 'svn', 'commit', @_ );
       my $cmd = join ' ', @cmd;
       my @rev = ();
@@ -127,13 +127,16 @@ my %verb = (
       return;
     },
   },
-  unget => {
+  edit => {
     action => sub {
       die "Not implemented\n";
     },
     desc => sub {
       return '[ticket id]',
-       "Forget most recent get on a ticket.",
+         "Edit the timeline for a ticket using "
+       . editor() . ". "
+       . "Set the EDITOR environment variable to use an editor other than "
+       . editor() . ".",
        "Defaults to the last ticket you worked on.";
     },
     opts => sub {
@@ -223,6 +226,8 @@ sub bail {
   $Text::Wrap::columns = COLUMNS;
   die wrap( '', '', join '', @_ ), "\n";
 }
+
+sub editor { $ENV{EDITOR} || 'vim' }
 
 sub table {
   my @row   = @_;
