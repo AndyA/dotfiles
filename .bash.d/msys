@@ -1,5 +1,0 @@
-# Directories we can cd to
-[ -d ~/Works/MessageSystems/ecelerity/branches/2.2 ] && export EC=~/Works/MessageSystems/ecelerity/branches/2.2
-[ -d ~/Works/MessageSystems/ecelerity/trunk ]        && export ECT=~/Works/MessageSystems/ecelerity/trunk
-
-export EC_TEST_MX_DOM=test.msys
