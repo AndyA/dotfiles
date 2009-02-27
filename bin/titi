@@ -485,7 +485,7 @@ sub help {
   my $pad  = ' ' x INDENT;
   if ( @args ) {
     my $v = shift @args;
-    bail( "usage: titi help <subcommand>" )
+    bail( "usage: titi help [subcommand]" )
      if @args;
     my $vv = abbrev( \%verb, $v );
     my ( $args, @paras ) = $verb{$vv}{desc}->();
