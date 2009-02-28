@@ -1,2 +1,2 @@
 # Darwin specific aliases
-[ -f /Applications/MacVim.app/Contents/MacOS/MacVim ] && alias mvim=/Applications/MacVim.app/Contents/MacOS/MacVim
+[ -e /Applications/Vim.app ] && alias gvim="/Applications/Vim.app/Contents/MacOS/Vim -g"
