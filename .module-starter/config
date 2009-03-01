@@ -1,5 +1,5 @@
 author:  Andy Armstrong
-email:   andy.armstrong@messagesystems.com
+email:   andy@hexten.net
 builder: Module::Build
 plugins: Module::Starter::PBP
 template_dir: /Users/andy/.module-starter/PBP
