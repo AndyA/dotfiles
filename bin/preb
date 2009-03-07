@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -z "$PERL" ] && PERL=`which perl`
+
 force=false
 clean=false
 args=''
@@ -42,7 +44,7 @@ else
 fi
 
 if $force || [ ! -e $mf -o $mp -nt $mf ] ; then
-  perl $mp
+  $PERL $mp
 fi
 
 $mk $args
