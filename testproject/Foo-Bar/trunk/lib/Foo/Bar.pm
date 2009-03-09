@@ -5,7 +5,7 @@ use strict;
 
 =head1 NAME
 
-Foo::Bar - [One line description of module's purpose here]
+Foo::Bar - Just a test.
 
 =head1 VERSION
 
