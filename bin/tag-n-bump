@@ -1,0 +1,132 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Perl::Version;
+use Data::Dumper;
+use Getopt::Long;
+
+my %opt = (
+  version => undef,
+  force   => 0,
+);
+
+GetOptions(
+  'version:s' => \$opt{version},
+  'force'     => \$opt{force}
+) or syntax();
+
+if ( @ARGV ) {
+  die "Too many args\n" if @ARGV > 1;
+  my $dir = shift;
+  chdir $dir or die "Can't cd to $dir ($!)\n";
+}
+
+my $trunk = svn_info()->{URL};
+
+die "No revision here\n" unless defined $trunk;
+die "This isn't trunk\n" unless $trunk =~ m{/trunk$};
+die "Uncommitted changes found\n" if has_uncommitted();
+my $version = get_version();
+die "Current version can't be determined\n" unless defined $version;
+( my $tags = $trunk ) =~ s{/trunk$}{/tags};
+my $tag = "$tags/$version";
+
+unless ( defined svn_info( $tags )->{URL} ) {
+  print "Creating $tags\n";
+  with_cmd( 'svn', 'mkdir', $tags, '-m', 'Created tags dir', sub { } );
+}
+
+print "Copying $trunk to $tag\n";
+with_cmd( 'svn', 'cp', $trunk, $tag, '-m', "Tagging $version",
+  sub { } );
+
+my $new_version
+ = defined $opt{version} ? $opt{version} : bump( $version );
+print "Setting version to $new_version\n";
+with_cmd( 'perl-reversion', '--set', $new_version, '--current', $version,
+  sub { print "$_\n" } );
+with_cmd( 'svn', 'commit', '-m', "Bump version to $new_version",
+  sub { } );
+
+sub bump {
+  my $version = shift;
+  my $v       = Perl::Version->new( $version );
+  if ( $v->is_alpha ) {
+    $v->increment( 'alpha' );
+  }
+  else {
+    $v->increment( -1 );
+  }
+  return "$v";
+}
+
+sub has_uncommitted {
+  my $mods = 0;
+  with_cmd(
+    'svn',
+    'status' => sub {
+      $mods++ if /^[ADM]/;
+    }
+  );
+  return $mods;
+}
+
+sub get_version {
+  my $version = undef;
+  with_cmd(
+    'perl-reversion' => sub {
+      $version = $1 if /Current\s+project\s+version\s+is\s+(\S+)/;
+    }
+  );
+  return $version;
+}
+
+sub syntax {
+  print STDERR "usage: tag-n-bump [options] [<dir>]\n",
+   "\nOptions:\n",
+   "  --force     Force update even if specified version is older\n",
+   "  --version V Specify new version\n";
+  exit;
+}
+
+sub tidy {
+  my $s = shift;
+  $s =~ s/^\s+//;
+  $s =~ s/\s+$//;
+  return $s;
+}
+
+sub with_cmd {
+  my ( @cmd ) = @_;
+  my $code = pop @cmd;
+  my $cmd = join ' ', @cmd;
+  open my $sh, '-|', @cmd or die "Can't $cmd ($!)\n";
+  while ( <$sh> ) { chomp; $code->() }
+  close $sh or warn "Can't $cmd ($!) -- at exit\n";
+  return $?;
+}
+
+sub with_svn {
+  my @cmd  = @_;
+  my $code = pop @cmd;
+  my $info = {};
+  with_cmd(
+    svn => @cmd,
+    sub {
+      return if /^\s*$/;
+      my ( $k, $v ) = $code->();
+      $k =~ s/\s+//g;
+      $info->{$k} = $v;
+    }
+  );
+  return $info;
+}
+
+sub svn_info {
+  with_svn( info => @_, sub { map tidy( $_ ), split /:/, $_, 2 } );
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
