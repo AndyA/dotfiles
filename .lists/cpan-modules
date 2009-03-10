@@ -1,5 +1,4 @@
 Acme::6502
-Bundle::AndyA
 CGI::Simple
 Captcha::reCAPTCHA
 Captcha::reCAPTCHA::Mailhide
