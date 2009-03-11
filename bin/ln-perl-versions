@@ -2,7 +2,7 @@
 
 versions=~/Works/Perl/versions
 
-find bin -type l -name perl\* | xargs rm
+find ~/bin -type l -name perl\* | xargs rm
 
 for v in `ls $versions`; do
   src=$versions/$v/bin/perl
