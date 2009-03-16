@@ -69,10 +69,10 @@ noremap <f6> <esc>:bnext<cr>
 noremap <f7> <esc>:cprevious<cr>
 noremap <f8> <esc>:cnext<cr>
 
-if has('mac')
-  vmap <C-c> y:call system("pbcopy", getreg("\""))<CR>
-  nmap <C-v> :call setreg("\"",system("pbpaste"))<CR>p
-endif
+"if has('mac')
+"  vmap <C-c> y:call system("pbcopy", getreg("\""))<CR>
+"  nmap <C-v> :call setreg("\"",system("pbpaste"))<CR>p
+"endif
 
 if executable('ack')
     set grepprg=ack\ -a
