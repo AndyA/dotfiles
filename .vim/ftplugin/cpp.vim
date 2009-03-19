@@ -1,5 +1,5 @@
 " cpp.vim
  
 if executable('ack')
-    setlocal grepprg=ack\ --type=cpp
+  setlocal grepprg=ack\ --type=cpp
 endif
