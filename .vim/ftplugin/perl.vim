@@ -28,9 +28,7 @@ function! s:look_up(file, depth)
 endfunction
 
 function! s:tidy()
-  let l:window = ( line('w0') + line('w$') ) / 2
-  let l:line = line('.')
-  let l:col  = col('.')
+  let l:loc = g:get_location()
   let l:rc   = s:look_up('.perltidyrc', 5)
   if len(l:rc)
     let l:tidy = ':%!perltidy -pro=' . l:rc
@@ -38,9 +36,7 @@ function! s:tidy()
     let l:tidy = ':%!perltidy'
   endif
   exec l:tidy
-  exec 'normal ' . l:window . 'zz'
-  exec 'normal ' . l:line   . 'G'
-  exec 'normal ' . l:col    . '|'
+  call g:set_location(l:loc)
 endfunction
 
 noremap <buffer> <f2> :call <SID>tidy()<CR>

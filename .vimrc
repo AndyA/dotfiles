@@ -42,6 +42,8 @@ endif
 syntax on
 filetype plugin indent on
 
+source ~/.vim/functions.vim
+
 if v:version >= 700
   source ~/.vim/vim700.vim
 endif

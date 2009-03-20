@@ -14,15 +14,9 @@ endif
 
 function! s:tidy()
   if executable('jsindent')
-    let l:window = ( line('w0') + line('w$') ) / 2
-    let l:line = line('.')
-    let l:col  = col('.')
-    let l:rc   = s:look_up('.perltidyrc', 5)
-    exec l:tidy
+    let l:loc = g:get_location()
     exec ':%!jsindent'
-    exec 'normal ' . l:window . 'zz'
-    exec 'normal ' . l:line   . 'G'
-    exec 'normal ' . l:col    . '|'
+    call g:set_location(l:loc)
   endif
 endfunction
 
