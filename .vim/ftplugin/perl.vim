@@ -29,7 +29,7 @@ endfunction
 
 function! s:tidy()
   let l:loc = g:get_location()
-  let l:rc   = s:look_up('.perltidyrc', 5)
+  let l:rc  = s:look_up('.perltidyrc', 5)
   if len(l:rc)
     let l:tidy = ':%!perltidy -pro=' . l:rc
   else

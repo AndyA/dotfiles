@@ -26,6 +26,8 @@ my @dumpopts = qw(
   --extended-insert=FALSE
   --complete-insert=TRUE
   --routines
+  --hex-blob
+  --disable-keys
 );
 
 memoize( 'enum_databases' );
