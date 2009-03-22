@@ -1,5 +1,7 @@
 " php.vim
 
+so $VIMRUNTIME/ftplugin/php.vim
+
 setlocal shiftround
 setlocal expandtab
 "noremap <f2> :%!tidy<CR>

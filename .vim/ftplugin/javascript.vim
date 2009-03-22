@@ -1,5 +1,7 @@
 " javascript.vim
 
+so $VIMRUNTIME/ftplugin/javascript.vim
+
 setlocal shiftround
 setlocal expandtab
 setlocal cindent

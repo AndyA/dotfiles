@@ -1,5 +1,7 @@
 " vim.vim
 
+so $VIMRUNTIME/ftplugin/vim.vim
+
 setlocal shiftround
 setlocal expandtab
 

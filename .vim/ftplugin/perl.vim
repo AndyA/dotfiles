@@ -1,5 +1,7 @@
 " perl.vim
 
+so $VIMRUNTIME/ftplugin/perl.vim
+
 setlocal shiftround
 setlocal expandtab
 setlocal textwidth=72
@@ -7,8 +9,7 @@ setlocal textwidth=72
 setlocal cindent
 setlocal comments=:#
 setlocal cinkeys-=0#
-setlocal keywordprg=perldoc
-setlocal iskeyword+=:
+"setlocal iskeyword+=:
 setlocal tags=./tags,./perltags,tags,perltags,~/.vim/perltags
  
 if executable('ack')
