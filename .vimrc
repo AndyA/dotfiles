@@ -76,7 +76,7 @@ noremap <f7> <esc>:cprevious<cr>
 noremap <f8> <esc>:cnext<cr>
 
 " On MacOS we have terminal keybindings for these too.
-noremap <C-Up>    <C-w>k<C-w>_
-noremap <C-Down>  <C-w>j<C-w>_
-noremap <C-Left>  <C-w>h<C-w>_
-noremap <C-Right> <C-w>l<C-w>_
+noremap <C-Up>    <esc><C-w>k<C-w>_
+noremap <C-Down>  <esc><C-w>j<C-w>_
+noremap <C-Left>  <esc><C-w>h<C-w>_
+noremap <C-Right> <esc><C-w>l<C-w>_
