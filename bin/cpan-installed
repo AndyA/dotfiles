@@ -1,0 +1,90 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use File::Find;
+use Storable qw( store retrieve );
+
+use constant METADATA => glob '~/.cpan/Metadata';
+
+my $md    = retrieve METADATA;
+my @dists = scan_pkg( @INC );
+print "$_\n" for @dists;
+
+sub scan_pkg {
+  my @dir     = @_;
+  my @dists   = ();
+  my %catalog = ();
+  find(
+    {
+      wanted => sub {
+        return unless -f;
+        return unless /\.pm$/;
+        # warn "# $File::Find::name\n";
+        eval {
+          find_pkg(
+            $File::Find::name,
+            sub {
+              my $pkg = shift;
+              # warn "## $pkg\n";
+              my $meta = $md->{'CPAN::Module'}{$pkg};
+              if ( $meta && $meta->{CPAN_FILE} ) {
+                $catalog{ $meta->{CPAN_FILE} }{$pkg}++;
+                # warn "### ", Dumper($meta), "\n";
+              }
+            }
+          );
+        };
+        warn $@ if $@;
+      },
+      no_chdir => 1,
+    },
+    @dir
+  );
+
+  while ( my ( $dist, $pkg ) = each %catalog ) {
+    push @dists, guess_dist_name( $dist, keys %$pkg );
+  }
+  return sort @dists;
+}
+
+sub guess_dist_name {
+  my ( $dist, @pkgs ) = @_;
+  my $shortest = undef;
+  for my $pkg ( @pkgs ) {
+    ( my $pat = $pkg ) =~ s/::/-/g;
+    return $pkg if $dist =~ /\/$pat-v?\d+(?:\.\d+)*\./;
+    $shortest = $pkg
+     if !defined $shortest
+       || length $pkg < length $shortest;
+  }
+  return $shortest;
+}
+
+sub find_pkg {
+  my ( $file, $cb ) = @_;
+  my $in_pod = 0;
+  open my $fh, '<', $file or die "Can't read $file ($!)\n";
+  LINE: while ( defined( my $line = <$fh> ) ) {
+    if ( $in_pod ) {
+      $in_pod = 0 if $line =~ /^=cut\s*$/;
+    }
+    else {
+      if ( $line =~ /^=(\w+)/ ) {
+        $in_pod = 1 unless $1 eq 'cut';
+      }
+      elsif ( $line =~ /^__(?:END|DATA)__\s*$/ ) {
+        last LINE;
+      }
+      elsif ( $line =~ /^\s*package\s+(\w+(?:::\w+)*)\s*;/x ) {
+        $cb->( $1 );
+      }
+    }
+  }
+
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
