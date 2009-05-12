@@ -1,0 +1,84 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use File::Find;
+use Storable;
+use POSIX qw( strftime );
+
+my ( $get, $set, $verbose );
+
+GetOptions(
+  'G|get=s' => \$get,
+  'S|set=s' => \$set,
+  'verbose' => \$verbose,
+) or usage();
+
+defined $get or defined $set or die "Please specify --get or --set\n";
+@ARGV or die "Please name one or more files or directories\n";
+
+if ( defined $get ) {
+  get_meta( $get, @ARGV );
+}
+
+if ( defined $set ) {
+  set_meta( $set, @ARGV );
+}
+
+sub get_meta {
+  my ( $stash, @objs ) = @_;
+  my $meta = {};
+  find(
+    {
+      wanted => sub {
+        my $obj = $File::Find::name;
+        mention( 'get     ', $obj );
+        $meta->{$obj} = [ lstat $obj ];
+      },
+      no_chdir => 1
+    },
+    @objs
+  );
+
+  store $meta, $stash;
+}
+
+sub set_meta {
+  my ( $stash, @objs ) = @_;
+  my $meta = retrieve $stash;
+  find(
+    {
+      wanted => sub {
+        my $obj = $File::Find::name;
+        if ( my $md = $meta->{$obj} ) {
+          mention( 'set     ', $obj );
+          chown $md->[4], $md->[5], $obj;
+          chmod $md->[2], $obj;
+          utime $md->[8], $md->[9], $obj;
+        }
+        else {
+          mention( 'missing ', $obj );
+        }
+      },
+      no_chdir => 1
+    },
+    @objs
+  );
+}
+
+sub mention {
+  return unless $verbose;
+  my $ts = strftime( '%Y/%m/%d %H:%M:%S', localtime );
+  chomp( my $msg = join '', @_ );
+  print "$ts $_\n" for split /\n/, $msg;
+}
+
+sub usage {
+  die "Usage: metasync --get <meta> <dir> ...\n"
+   . "       metasync --set <meta> <dir> ...\n";
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
