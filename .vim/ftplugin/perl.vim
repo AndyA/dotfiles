@@ -9,7 +9,7 @@ setlocal textwidth=72
 setlocal cindent
 setlocal comments=:#
 setlocal cinkeys-=0#
-"setlocal iskeyword+=:
+setlocal iskeyword+=:
 setlocal tags=./tags,./perltags,tags,perltags,~/.vim/perltags
  
 if executable('ack')
