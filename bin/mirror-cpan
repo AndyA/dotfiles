@@ -1,0 +1,144 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Config::Tiny;
+use Data::Dumper;
+use File::Rsync::Mirror::Recent;
+use Getopt::Long;
+use POSIX qw( setsid );
+use sigtrap qw( die normal-signals );
+
+$0 = 'mirror-cpan';
+
+my %DEFAULTS = (
+  _ => {
+    frequency                => 3600,
+    max_files_per_connection => 863,
+    tempdir                  => '/tmp',
+    ttl                      => 10,
+  },
+  rsync => {
+    #      port             => 8732,
+    compress         => 1,
+    links            => 1,
+    times            => 1,
+    checksum         => 0,
+    'omit-dir-times' => 1,
+  },
+);
+
+my @NEED = qw( localroot remote dirs );
+
+my %options = (
+  config    => '/etc/mirror-cpan.conf',
+  daemonize => 0,
+  pidfile   => undef,
+);
+
+GetOptions(
+  'C|config:s'  => \$options{config},
+  'D|daemonize' => \$options{daemonize},
+  'P|pidfile:s' => \$options{pidfile},
+) or die usage();
+
+my $config = Config::Tiny->read( $options{config} )
+ or die $Config::Tiny::errstr;
+
+my @missing = grep { !exists $config->{_}{$_} } @NEED;
+die "Missing config options: ", join ', ', sort @missing
+ if @missing;
+
+for my $sct ( keys %DEFAULTS ) {
+  $config->{$sct}
+   = { %{ $DEFAULTS{$sct} }, %{ $config->{$sct} || {} } };
+}
+
+{
+  $ENV{USER} = $config->{_}{rsync_user}
+   if defined $config->{_}{rsync_user};
+  $ENV{RSYNC_PASSWORD} = $config->{_}{rsync_password}
+   if defined $config->{_}{rsync_password};
+}
+
+my @rrr = ();
+for my $dir ( split /\s*,\s*/, $config->{_}{dirs} ) {
+  my %args  = ();
+  my %first = ();
+
+  my @keys = qw(
+   max_files_per_connection tempdir ttl verbose verboselog
+  );
+
+  my %cook = (
+    localroot => '',
+    remote    => '/RECENT.recent'
+  );
+
+  for my $k ( keys %cook ) {
+    my $v = $config->{_}{$k};
+    $v .= '/' unless $v =~ m{/$};
+    $first{$k} = $v . $dir . $cook{$k};
+  }
+
+  @args{@keys} = @{ $config->{_} }{@keys};
+
+  die "Directory $first{localroot} doesn't exist\n"
+   unless -d $first{localroot};
+
+  # Due to an idiosynchracy of FRMR we have to supply localroot and
+  # remote before other args.
+  push @rrr,
+   File::Rsync::Mirror::Recent->new(
+    %first,
+    rsync_options => $config->{rsync},
+    %args
+   );
+}
+
+my $clean_pid = undef;
+if ( $options{daemonize} ) {
+  daemonize();
+  if ( defined $options{pidfile} ) {
+    $clean_pid = $$;
+    open my $ph, '>', $options{pidfile}
+     or die "Can't write $options{pidfile}: $!\n";
+    print $ph $clean_pid;
+  }
+}
+
+END {
+  if ( defined $clean_pid
+    && $clean_pid == $$
+    && defined $options{pidfile} ) {
+    unlink $options{pidfile};
+  }
+}
+
+while () {
+  my $ttgo = time + $config->{_}{frequency};
+  for my $rrr ( @rrr ) {
+    $rrr->rmirror( "skip-deletes" => 1 );
+  }
+  my $sleep = $ttgo - time;
+  sleep $sleep if $sleep >= 1;
+}
+
+sub daemonize {
+  chdir '/' or die "Can't chdir to /: $!";
+  open STDIN, '/dev/null' or die "Can't read /dev/null: $!";
+  open STDOUT, '>/dev/null'
+   or die "Can't write to /dev/null: $!";
+  defined( my $pid = fork ) or die "Can't fork: $!";
+  exit if $pid;
+  setsid or die "Can't start a new session: $!";
+  open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
+}
+
+sub usage {
+  "Usage: mirror-cpan [-D|--daemonize] [-C|--config mc.conf]\n";
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
