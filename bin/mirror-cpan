@@ -10,7 +10,7 @@ use Getopt::Long;
 use POSIX qw( setsid );
 use sigtrap qw( die normal-signals );
 
-$0 = 'mirror-cpan';
+( $0 .= ' ' ) =~ s/ $//;
 
 my %DEFAULTS = (
   _ => {
