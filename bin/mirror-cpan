@@ -10,7 +10,7 @@ use Getopt::Long;
 use POSIX qw( setsid );
 use sigtrap qw( die normal-signals );
 
-( $0 .= ' ' ) =~ s/ $//;
+$0 = join ' ', $0, @ARGV;
 
 my %DEFAULTS = (
   _ => {
