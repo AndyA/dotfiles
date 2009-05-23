@@ -18,10 +18,10 @@ GetOptions(
 my @cols = ( $zero ? 0 : 1 ) .. ( $width - ( $zero ? 1 : 0 ) );
 if ( $sparse ) {
   my @pad = map { '.' } @cols;
-  for ( my $i = 0; $i < @pad; $i += 5 ) {
-    $pad[$i] = $cols[$i];
+  for my $i ( 0 .. $#pad ) {
+    $pad[$i] = $cols[$i] unless $cols[$i] % 5;
   }
-  $pad[-1] = $cols[-1];
+  $pad[$_] = $cols[$_] for -1, 0;
   @cols = @pad;
 }
 for my $i ( 0 .. length( $cols[-1] ) - 1 ) {
