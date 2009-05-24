@@ -23,32 +23,57 @@ if ( @ARGV ) {
   chdir $dir or die "Can't cd to $dir ($!)\n";
 }
 
-my $trunk = svn_info()->{URL};
+if ( -d '.svn' ) {
+  my $trunk = svn_info()->{URL};
 
-die "No revision here\n" unless defined $trunk;
-die "This isn't trunk\n" unless $trunk =~ m{/trunk$};
-die "Uncommitted changes found\n" if has_uncommitted();
-my $version = get_version();
-die "Current version can't be determined\n" unless defined $version;
-( my $tags = $trunk ) =~ s{/trunk$}{/tags};
-my $tag = "$tags/$version";
+  die "No revision here\n" unless defined $trunk;
+  die "This isn't trunk\n" unless $trunk =~ m{/trunk$};
+  die "Uncommitted changes found\n" if svn_has_uncommitted();
+  my $version = get_version();
+  die "Current version can't be determined\n" unless defined $version;
+  ( my $tags = $trunk ) =~ s{/trunk$}{/tags};
+  my $tag = "$tags/$version";
 
-unless ( defined svn_info( $tags )->{URL} ) {
-  print "Creating $tags\n";
-  with_cmd( 'svn', 'mkdir', $tags, '-m', 'Created tags dir', sub { } );
+  unless ( defined svn_info( $tags )->{URL} ) {
+    print "Creating $tags\n";
+    with_cmd( 'svn', 'mkdir', $tags, '-m', 'Created tags dir',
+      sub { } );
+  }
+
+  print "Copying $trunk to $tag\n";
+  with_cmd( 'svn', 'cp', $trunk, $tag, '-m', "Tagging $version",
+    sub { } );
+
+  reversion( $version, $opt{version} );
+
+  with_cmd( 'svn', 'commit', '-m', "Bump version to $new_version",
+    sub { } );
+}
+elsif ( -d '.git' ) {
+  die "Uncommitted changes found\n" if git_has_uncommitted();
+  my $version = get_version();
+  die "Current version can't be determined\n" unless defined $version;
+  print "Tagging $version\n";
+  with_cmd( 'git', 'tag', $version, sub { } );
+
+  reversion( $version, $opt{version} );
+
+  with_cmd( 'git', 'commit', '--all', '-m',
+    "Bump version to $new_version",
+    sub { } );
+}
+else {
+  die "Not under version control. Well, nothing that I understand (git, svn) anyway.\n";
 }
 
-print "Copying $trunk to $tag\n";
-with_cmd( 'svn', 'cp', $trunk, $tag, '-m', "Tagging $version",
-  sub { } );
-
-my $new_version
- = defined $opt{version} ? $opt{version} : bump( $version );
-print "Setting version to $new_version\n";
-with_cmd( 'perl-reversion', '--set', $new_version, '--current', $version,
-  sub { print "$_\n" } );
-with_cmd( 'svn', 'commit', '-m', "Bump version to $new_version",
-  sub { } );
+sub reversion {
+  my ( $version, $new_version ) = @_;
+  defined $new_version or $new_version = bump( $version );
+  print "Setting version to $new_version\n";
+  with_cmd( 'perl-reversion', '--set', $new_version, '--current',
+    $version, sub { print "$_\n" } );
+  return $new_version;
+}
 
 sub bump {
   my $version = shift;
@@ -62,12 +87,23 @@ sub bump {
   return "$v";
 }
 
-sub has_uncommitted {
+sub svn_has_uncommitted {
   my $mods = 0;
   with_cmd(
     'svn',
     'status' => sub {
       $mods++ if /^[ADM]/;
+    }
+  );
+  return $mods;
+}
+
+sub git_has_uncommitted {
+  my $mods = 0;
+  with_cmd(
+    'svn',
+    'status' => sub {
+      $mods++ if /^#\s+(?:added|modified|deleted):/;
     }
   );
   return $mods;
