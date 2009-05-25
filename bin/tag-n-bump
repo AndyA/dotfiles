@@ -44,7 +44,7 @@ if ( -d '.svn' ) {
   with_cmd( 'svn', 'cp', $trunk, $tag, '-m', "Tagging $version",
     sub { } );
 
-  reversion( $version, $opt{version} );
+  my $new_version = reversion( $version, $opt{version} );
 
   with_cmd( 'svn', 'commit', '-m', "Bump version to $new_version",
     sub { } );
@@ -56,14 +56,15 @@ elsif ( -d '.git' ) {
   print "Tagging $version\n";
   with_cmd( 'git', 'tag', $version, sub { } );
 
-  reversion( $version, $opt{version} );
+  my $new_version = reversion( $version, $opt{version} );
 
   with_cmd( 'git', 'commit', '--all', '-m',
     "Bump version to $new_version",
     sub { } );
 }
 else {
-  die "Not under version control. Well, nothing that I understand (git, svn) anyway.\n";
+  die
+   "Not under version control. Well, nothing that I understand (git, svn) anyway.\n";
 }
 
 sub reversion {
@@ -101,7 +102,7 @@ sub svn_has_uncommitted {
 sub git_has_uncommitted {
   my $mods = 0;
   with_cmd(
-    'svn',
+    'git',
     'status' => sub {
       $mods++ if /^#\s+(?:added|modified|deleted):/;
     }
