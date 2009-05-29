@@ -1,0 +1,39 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Net::GitHub;
+use Data::Dumper;
+use Config::Tiny;
+use Getopt::Long;
+
+GetOptions(
+  'repo:s'        => \my $Repo,
+  'description:s' => \my $Description,
+  'url:s'         => \my $URL,
+) or die "Stopping\n";
+
+defined $Repo and defined $Description and defined $URL
+ or die "Please specify --repo, --description and --url\n";
+
+use constant GITCONFIG => glob '~/.gitconfig';
+my $conf = Config::Tiny->read( GITCONFIG )
+ or die "Can't read ", GITCONFIG, "\n";
+
+my ( $user, $token ) = @{ $conf->{github} }{ 'user', 'token' };
+defined $user and defined $token
+ or die "Please define github.user and github.token in ", GITCONFIG,
+ "\n";
+
+my $github = Net::GitHub->new(
+  owner => $user,
+  login => $user,
+  token => $token,
+  repo  => $Repo,
+);
+
+$github->repos->create( $Repo, $Description, $URL, 1 );
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
