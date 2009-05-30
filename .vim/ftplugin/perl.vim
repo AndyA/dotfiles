@@ -41,3 +41,7 @@ function! s:tidy()
 endfunction
 
 noremap <buffer> <f2> :call <SID>tidy()<CR>
+
+source ~/.vim/include/flipquotes.vim
+nmap <leader>fq :call FlipQuote()<cr>
+

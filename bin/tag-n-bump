@@ -136,12 +136,12 @@ sub tidy {
 }
 
 sub with_cmd {
-  my ( @cmd ) = @_;
+  my @cmd  = @_;
   my $code = pop @cmd;
-  my $cmd = join ' ', @cmd;
-  open my $sh, '-|', @cmd or die "Can't $cmd ($!)\n";
+  my $cmd  = join ' ', @cmd;
+  open my $sh, '-|', @cmd or die "Can't $cmd ($?)\n";
   while ( <$sh> ) { chomp; $code->() }
-  close $sh or warn "Can't $cmd ($!) -- at exit\n";
+  close $sh or warn "Can't $cmd ($?) -- at exit\n";
   return $?;
 }
 
