@@ -1,6 +1,6 @@
 " Flip the quote type of a string
 
-function! FindStrings(str)
+function! s:find_strings(str)
   let l:pos = 0
   let l:map = []
   while 1
@@ -38,7 +38,7 @@ function! FindStrings(str)
   return l:map
 endfunction
 
-function! FlipEscape(str, qc, cpos)
+function! s:flip_escape(str, qc, cpos)
   let l:pos  = 0
   let l:cpos = a:cpos
   let l:nqc  = tr(a:qc, "'\"", "\"'")
@@ -68,15 +68,19 @@ function! FlipEscape(str, qc, cpos)
   return [ l:out . strpart(a:str, l:pos), l:cpos ]
 endfunction
 
+function! s:vis_bounds()
+  return [ col("'<"), line("'<"), col("'>"), line("'>") ] 
+endfunction
+
 function! FlipQuote()
   let l:line = getline('.')
   let l:pos  = col('.') - 1
-  let l:map  = FindStrings(l:line)
+  let l:map  = s:find_strings(l:line)
   for l:str in l:map
     if l:pos >= l:str[0] && l:pos < l:str[1]
       let l:qc  = strpart(l:line, l:str[0], 1)
       let l:ncq = tr(l:qc, "'\"", "\"'")
-      let l:flp = FlipEscape(
+      let l:flp = s:flip_escape(
         \     strpart(l:line, l:str[0] + 1, l:str[1] - l:str[0] - 2), 
         \     l:qc, l:pos - l:str[0] - 1)
       call setline('.', strpart(l:line, 0, l:str[0]) 

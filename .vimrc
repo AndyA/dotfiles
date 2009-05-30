@@ -57,8 +57,6 @@ let mapleader=','
 vmap bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \| 
   \sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
 
-nmap <leader>tp :tabp<cr> 
-nmap <leader>tn :tabn<cr> 
 nmap <leader>tl :TlistToggle<cr>
 
 if has('mac')
@@ -69,8 +67,8 @@ endif
 noremap <f3> <esc>:previous<cr>
 noremap <f4> <esc>:next<cr>
 
-noremap <f5> <esc>:bprevious<cr>
-noremap <f6> <esc>:bnext<cr>
+"noremap <f5> <esc>:bprevious<cr>
+"noremap <f6> <esc>:bnext<cr>
 
 noremap <f7> <esc>:cprevious<cr>
 noremap <f8> <esc>:cnext<cr>
