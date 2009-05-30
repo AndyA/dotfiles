@@ -38,11 +38,12 @@ function! FindStrings(str)
   return l:map
 endfunction
 
-function! FlipEscape(str, qc)
-  let l:pos = 0
-  let l:nqc = tr(a:qc, "'\"", "\"'")
-  let l:pat = "\\m[\\\\" . l:nqc . "]"
-  let l:out = ''
+function! FlipEscape(str, qc, cpos)
+  let l:pos  = 0
+  let l:cpos = a:cpos
+  let l:nqc  = tr(a:qc, "'\"", "\"'")
+  let l:pat  = "\\m[\\\\" . l:nqc . "]"
+  let l:out  = ''
   while 1
     let l:hit = match(a:str, l:pat, l:pos)
     if l:hit < 0
@@ -60,8 +61,11 @@ function! FlipEscape(str, qc)
       let l:out = l:out . '\' . l:nqc
       let l:pos = l:hit + 1
     endif
+    if a:cpos >= l:pos
+      let l:cpos = l:cpos + strlen(l:out) - l:pos
+    endif
   endwhile
-  return l:out . strpart(a:str, l:pos)
+  return [ l:out . strpart(a:str, l:pos), l:cpos ]
 endfunction
 
 function! FlipQuote()
@@ -72,10 +76,13 @@ function! FlipQuote()
     if l:pos >= l:str[0] && l:pos < l:str[1]
       let l:qc  = strpart(l:line, l:str[0], 1)
       let l:ncq = tr(l:qc, "'\"", "\"'")
-      call setline('.', strpart(l:line, 0, l:str[0]) . l:ncq
-        \ . FlipEscape(
-        \     strpart(l:line, l:str[0] + 1, l:str[1] - l:str[0] - 2), l:qc)
-        \ . l:ncq . strpart(l:line, l:str[1]))
+      let l:flp = FlipEscape(
+        \     strpart(l:line, l:str[0] + 1, l:str[1] - l:str[0] - 2), 
+        \     l:qc, l:pos - l:str[0] - 1)
+      call setline('.', strpart(l:line, 0, l:str[0]) 
+        \ . l:ncq . l:flp[0] . l:ncq . strpart(l:line, l:str[1]))
+      call cursor(0, l:flp[1] + l:str[0] + 2)
+      break
     endif
   endfor
 endfunction
