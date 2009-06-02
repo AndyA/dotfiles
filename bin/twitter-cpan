@@ -41,16 +41,6 @@ my @keys = map { $_->[0] }
  grep { defined $_->[1] }
  map { [ $_, str2time( $dir->{$_}->{date} ) ] } keys %$dir;
 
-my %LIKE = (
-  'http://search.cpan.org/~jfriedl/Yahoo-Search-1.9.12/' => {
-    'link'    => 'http://search.cpan.org/~jfriedl/Yahoo-Search-1.9.12/',
-    'creator' => 'Jeffrey Friedl',
-    'date'    => '2007-03-20T03:14+00:00',
-    'title'   => 'Yahoo-Search-1.9.12',
-    'description' => 'Perl interface to the Yahoo! Search public API. '
-  },
-);
-
 my $twit
  = Net::Twitter->new( username => 'cpan', password => 'twinkle57' );
 
@@ -60,7 +50,7 @@ for my $key ( @keys ) {
 
   # Shite
   next if $dist->{title} eq 'search.cpan.org';
-  my $desc = $dist->{title} . ' by ' . $dist->{creator};
+  my $desc = $dist->{title} . ' by ' . $dist->{creator} . ' #perl';
   $twit->update( $desc );
 }
 
