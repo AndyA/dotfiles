@@ -30,7 +30,6 @@ function! s:find_strings(str)
     if l:stre < 0
       break
     else
-      "echo l:strs l:stre strpart(a:str, l:strs, l:stre - l:strs)
       let l:map = add(l:map, [l:strs, l:stre])
       let l:pos = l:stre + 1
     endif
@@ -72,21 +71,71 @@ function! s:vis_bounds()
   return [ col("'<"), line("'<"), col("'>"), line("'>") ] 
 endfunction
 
+function! s:is_bare(str)
+  return match(a:str, "\\m^-\\?[_a-zA-Z][_a-zA-Z0-9]*$") == 0
+endfunction
+
+function! s:matchg(str, pat)
+  let l:pos = 0
+  let l:map = []
+  while l:pos < strlen(a:str)
+    let l:mats = match(a:str, a:pat, l:pos)
+    if l:mats < 0
+      break
+    endif
+    let l:mate = matchend(a:str, a:pat, l:pos)
+    let l:map  = add(l:map, [l:mats, l:mate])
+    let l:pos  = l:mate
+    if l:mats == l:mate
+      let l:pos = l:pos + 1
+    endif
+  endwhile
+  return l:map
+endfunction
+
+function! s:find_bare(str)
+  return s:matchg(a:str, "\\m-\\?[_a-zA-Z][_a-zA-Z0-9]*")
+endfunction
+
 function! FlipQuote()
+
   let l:line = getline('.')
   let l:pos  = col('.') - 1
   let l:map  = s:find_strings(l:line)
+
   for l:str in l:map
     if l:pos >= l:str[0] && l:pos < l:str[1]
       let l:qc  = strpart(l:line, l:str[0], 1)
-      let l:ncq = tr(l:qc, "'\"", "\"'")
-      let l:flp = s:flip_escape(
-        \     strpart(l:line, l:str[0] + 1, l:str[1] - l:str[0] - 2), 
-        \     l:qc, l:pos - l:str[0] - 1)
+      let l:sub = strpart(l:line, l:str[0] + 1, l:str[1] - l:str[0] - 2)
+      if l:qc == "'" && s:is_bare(l:sub)
+        let l:rep = l:sub
+        call cursor(0, l:pos)
+      else
+        let l:ncq = tr(l:qc, "'\"", "\"'")
+        let l:flp = s:flip_escape(l:sub, l:qc, l:pos - l:str[0] - 1)
+        let l:rep = l:ncq . l:flp[0] . l:ncq
+        call cursor(0, l:flp[1] + l:str[0] + 2)
+      endif
       call setline('.', strpart(l:line, 0, l:str[0]) 
-        \ . l:ncq . l:flp[0] . l:ncq . strpart(l:line, l:str[1]))
-      call cursor(0, l:flp[1] + l:str[0] + 2)
+        \ . l:rep . strpart(l:line, l:str[1]))
+      return
+    elseif l:pos < l:str[1]
       break
     endif
   endfor
+
+  " Not inside a string; look for a bareword to quote
+  let l:map = s:find_bare(l:line)
+  for l:str in l:map
+    if l:pos >= l:str[0] && l:pos < l:str[1]
+      call cursor(0, l:pos + 2)
+      call setline('.', strpart(l:line, 0, l:str[0]) 
+        \ . '"' . strpart(l:line, l:str[0], l:str[1] - l:str[0]) . '"'
+        \ . strpart(l:line, l:str[1]))
+      return
+    elseif l:pos < l:str[1]
+      break
+    endif
+  endfor
+
 endfunction
