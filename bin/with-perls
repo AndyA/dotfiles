@@ -23,6 +23,7 @@ my $perls = get_filtered( $range, @has );
 die "No matching perl versions found\n"
  unless keys %$perls;
 if ( @ARGV ) {
+  my @results = ();
   PERL: for my $ver ( vsort( keys %$perls ) ) {
     my $perl = $perls->{$ver};
     local $ENV{PERL}         = $perl;
@@ -35,7 +36,9 @@ if ( @ARGV ) {
       print "Exit: $rc\n";
       last PERL if $stop;
     }
+    push @results, [ $ver, $rc, join( ' ', @cmd ) ];
   }
+  printf "%10s %5d %s\n", @$_ for @results;
 }
 else {
   print "No command specified. If there was a command\n",
