@@ -82,8 +82,7 @@ sub get_filtered {
         map { Perl::Version->new( $_ ) }
          $clause =~ /^(.*?)(?:-|\.\.)(.*)$/
         ? ( ( $1 ? $1 : 0 ), ( $2 ? $2 : 9999 ) )
-        : ( $clause, $clause )
-       ];
+        : ( $clause, $clause ) ];
     }
 
     my $match = sub {
@@ -122,7 +121,10 @@ sub get_perls {
 
 sub get_version {
   my $perl = shift;
-  `$perl -MConfig -e 'print \$Config{version}'`;
+  return
+      `$perl -MConfig -e 'print \$Config{version}'`
+   || ( $perl =~ Perl::Version::REGEX && "$1$2$3" )
+   || '(unknown)';
 }
 
 sub bigness {
