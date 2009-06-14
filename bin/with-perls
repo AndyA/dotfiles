@@ -16,9 +16,12 @@ GetOptions(
   'R|range:s' => \my $range,
   'B|big'     => \my $big,
   'stop'      => \my $stop,
+  'H|has:s'   => \my @has,
 ) or die "Stopping.\n";
 
-my $perls = get_filtered( $range );
+my $perls = get_filtered( $range, @has );
+die "No matching perl versions found\n"
+ unless keys %$perls;
 if ( @ARGV ) {
   PERL: for my $ver ( vsort( keys %$perls ) ) {
     my $perl = $perls->{$ver};
@@ -54,31 +57,53 @@ sub vsort {
    map { [ $_, Perl::Version->new( $_ ) ] } @_;
 }
 
+sub has_modules {
+  my ( $perl, @modules ) = @_;
+  !system $perl, '-e', 'eval "require $_" || exit 1 for @ARGV',
+   @modules;
+}
+
 sub get_filtered {
-  my $range = shift;
-  return get_perls() unless $range;
-  my @cond = ();
-  for my $clause ( split /,/, $range ) {
-    push @cond,
-     [
-      map { Perl::Version->new( $_ ) }
-       $clause =~ /^(.*?)(?:-|\.\.)(.*)$/
-      ? ( ( $1 ? $1 : 0 ), ( $2 ? $2 : 9999 ) )
-      : ( $clause, $clause ) ];
+  my ( $range, @has ) = @_;
+
+  my $perls = get_perls();
+
+  if ( defined $range ) {
+    my @cond = ();
+    for my $clause ( split /,/, $range ) {
+      push @cond,
+       [
+        map { Perl::Version->new( $_ ) }
+         $clause =~ /^(.*?)(?:-|\.\.)(.*)$/
+        ? ( ( $1 ? $1 : 0 ), ( $2 ? $2 : 9999 ) )
+        : ( $clause, $clause )
+       ];
+    }
+
+    my $match = sub {
+      my $v = Perl::Version->new( shift );
+      $v >= $_->[0] && $v <= $_->[1] && return 1 for @cond;
+      return;
+    };
+
+    my %filtperls = ();
+    while ( my ( $ver, $bin ) = each %$perls ) {
+      $filtperls{$ver} = $bin if $match->( $ver );
+    }
+
+    $perls = \%filtperls;
   }
 
-  my $match = sub {
-    my $v = Perl::Version->new( shift );
-    $v >= $_->[0] && $v <= $_->[1] && return 1 for @cond;
-    return;
-  };
+  if ( @has ) {
+    my %filtperls = ();
+    while ( my ( $ver, $bin ) = each %$perls ) {
+      $filtperls{$ver} = $bin if has_modules( $bin, @has );
+    }
 
-  my %perls = ();
-  while ( my ( $ver, $bin ) = each %{ get_perls() } ) {
-    $perls{$ver} = $bin if $match->( $ver );
+    $perls = \%filtperls;
   }
 
-  return \%perls;
+  return $perls;
 }
 
 sub get_perls {
