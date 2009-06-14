@@ -22,8 +22,9 @@ my $perls = get_filtered( $range );
 if ( @ARGV ) {
   PERL: for my $ver ( vsort( keys %$perls ) ) {
     my $perl = $perls->{$ver};
-    local $ENV{PERL}      = $perl;
-    local $ENV{PERL_HOME} = dirname dirname $perl;
+    local $ENV{PERL}         = $perl;
+    local $ENV{PERL_HOME}    = dirname dirname $perl;
+    local $ENV{PERL_VERSION} = $ver;
     print "\n", $big ? bigness( $ver ) : "Running with $perl\n\n";
     my @cmd = map { subst( $_, \%ENV ) } @ARGV;
     my $rc = system @cmd;
