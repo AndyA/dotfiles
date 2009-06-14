@@ -61,8 +61,8 @@ sub get_filtered {
     push @cond,
      [
       map { Perl::Version->new( $_ ) }
-       $clause =~ /^(.+?)(?:-|\.\.)(.+)$/
-      ? ( $1, $2 )
+       $clause =~ /^(.*?)(?:-|\.\.)(.*)$/
+      ? ( ( $1 ? $1 : 0 ), ( $2 ? $2 : 9999 ) )
       : ( $clause, $clause ) ];
   }
 
