@@ -9,6 +9,7 @@ use Data::Dumper;
 use File::Basename;
 use Getopt::Long qw(:config pass_through);
 use Perl::Version;
+use Term::ANSIColor;
 
 use constant PERLS => '~/Works/Perl/versions';
 
@@ -38,13 +39,15 @@ if ( @ARGV ) {
     }
     push @results, [ $ver, $rc, join( ' ', @cmd ) ];
   }
-  printf "%10s %5d %s\n", @$_ for @results;
+  print colored [ $_->[1] ? 'red' : 'green' ],
+   sprintf( "%10s %5d %s\n", @$_ )
+   for @results;
 }
 else {
   print "No command specified. If there was a command\n",
    "it would be run against these perls:\n";
   for my $ver ( vsort( keys %$perls ) ) {
-    printf " %10s %s\n", $ver, $perls->{$ver};
+    printf "%10s %s\n", $ver, $perls->{$ver};
   }
 }
 
