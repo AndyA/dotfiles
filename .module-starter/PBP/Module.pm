@@ -3,6 +3,8 @@ package <MODULE NAME>;
 use warnings;
 use strict;
 
+use Carp;
+
 =head1 NAME
 
 <MODULE NAME> - [One line description of module's purpose here]
@@ -17,13 +19,13 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-    use <MODULE NAME>;
+  use <MODULE NAME>;
   
 =head1 DESCRIPTION
 
 =head1 INTERFACE 
 
-=head2 C<< somfunc >>
+=head2 C<< new >>
 
 =cut
 
@@ -43,8 +45,6 @@ None.
 None reported.
 
 =head1 BUGS AND LIMITATIONS
-
-No bugs have been reported.
 
 Please report any bugs or feature requests to
 C<bug-<RT NAME>@rt.cpan.org>, or through the web interface at
