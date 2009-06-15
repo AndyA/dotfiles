@@ -14,13 +14,16 @@ use Term::ANSIColor;
 use constant PERLS => '~/Works/Perl/versions';
 
 GetOptions(
-  'R|range:s' => \my $range,
-  'B|big'     => \my $big,
-  'stop'      => \my $stop,
-  'H|has:s'   => \my @has,
+  'R|range:s'   => \my $range,
+  'B|big'       => \my $big,
+  'stop'        => \my $stop,
+  'H|has:s'     => \my @has,
+  'M|missing:s' => \my @hasnot,
+  'nondevel'    => \my $nondevel,
+  'devel'       => \my $devel,
 ) or die "Stopping.\n";
 
-my $perls = get_filtered( $range, @has );
+my $perls = get_filtered( $range, \@has, \@hasnot, $devel, $nondevel );
 die "No matching perl versions found\n"
  unless keys %$perls;
 if ( @ARGV ) {
@@ -69,8 +72,17 @@ sub has_modules {
    @modules;
 }
 
+sub filter {
+  my ( $perls, $filter ) = @_;
+  my %filtperls = ();
+  while ( my ( $ver, $bin ) = each %$perls ) {
+    $filtperls{$ver} = $bin if $filter->( $ver, $bin );
+  }
+  return \%filtperls;
+}
+
 sub get_filtered {
-  my ( $range, @has ) = @_;
+  my ( $range, $has, $hasnot, $devel, $nondevel ) = @_;
 
   my $perls = get_perls();
 
@@ -85,30 +97,32 @@ sub get_filtered {
         : ( $clause, $clause ) ];
     }
 
-    my $match = sub {
-      my $v = Perl::Version->new( shift );
-      $v >= $_->[0] && $v <= $_->[1] && return 1 for @cond;
-      return;
-    };
-
-    my %filtperls = ();
-    while ( my ( $ver, $bin ) = each %$perls ) {
-      $filtperls{$ver} = $bin if $match->( $ver );
-    }
-
-    $perls = \%filtperls;
+    $perls = filter(
+      $perls,
+      sub {
+        my ( $ver, $bin ) = @_;
+        my $v = Perl::Version->new( $ver );
+        $v >= $_->[0] && $v <= $_->[1] && return 1 for @cond;
+        return;
+      } );
   }
 
-  if ( @has ) {
-    my %filtperls = ();
-    while ( my ( $ver, $bin ) = each %$perls ) {
-      $filtperls{$ver} = $bin if has_modules( $bin, @has );
-    }
-
-    $perls = \%filtperls;
-  }
+  $perls = filter( $perls, sub { has_modules( $_[1], @$has ) } )
+   if @$has;
+  $perls = filter( $perls, sub { !has_modules( $_[1], @$hasnot ) } )
+   if @$hasnot;
+  $perls = filter( $perls, sub { is_devel( $_[0] ) } )
+   if $devel;
+  $perls = filter( $perls, sub { !is_devel( $_[0] ) } )
+   if $nondevel;
 
   return $perls;
+}
+
+sub is_devel {
+  my $ver = shift;
+  my $v   = Perl::Version->new( $ver );
+  return $v->version % 2;
 }
 
 sub get_perls {
