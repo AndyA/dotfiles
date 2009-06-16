@@ -29,13 +29,17 @@ die "No matching perl versions found\n"
 if ( @ARGV ) {
   my @results = ();
   PERL: for my $ver ( vsort( keys %$perls ) ) {
-    my $perl = $perls->{$ver};
+    my $perl    = $perls->{$ver};
+    my $bindir  = dirname $perl;
+    my $homedir = dirname $bindir;
     local $ENV{PERL}         = $perl;
-    local $ENV{PERL_HOME}    = dirname dirname $perl;
+    local $ENV{PERL_HOME}    = $homedir;
     local $ENV{PERL_VERSION} = $ver;
+    local $ENV{PATH}         = join ':', $bindir, $ENV{PATH};
     print "\n", $big ? bigness( $ver ) : "Running with $perl\n\n";
     my @cmd = map { subst( $_, \%ENV ) } @ARGV;
     my $rc = system @cmd;
+
     if ( $rc ) {
       print "Exit: $rc\n";
       last PERL if $stop;
@@ -94,7 +98,8 @@ sub get_filtered {
         map { Perl::Version->new( $_ ) }
          $clause =~ /^(.*?)(?:-|\.\.)(.*)$/
         ? ( ( $1 ? $1 : 0 ), ( $2 ? $2 : 9999 ) )
-        : ( $clause, $clause ) ];
+        : ( $clause, $clause )
+       ];
     }
 
     $perls = filter(
@@ -104,7 +109,8 @@ sub get_filtered {
         my $v = Perl::Version->new( $ver );
         $v >= $_->[0] && $v <= $_->[1] && return 1 for @cond;
         return;
-      } );
+      }
+    );
   }
 
   $perls = filter( $perls, sub { has_modules( $_[1], @$has ) } )
