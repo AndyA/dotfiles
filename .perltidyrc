@@ -12,5 +12,3 @@
 -nola
 -nbbc
 -wbb="% + - * / x != == >= <= =~ !~ < > | & >= < = **= += *= &= <<= &&= -= /= |= >>= ||= .= %= ^= x="
---stack-opening-tokens
---stack-closing-tokens
