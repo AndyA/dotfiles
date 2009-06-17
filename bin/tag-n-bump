@@ -71,7 +71,7 @@ sub reversion {
   my ( $version, $new_version ) = @_;
   defined $new_version or $new_version = bump( $version );
   print "Setting version to $new_version\n";
-  if ( -d '.bump' ) {
+  if ( -e '.bump' ) {
     local $ENV{OLD_VERSION} = $version;
     local $ENV{NEW_VERSION} = $new_version;
     system 'sh', '.bump';
