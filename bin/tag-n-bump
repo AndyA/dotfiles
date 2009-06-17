@@ -71,8 +71,15 @@ sub reversion {
   my ( $version, $new_version ) = @_;
   defined $new_version or $new_version = bump( $version );
   print "Setting version to $new_version\n";
-  with_cmd( 'perl-reversion', '--set', $new_version, '--current',
-    $version, sub { print "$_\n" } );
+  if ( -d '.bump' ) {
+    local $ENV{OLD_VERSION} = $version;
+    local $ENV{NEW_VERSION} = $new_version;
+    system 'sh', '.bump';
+  }
+  else {
+    with_cmd( 'perl-reversion', '--set', $new_version, '--current',
+      $version, sub { print "$_\n" } );
+  }
   return $new_version;
 }
 
