@@ -24,7 +24,7 @@ for my $host ( @hosts ) {
   for my $dir ( sort keys %by_dir ) {
     my @obj = map { "$dir/$_" } sort keys %{ $by_dir{$dir} };
     my $cmd = join ' ', 'rsync', '-az', @obj, "$host:$dir";
-    print "$cmd\n";
+    print "  $cmd\n";
     system $cmd;
   }
 }
