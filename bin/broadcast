@@ -10,7 +10,30 @@ my @hosts = gethosts();
 my %by_dir = ();
 my $home   = glob '~';
 
-for my $obj ( @ARGV ) {
+# rsync options that take args
+my %warg = map { $_ => 1 } qw(
+ --address --backup-dir --block-size --bwlimit --checksum-seed
+ --chmod --compare-dest --compress-level --config --contimeout
+ --copy-dest --exclude --exclude-from --files-from --filter
+ --iconv --include --include-from --link-dest --log-file
+ --log-file-format --max-delete --max-size --min-size
+ --modify-window --only-write-batch --out-format --partial-dir
+ --password-file --port --protocol --read-batch --rsh
+ --rsync-path --skip-compress --sockopts --suffix --temp-dir
+ --timeout --write-batch -B -T -e -f
+);
+
+my ( @switches, @args );
+while ( defined( my $a = shift ) ) {
+  if ( $a =~ /^-/ ) {
+    push @switches, $a;
+    push @switches, shift if $warg{$a};
+    next;
+  }
+  push @args, $a;
+}
+
+for my $obj ( @args ) {
   $obj =~ s{/$}{} if -d $obj;
   $obj =~ s{^\Q$home}{~};
   my ( $dir, $leaf )
@@ -23,7 +46,7 @@ for my $obj ( @ARGV ) {
 for my $host ( @hosts ) {
   for my $dir ( sort keys %by_dir ) {
     my @obj = map { "$dir/$_" } sort keys %{ $by_dir{$dir} };
-    my $cmd = join ' ', 'rsync', '-az', @obj, "$host:$dir";
+    my $cmd = join ' ', 'rsync', @switches, @obj, "$host:$dir";
     print "  $cmd\n";
     system $cmd;
   }
