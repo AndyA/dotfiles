@@ -5,6 +5,8 @@ use warnings;
 
 use Net::Twitter;
 use Config::Tiny;
+use Data::Dumper;
+
 #use Getopt::Long qw(:config pass_through);
 
 use constant CONF => glob '~/.twitter';
@@ -17,9 +19,17 @@ die "No credentials for $user in ", CONF
  unless exists $cfg->{$user};
 
 my $twit = Net::Twitter->new(
+  traits   => [qw/API::REST/],
   username => $cfg->{$user}{user},
   password => $cfg->{$user}{pass}
 );
 
 my $msg = join ' ', @ARGV;
-$twit->update($msg);
+
+eval { $twit->update( $msg ) };
+if ( my $err = $@ ) {
+  die $@ unless blessed $err && $err->isa( 'Net::Twitter::Error' );
+  warn "HTTP Response Code: ", $err->code, "\n",
+   "HTTP Message......: ", $err->message, "\n",
+   "Twitter error.....: ", $err->error,   "\n";
+}
