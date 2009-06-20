@@ -4,7 +4,7 @@ here=`pwd`
 libperl="libperl.dylib"
 
 if [ -e $libperl ] && [ -x perl ]; then
-  DYLD_LIBRARY_PATH=$here $here/perl -I$here/lib -I$here/lib/auto $*
+  DYLD_LIBRARY_PATH=$here $here/perl -I$here/lib -I$here/lib/auto "$@"
 else
   echo >&2 "Missing perl or $libperl"
   exit 1
