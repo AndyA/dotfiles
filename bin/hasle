@@ -3,6 +3,11 @@
 
 package store;
 
+use strict;
+use warnings;
+
+use Fcntl ':flock';
+
 use constant PURGE_TOUCH => 10;
 
 sub new { bless {}, shift }
@@ -37,9 +42,10 @@ sub history {
 
 sub touch {
   my ( $self, $k ) = @_;
-  my $val = $self->get( $k );
+  my $val    = $self->get( $k );
+  my $recent = $self->history( 0 );
   unshift @{ $self->{touch} }, $k
-   if defined $val && $self->history( 0 ) ne $k;
+   if defined $val && ( !defined $recent || $recent ne $k );
   return $val;
 }
 
@@ -66,8 +72,9 @@ sub pre_save {
 sub load {
   my ( $self, $file ) = @_;
   open my $in, '<', $file or die "Can't read $file ($!)\n";
+  flock $in, LOCK_SH or die "Can't lock $file ($!)\n";
   while ( defined( my $line = <$in> ) ) {
-    chomp;
+    chomp $line;
     die "Badly formed line: $line ($file, $.)\n"
      unless $line =~ m/^(.+?)=(.*)$/;
     my ( $k, $v ) = map { $self->decode( $_ ) } $1, $2;
@@ -76,9 +83,20 @@ sub load {
   $self->post_load;
 }
 
+sub openout {
+  my ( $self, $file ) = @_;
+  for my $mode ( '+<', '>' ) {
+    if ( open my $out, $mode, $file ) {
+      flock $out, LOCK_EX or die "Can't lock $file ($!)\n";
+      return $out;
+    }
+  }
+  die "Can't write $file ($!)\n";
+}
+
 sub save {
   my ( $self, $file ) = @_;
-  open my $out, '>', $file or die "Can't write $file ($!)\n";
+  my $out = $self->openout( $file );
   $self->pre_save;
   for my $k ( @{ $self->{order} } ) {
     print $out $self->encode( $k ), '=',
