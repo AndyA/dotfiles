@@ -10,7 +10,9 @@ use Fcntl ':flock';
 
 use constant PURGE_TOUCH => 10;
 
-sub new { bless {}, shift }
+my $HOME = glob '~';
+
+sub new { my $cl = shift; bless {@_}, $cl }
 
 sub encode {
   my ( $self, $str ) = @_;
@@ -22,6 +24,20 @@ sub decode {
   my ( $self, $str ) = @_;
   $str =~ s/%([0-9a-f]{2})/chr(hex($1))/eg;
   return $str;
+}
+
+sub englob {
+  my ( $self, $v ) = @_;
+  return $v unless $self->{glob} && defined $v;
+  $v =~ s/^\Q$HOME/~/;
+  return $v;
+}
+
+sub deglob {
+  my ( $self, $v ) = @_;
+  return $v unless $self->{glob} && defined $v;
+  $v =~ s/^~/$HOME/;
+  return $v;
 }
 
 sub put {
@@ -78,7 +94,7 @@ sub load {
     die "Badly formed line: $line ($file, $.)\n"
      unless $line =~ m/^(.+?)=(.*)$/;
     my ( $k, $v ) = map { $self->decode( $_ ) } $1, $2;
-    $self->put( $k, $v );
+    $self->put( $k, $self->deglob( $v ) );
   }
   $self->post_load;
 }
@@ -88,6 +104,7 @@ sub openout {
   for my $mode ( '+<', '>' ) {
     if ( open my $out, $mode, $file ) {
       flock $out, LOCK_EX or die "Can't lock $file ($!)\n";
+      truncate $out, 0;
       return $out;
     }
   }
@@ -100,7 +117,7 @@ sub save {
   $self->pre_save;
   for my $k ( @{ $self->{order} } ) {
     print $out $self->encode( $k ), '=',
-     $self->encode( $self->get( $k ) ), "\n";
+     $self->encode( $self->englob( $self->get( $k ) ) ), "\n";
   }
 }
 
@@ -120,7 +137,7 @@ package main;
 
 use strict;
 use warnings;
-use Getopt::Long;
+use Getopt::Long qw( :config bundling );
 use Pod::Usage;
 
 my $help     = 0;
@@ -130,6 +147,7 @@ my $get      = 0;
 my $put      = 0;
 my $list     = 0;
 my $complete = 0;
+my $glob     = 0;
 
 #print STDERR join( '|', @ARGV ), "\n";
 
@@ -141,6 +159,7 @@ GetOptions(
   'p'       => \$put,
   'l'       => \$list,
   'c'       => \$complete,
+  'x'       => \$glob,
 ) or pod2usage( 2 );
 
 pod2usage( 1 ) if $help;
@@ -151,7 +170,7 @@ my $db = shift or die "You must name a database file\n";
 die "Only one of -g, -p, -l or -c may be specified\n"
  if 1 < grep $_, $get, $put, $list, $complete;
 
-my $store = store->new;
+my $store = store->new( glob => $glob );
 $store->load( $db ) if -e $db;
 
 if ( $get ) {

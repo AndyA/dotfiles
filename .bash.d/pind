@@ -3,19 +3,19 @@
 # Pin the current directory.
 function pind() {
   local key=${1:-=}
-  hasle ~/.pind -p $key "`pwd`"
+  hasle ~/.pind -px $key "`pwd`"
 }
 
 # CD to a pinned directory
 function cdpin() {
   local key=${1:-=}
-  cd "`hasle ~/.pind -g $key`"
+  cd "`hasle ~/.pind -gx $key`"
 }
 
 function _cdpin() {
   local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=(
-    $( hasle ~/.pind -c $cur )
+    $( hasle ~/.pind -cx $cur )
   )
 }
 
