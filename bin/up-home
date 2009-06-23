@@ -4,5 +4,5 @@
 
 for h in $HOSTS ; do
     echo "Updating $h"
-    ssh $h 'svn up'
+    ssh $h 'cd ~ && svn up'
 done
