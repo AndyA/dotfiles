@@ -1,4 +1,13 @@
 #!/bin/sh
 
 home='ripley'
+remote='vpn.hexten.net'
 dig $home txt | grep ^$home > /dev/null
+athome=$?
+for dom in $*; do
+  if [ $athome != 0 ]; then
+    dom=${dom/%$home/$remote}
+  fi
+  echo $dom
+done
+exit $athome
