@@ -3,6 +3,7 @@
 . ~/.ripley
 
 for h in $HOSTS ; do
-    echo "Updating $h"
-    ssh $h 'cd ~ && svn up'
+  host=$(athome "$h.ripley")
+  echo "Updating $host"
+  ssh $host 'cd ~ && svn up'
 done
