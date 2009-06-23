@@ -1,0 +1,4 @@
+#!/bin/sh
+
+home='ripley'
+dig $home txt | grep ^$home > /dev/null
