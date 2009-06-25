@@ -6,7 +6,7 @@ _build*
 pm_to_blib*
 *.tar.gz
 .lwpcookies
-Devel-LeakTrack-Object-*
+[% module.dist %]-*
 cover_db
 *.bak
 .*.swp

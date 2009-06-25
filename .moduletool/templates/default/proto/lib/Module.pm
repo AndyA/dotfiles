@@ -52,11 +52,11 @@ L<http://rt.cpan.org>.
 
 =head1 AUTHOR
 
-[% author.name %]  C<< <[% author.year %]> >>
+[% author.name %]  C<< <[% author.email %]> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) [% meta.year %], [% author.name %]  C<< <[% author.year %]> >>.
+Copyright (c) [% meta.year %], [% author.name %]  C<< <[% author.email %]> >>.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.

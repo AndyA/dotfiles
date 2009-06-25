@@ -1,4 +1,4 @@
-Module version 0.01
+[% module.name %] version 0.01
 
 INSTALLATION
 
@@ -15,7 +15,7 @@ None.
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2009, Andy Armstrong
+Copyright (C) [% meta.year %], [% author.name %]
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
