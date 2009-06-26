@@ -12,3 +12,4 @@ cover_db
 .*.swp
 .prove
 Session.vim
+postinstall.sh

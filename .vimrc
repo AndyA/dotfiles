@@ -80,7 +80,7 @@ noremap <C-Left>  <esc><C-w>h<C-w>_
 noremap <C-Right> <esc><C-w>l<C-w>_
 
 " Edit, load ~/.vimrc
-map ,v :spl ~/.vimrc<CR><C-W>_
-map <silent> ,V :source ~/.vimrc<CR>:filetype detect<CR>
+map <leader>V :spl ~/.vimrc<CR><C-W>_
+map <silent> <leader>W :source ~/.vimrc<CR>:filetype detect<CR>
       \ :exe ":echo 'vimrc reloaded'"<CR>
 
