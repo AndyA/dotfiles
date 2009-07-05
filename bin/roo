@@ -1,11 +1,10 @@
 #!/usr/bin/env perl
 
-use strict;
-use warnings;
+use latest;
 
 use Getopt::Long;
 
-my $width  = 80;
+my $width  = $ENV{COLUMNS} // 80;
 my $zero   = 0;
 my $sparse = 0;
 
