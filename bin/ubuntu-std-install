@@ -74,6 +74,7 @@ apt-get install \
   rubygems \
   subversion \
   subversion-tools \
+  sysstat \
   systemtap \
   tcpdump \
   tofrodos \
