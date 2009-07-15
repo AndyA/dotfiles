@@ -4,3 +4,4 @@ set hostname="hexten.net"
 set from="andy@hexten.net"
 set index_format="%4C %Z %d %-15.15L (%4l) %s"
 set date_format="%Y/%m/%d %H:%M:%S"
+set include=yes
