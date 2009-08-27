@@ -1,6 +1,8 @@
 #!/bin/bash
 
-for i in *.m4a; do
-  echo "Converting: ${i%.m4a}.mp3"
-  faad -o - "$i" | twolame - "${i%.m4a}.mp3"
+find . -type f -name \*.m4a | while read i ; do
+  o="${i%.m4a}.mp3"
+  echo "Converting: $o"
+  faad -q -o - "$i" | twolame -t 0 -r - "$o"
+  rm -f "$i"
 done
