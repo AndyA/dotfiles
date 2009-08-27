@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in *.m4a; do
+  echo "Converting: ${i%.m4a}.mp3"
+  faad -o - "$i" | twolame - "${i%.m4a}.mp3"
+done
