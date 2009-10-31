@@ -31,6 +31,11 @@
 # group1 = *.collab.net
 # othergroup = repository.blarggitywhoomph.com
 # thirdgroup = *.example.com
+bbc = *.bbc.co.uk
+
+[bbc]
+ssl-client-cert-file = /Users/andy/.subversion/certs/andy.p12
+ssl-client-cert-password = crabcrab
 
 ### Information for the first group:
 # [group1]
@@ -73,3 +78,5 @@
 # No http-timeout, so just use the builtin default.
 # No neon-debug-mask, so neon debugging is disabled.
 # ssl-authority-files = /path/to/CAcert.pem;/path/to/CAcert2.pem
+# ssl-authority-files = /Users/andy/.subversion/certs/andy.p12
+
