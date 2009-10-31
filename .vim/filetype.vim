@@ -8,15 +8,8 @@ augroup filetypedetect
   au! BufRead,BufNewFile *.tt2    setfiletype tt2html
   au! BufRead,BufNewFile *.wiki   setfiletype Wikipedia
   au! BufRead,BufNewFile *.schema setfiletype sql
+  au! BufRead,BufNewFile *.as     setfiletype actionscript
+  au! BufRead,BufNewFile *.mxml   setfiletype mxml
 augroup END
 
 :let b:tt2_syn_tags = '\[% %] <!-- -->' 
-
-"au BufNewFile,BufRead *.tt2 
-"  \ if ( getline(1) . getline(2) . getline(3) =~ '<\chtml' 
-"  \           && getline(1) . getline(2) . getline(3) !~ '<[%?]' ) 
-"  \   || getline(1) =~ '<!DOCTYPE HTML' | 
-"  \   setf tt2html | 
-"  \ else | 
-"  \   setf tt2 | 
-"  \ endif 
