@@ -6,3 +6,4 @@ for d in /usr/local/sbin /usr/sbin /sbin; do
 done
 [ -d $HOME/bin/local ]    && PATH=$HOME/bin/local:$PATH
 [ -d $HOME/bin/$RCUNAME ] && PATH=$HOME/bin/$RCUNAME:$PATH
+[ -d /usr/local/flexsdk/bin ] && PATH=/usr/local/flexsdk/bin:$PATH
