@@ -1,9 +1,11 @@
 # Path settings
 PATH=$HOME/bin:$PATH
-# Add sbins to the end of the path
+# Add to the end of the path
 for d in /usr/local/sbin /usr/sbin /sbin; do
   [ -d $d ] && PATH=$PATH:$d
 done
-[ -d $HOME/bin/local ]    && PATH=$HOME/bin/local:$PATH
-[ -d $HOME/bin/$RCUNAME ] && PATH=$HOME/bin/$RCUNAME:$PATH
-[ -d /usr/local/flexsdk/bin ] && PATH=/usr/local/flexsdk/bin:$PATH
+# Add to the start of the path
+for d in $HOME/bin/local $HOME/bin/$RCUNAME \
+  /usr/local/flexsdk/bin /usr/local/apache-maven/bin; do
+  [ -d $d ] && PATH=$d:$PATH
+done
