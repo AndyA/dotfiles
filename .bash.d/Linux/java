@@ -1,0 +1,1 @@
+export JAVA_HOME=$(dirname $(dirname $(~/bin/chaselink $(which java))))
