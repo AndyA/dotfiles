@@ -4,6 +4,8 @@ so $VIMRUNTIME/ftplugin/xml.vim
 
 setlocal shiftround
 setlocal expandtab
+let g:xml_syntax_folding = 1 
+setlocal foldmethod=syntax
 
 function! s:tidy()
   let l:loc = g:get_location()

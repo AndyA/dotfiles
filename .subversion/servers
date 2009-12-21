@@ -35,7 +35,7 @@ bbc = *.bbc.co.uk
 
 [bbc]
 ssl-client-cert-file = /Users/andy/.subversion/certs/andy.p12
-ssl-client-cert-password = crabcrab
+ssl-client-cert-password = changeit
 
 ### Information for the first group:
 # [group1]
