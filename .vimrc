@@ -12,15 +12,17 @@ else
   colorscheme fnaqevan 
 endif
 
-set autowrite       
+set tabstop=8
+set shiftwidth=2
+set softtabstop=2
 set expandtab
+
+set autowrite       
 set hlsearch
 set incsearch     
 set modeline
 set scrolloff=5
 set shiftround
-set shiftwidth=2
-set tabstop=2
 set showcmd     
 set showmatch  
 set title
