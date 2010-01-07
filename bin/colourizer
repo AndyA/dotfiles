@@ -13,10 +13,11 @@ if ( -f $config ) {
   require $config;
 }
 else {
-  warn color( 'yellow' ), "$config not found\n", color( 'normal' );
+  warn color( 'yellow' ), "Colour profile $config not found", color( 'reset' ), "\n";
 }
 
-run [ 'mvn', @ARGV ], '>', sub { print colourize( @_ ) };
+run [ $self, @ARGV ], '>', sub { print colourize( @_ ) }, '2>',
+ sub { print STDERR color( 'red' ), @_, color( 'reset' ) };
 
 sub colourize {
   my $txt = shift;
