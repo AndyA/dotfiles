@@ -1,0 +1,6 @@
+#!/bin/sh
+
+perl ~/Works/Perl/svn/Bundle-AndyA/tools/cpan-bundle $*
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+

@@ -1,0 +1,31 @@
+#!/usr/bin/env perl
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
+use strict;
+use warnings;
+
+use PPI;
+use PPI::Dumper;
+
+my $src = do { local $/; <DATA> };
+my $doc = PPI::Document->new( \$src );
+PPI::Dumper->new($doc)->print;
+exit;
+
+$doc->find(
+  sub {
+    my ( undef, $node ) = @_;
+    my $type = ref $node;
+    print "$type: $node\n";
+  } );
+
+__DATA__
+print "Hello, World\n";
+print STDERR "I feel funny...\n";
+
+sub foo {
+  die "Something broke: ", @_;
+}
+
+foo('My leg fell off');
+
