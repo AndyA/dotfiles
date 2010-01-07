@@ -13,11 +13,11 @@ if ( -f $config ) {
   require $config;
 }
 else {
-  warn color( 'yellow' ), "Colour profile $config not found", color( 'reset' ), "\n";
+  warn colored( "Colour profile $config not found", 'yellow' ), "\n";
 }
 
 run [ $self, @ARGV ], '>', sub { print colourize( @_ ) }, '2>',
- sub { print STDERR color( 'red' ), @_, color( 'reset' ) };
+ sub { print STDERR colored( $_[0], 'red' ) };
 
 sub colourize {
   my $txt = shift;
@@ -33,8 +33,7 @@ sub colourize {
         while ( defined( my $lim = shift @start ) ) {
           push @buf, colourize( substr $txt, $pos, $lim - $pos );
           $pos = shift @end;
-          push @buf, color( $col ), substr( $txt, $lim, $pos - $lim ),
-           color( 'reset' );
+          push @buf, colored( substr( $txt, $lim, $pos - $lim ), $col );
         }
         push @buf, colourize( substr $txt, $pos );
         return join '', @buf;
