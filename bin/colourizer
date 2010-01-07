@@ -1,0 +1,46 @@
+#!/usr/bin/env perl
+
+use latest;
+use Term::ANSIColor;
+use Data::Dumper;
+use File::Basename qw( basename );
+use IPC::Run qw( run );
+
+our %ColourMap = ();
+( my $self = basename $0) =~ s/^c//;
+my $config = glob "~/.colourizer/$self";
+if ( -f $config ) {
+  require $config;
+}
+else {
+  warn color( 'yellow' ), "$config not found\n", color( 'normal' );
+}
+
+run [ 'mvn', @ARGV ], '>', sub { print colourize( @_ ) };
+
+sub colourize {
+  my $txt = shift;
+
+  for my $col ( keys %ColourMap ) {
+    my $pats = $ColourMap{$col};
+    for my $pat ( @$pats ) {
+      if ( $txt =~ $pat ) {
+        my $pos   = 0;
+        my @start = @-[ 1 .. $#- ];
+        my @end   = @+[ 1 .. $#+ ];
+        my @buf   = ();
+        while ( defined( my $lim = shift @start ) ) {
+          push @buf, colourize( substr $txt, $pos, $lim - $pos );
+          $pos = shift @end;
+          push @buf, color( $col ), substr( $txt, $lim, $pos - $lim ),
+           color( 'reset' );
+        }
+        push @buf, colourize( substr $txt, $pos );
+        return join '', @buf;
+      }
+    }
+  }
+  return $txt;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
