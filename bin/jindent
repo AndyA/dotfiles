@@ -39,11 +39,3 @@ sub tidy {
 
   system $cmd and die "$cmd failed: $?\n";
 }
-
-__END__
-#!/bin/sh
-
-eclipse=${ECLIPSE:-$(which eclipse)}
-curdir=`pwd`
-/Developer/eclipse/eclipse -nosplash -application org.eclipse.jdt.core.JavaCodeFormatter -config `pwd`/.settings/org.eclipse.jdt.core.prefs `pwd`/ui_bridge/src/test/java/uk/co/bbc/dmi/app/search/ParserTest.java > /dev/null
-
