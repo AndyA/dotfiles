@@ -8,6 +8,7 @@ use IPC::Run qw( run );
 
 our %ColourMap = ();
 ( my $self = basename $0) =~ s/^c//;
+$self = shift @ARGV if $self eq 'olourizer';
 my $config = glob "~/.colourizer/$self";
 if ( -f $config ) {
   require $config;
