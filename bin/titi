@@ -252,7 +252,9 @@ my %verb = (
     action => sub {
       my $ticket  = get_real_ticket( @_ );
       my $elapsed = elapsed( $ticket );
-      print "Refs #", $ticket, " (spent ", fmt_hours( $elapsed ), ")\n";
+      print "Refs ", fmt_ticket( $ticket ), " (spent ",
+       fmt_hours( $elapsed ),
+       ")\n";
       checkpoint( $ticket );
     },
     desc => sub {
@@ -448,6 +450,10 @@ sub fmt_human {
 
 sub fmt_hours {
   sprintf '%.2f', shift() / 3600;
+}
+
+sub fmt_ticket {
+  sprintf $config{ticket_fmt}, shift;
 }
 
 sub fmt_duration {
