@@ -28,6 +28,7 @@ use constant INDENT  => 2;
 use constant STDHELP => "Type 'titi help' for a "
  . "list of supported subcommands and their options.";
 
+my $now = $^T;
 my $wrk = -f CONFIG ? LoadFile( CONFIG ) : {};
 
 my %config = (
@@ -39,8 +40,9 @@ my %config = (
 );
 
 my %opt = (
-  quiet   => 0,
-  nowrite => 0,
+  quiet      => 0,
+  nowrite    => 0,
+  timetravel => undef,
 );
 
 my %report = (
@@ -75,7 +77,7 @@ my %report = (
           unshift @log, [ undef, $log[0][1], 'working', $day ];
         }
         if ( $log[-1][2] eq 'working' ) {
-          my $end = min( $day + 60 * 60 * 24, $^T );
+          my $end = min( $day + 60 * 60 * 24, $now );
           push @log, [ undef, $log[-1][1], 'stopped', $end ];
         }
         while ( my $elt = shift @log ) {
@@ -332,8 +334,9 @@ my %verb = (
 );
 
 my %optspec = (
-  'q|quiet'   => \$opt{quiet},
-  'N|nowrite' => \$opt{nowrite},
+  'q|quiet'        => \$opt{quiet},
+  'N|nowrite'      => \$opt{nowrite},
+  'T|timetravel:s' => \$opt{timetravel},
 );
 
 my @opthelp = (
@@ -345,7 +348,12 @@ my @opthelp = (
     "Do not update '" 
      . CONFIG . "'. "
      . "Use to run commands without altering the saved state."
-  ]
+  ],
+  [
+    '-T',
+    '--timetravel <reltime>',
+    "Pretend to have been run at a particular time rather than now."
+  ],
 );
 
 @ARGV = 'help' if grep /^(?:-h|--help)$/, @ARGV;
@@ -359,6 +367,17 @@ my $vb = $verb{ abbrev( \%verb, $act ) };
 unless ( $vb->{passthru} ) {
   Getopt::Long::Configure( "bundling" );
   GetOptions( %optspec ) or bail( STDHELP );
+  if ( defined $opt{timetravel} ) {
+    my ( $tm, $err ) = parsedate(
+      $opt{timetravel},
+      PREFER_PAST => 1,
+      UK          => 1,
+      WHOLE       => 1
+    );
+    bail( "Can't parse \"$opt{timetravel}\" as a date: $err" )
+     unless defined $tm;
+    $now = $tm;
+  }
 }
 
 $vb->{action}->( @ARGV );
@@ -441,7 +460,7 @@ sub fmt_date {
 sub fmt_time { fmt_date( $_[0], 'time_fmt' ) }
 
 sub fmt_datetime {
-  my $tm = shift || $^T;
+  my $tm = shift || $now;
   return join ' ', fmt_date( $tm ), fmt_time( $tm );
 }
 
@@ -513,8 +532,8 @@ sub slots_to_seconds {
 
 sub marks_for {
   my $ticket = shift;
-  my @marks = @{ $wrk->{ticket}{$ticket} || [ [ 'working', $^T ] ] };
-  push @marks, [ 'stopped', $^T ]
+  my @marks = @{ $wrk->{ticket}{$ticket} || [ [ 'working', $now ] ] };
+  push @marks, [ 'stopped', $now ]
    unless $marks[-1][0] eq 'stopped';
   return @marks;
 }
@@ -551,7 +570,7 @@ sub total { elapsed( shift(), 'nostop' ) }
 
 sub mark {
   my ( $state, $ticket, @extra ) = @_;
-  push @{ $wrk->{ticket}{$ticket} }, [ $state => $^T, @extra ];
+  push @{ $wrk->{ticket}{$ticket} }, [ $state => $now, @extra ];
 }
 
 sub checkpoint {
@@ -712,7 +731,7 @@ sub flatten_ticket {
 }
 
 sub midnight {
-  my $time = shift || $^T;
+  my $time = shift || $now;
   my ( undef, undef, undef, $mday, $mon, $year ) = localtime( $time );
   return timelocal( 0, 0, 0, $mday, $mon, $year );
 }
