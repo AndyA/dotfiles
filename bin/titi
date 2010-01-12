@@ -34,6 +34,7 @@ my %config = (
   date_fmt        => '%Y/%m/%d',
   time_fmt        => '%H:%M:%S',
   date_pretty_fmt => '%a, %e %b, %Y',
+  ticket_fmt      => '[%s]',
   %{ $wrk->{options} || {} }
 );
 
