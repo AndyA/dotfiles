@@ -40,37 +40,23 @@ sub sieve_test {
 }
 
 sub parse_results {
-  my $src  = shift;
-  my @path = ();                              # tag.class path
-  my %want = map { $_ => 1 } qw( div pre );
-
+  my $src      = shift;
+  my @path     = ();                              # tag.class path
+  my @buf      = ();
+  my %want     = map { $_ => 1 } qw( div pre );
   my $get_path = sub { join '/', @path };
-  my @buf = ();
 
   my $p = HTML::Parser->new(
     start_h => [
       sub {
-        my ( $tag, $attr ) = @_;
-        push @path,
-         exists $attr->{class}
-         ? sprintf( '%s.%s', $tag, $attr->{class} )
-         : $tag
-         if $want{$tag};
+        push @path, join '.', grep defined, $_[0], $_[1]{class}
+         if $want{ $_[0] };
       },
       'tagname,attr'
     ],
-    end_h => [
-      sub {
-        my $tag = shift;
-        pop @path if $want{$tag};
-      },
-      'tagname'
-    ],
+    end_h => [ sub { pop @path if $want{ shift() } }, 'tagname' ],
     text_h => [
-      sub {
-        my $text = shift;
-        push @buf, $text if $get_path->() eq 'div.results/pre';
-      },
+      sub { push @buf, shift if $get_path->() eq 'div.results/pre' },
       'dtext'
     ]
   );
@@ -85,13 +71,6 @@ sub trim {
   $s =~ s/\s+/ /;
   return $s;
 }
-
-__END__
-<div class='results'>Results :
-<pre>
-filing message into 'INBOX.Robots.Forums'
-</pre>
-</div>
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
 
