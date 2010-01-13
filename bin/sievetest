@@ -1,0 +1,97 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use Path::Class qw( file );
+use LWP::UserAgent;
+use HTML::Parser;
+
+use constant SIEVETEST =>
+ 'http://www.fastmail.fm/docs/sieve/sievetest.php';
+
+GetOptions() or die "Stopping\n";
+
+my ( $sieve, @email ) = @ARGV;
+die "Please name a sieve (source) script to test\n"
+ unless defined $sieve;
+
+my $sieve_src = file( $sieve )->slurp;
+for my $email ( @email ) {
+  my $email_src = file( $email )->slurp;
+  print sieve_test( $sieve_src, $email_src ), "\n";
+}
+
+sub sieve_test {
+  my ( $sieve, $mail ) = @_;
+  my $ua   = LWP::UserAgent->new;
+  my $resp = $ua->post(
+    SIEVETEST,
+    {
+      btn         => 'Run Test',
+      mode        => 'test',
+      sieveemail  => $mail,
+      sievescript => $sieve,
+    }
+  );
+  die $resp->status_line unless $resp->is_success;
+  return parse_results( $resp->content );
+}
+
+sub parse_results {
+  my $src  = shift;
+  my @path = ();                              # tag.class path
+  my %want = map { $_ => 1 } qw( div pre );
+
+  my $get_path = sub { join '/', @path };
+  my @buf = ();
+
+  my $p = HTML::Parser->new(
+    start_h => [
+      sub {
+        my ( $tag, $attr ) = @_;
+        push @path,
+         exists $attr->{class}
+         ? sprintf( '%s.%s', $tag, $attr->{class} )
+         : $tag
+         if $want{$tag};
+      },
+      'tagname,attr'
+    ],
+    end_h => [
+      sub {
+        my $tag = shift;
+        pop @path if $want{$tag};
+      },
+      'tagname'
+    ],
+    text_h => [
+      sub {
+        my $text = shift;
+        push @buf, $text if $get_path->() eq 'div.results/pre';
+      },
+      'dtext'
+    ]
+  );
+  $p->parse( $src );
+  return trim( join ' ', @buf );
+}
+
+sub trim {
+  my $s = shift;
+  $s =~ s/^\s+//;
+  $s =~ s/\s+$//;
+  $s =~ s/\s+/ /;
+  return $s;
+}
+
+__END__
+<div class='results'>Results :
+<pre>
+filing message into 'INBOX.Robots.Forums'
+</pre>
+</div>
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
