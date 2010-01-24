@@ -9,9 +9,6 @@ shopt -s histappend
 shopt -s checkwinsize
 shopt -s checkhash
 
-# Ignore hidden files during completion
-bind 'set match-hidden-files off' 
-
 export HISTFILESIZE=10000
 export HISTCONTROL=ignoredups
 
