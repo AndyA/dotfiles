@@ -11,6 +11,7 @@ logdir=$work/log
 proj=$work/repo
 work=$proj/Test-Harness
 log=$logdir/$stamp-runlog
+config="smoke/config.$(hostname -s)"
 
 mkdir -p $proj $logdir
 find $logdir -mtime +1 -print0 | xargs -0 rm
@@ -23,6 +24,11 @@ else
     cd $proj
     git clone $repo > $log 2>&1
     cd $work
+fi
+
+if [ ! -f $config ]; then
+  echo "No config: $config"
+  exit 1
 fi
 
 perl smoke/smoke.pl -v smoke/config.surly >> $log 2>&1
