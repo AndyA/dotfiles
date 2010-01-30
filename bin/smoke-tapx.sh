@@ -14,7 +14,7 @@ log=$logdir/$stamp-runlog
 config="smoke/config.$(hostname -s)"
 
 mkdir -p $proj $logdir
-find $logdir -mtime +1 -print0 | xargs -0 rm
+find $logdir -mtime +1 -print0 | xargs -0 rm -f
 
 # Grab the latest version
 if [ -d $work ]; then
@@ -31,4 +31,4 @@ if [ ! -f $config ]; then
   exit 1
 fi
 
-perl smoke/smoke.pl -v smoke/config.surly >> $log 2>&1
+perl smoke/smoke.pl -v $config >> $log 2>&1
