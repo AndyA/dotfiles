@@ -3,14 +3,19 @@ export EDITOR=vim
 export PAGER=less
 export RCUNAME=`uname`
 
-# Directory shortcuts
-shopt -s cdable_vars
-shopt -s histappend
-shopt -s checkwinsize
-shopt -s checkhash
+if [ -n "$PS1" ]; then
+  # Directory shortcuts
+  shopt -s cdable_vars
+  shopt -s histappend
+  shopt -s checkwinsize
+  shopt -s checkhash
 
-export HISTFILESIZE=10000
-export HISTCONTROL=ignoredups
+  # Ignore hidden files during completion
+  bind 'set match-hidden-files off' 
+
+  export HISTFILESIZE=10000
+  export HISTCONTROL=ignoredups
+fi
 
 function source_dir {
   dir=$1
