@@ -5,7 +5,7 @@ ia #e andy@hexten.net
 ia Therese Thérèse
 
 set background=dark
-if $COLORTERM == 'gnome-terminal'
+if $COLORTERM == 'gnome-terminal' || $TERM == 'xterm-256color'
   set t_Co=256
   colorscheme zenburn
 else
