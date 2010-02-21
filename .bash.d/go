@@ -1,6 +1,8 @@
 export GOROOT=$HOME/Works/Go/go
 export GOOS=$(uname -s | tr A-Z a-z)
-case $(uname -p) in
+arch=$(uname -p)
+[ -z "$arch" ] || [ "$arch" == "unknown" ] && arch=$(uname -m)
+case $arch in
   'i386')
     export GOARCH=386
     ;;
@@ -8,7 +10,7 @@ case $(uname -p) in
     export GOARCH=amd64
     ;;
   *)      
-    echo "Can't set GOARCH"
+    echo "Can't set GOARCH for $arch"
     ;;
 esac
 export GOBIN=$GOROOT/bin
