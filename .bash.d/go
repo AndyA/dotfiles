@@ -3,7 +3,7 @@ export GOOS=$(uname -s | tr A-Z a-z)
 arch=$(uname -p)
 [ -z "$arch" ] || [ "$arch" == "unknown" ] && arch=$(uname -m)
 case $arch in
-  'i386')
+  'i386'|'i686')
     export GOARCH=386
     ;;
   'x86_64')
