@@ -3,6 +3,8 @@ export EDITOR=vim
 export PAGER=less
 export RCUNAME=`uname`
 
+umask 0027
+
 if [ -n "$PS1" ]; then
   # Directory shortcuts
   shopt -s cdable_vars
