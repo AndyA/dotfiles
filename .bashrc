@@ -3,7 +3,7 @@ export EDITOR=vim
 export PAGER=less
 export RCUNAME=`uname`
 
-umask 0027
+umask 0022
 
 if [ -n "$PS1" ]; then
   # Directory shortcuts
