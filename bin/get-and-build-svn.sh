@@ -3,6 +3,7 @@ VERSION=1.6.9
 PREFIX=/alt/local
 TEMP="/tmp/svn.$$"
 HERE=$(pwd)
+mkdir -p $TEMP
 cd $TEMP
 sudo apt-get update
 sudo apt-get install build-essential openssl ssh expat libxyssl-dev libssl-dev

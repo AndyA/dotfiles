@@ -35,7 +35,6 @@ apt-get install \
   gdb \
   gddrescue \
   gforth \
-  git \
   git-core \
   git-cvs \
   git-gui \
