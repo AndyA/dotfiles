@@ -12,9 +12,7 @@ GetOptions() and @ARGV == 2
 my @missing = grep { !-f } @ARGV;
 die "Can't read ", join( ' or ', @missing ), "\n" if @missing;
 
-my $diff = XML::SemanticDiff->new();
-
-for my $change ( $diff->compare( @ARGV ) ) {
+for my $change ( XML::SemanticDiff->new->compare( @ARGV ) ) {
   print "$change->{message} in context $change->{context}\n";
 }
 
