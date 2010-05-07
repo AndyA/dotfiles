@@ -9,7 +9,7 @@ setlocal foldmethod=syntax
 
 function! s:tidy()
   let l:loc = g:get_location()
-  exec ':%!xml_pp'
+  exec ':%!xml_pp -s indented'
   call g:set_location(l:loc)
 endfunction
 
