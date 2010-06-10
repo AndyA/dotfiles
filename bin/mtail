@@ -1,0 +1,241 @@
+#!/usr/bin/env perl
+
+# mtail is a tail variant designed for web developers monitoring logfiles
+# Copyright (C) 2008  Martyn Smith
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+use strict;
+use warnings;
+
+use IO::Select;
+use IO::Handle;
+use Config::General;
+use Getopt::Declare;
+
+my $config_file = $ENV{HOME} . '/.mtailrc';
+my $config      = {};
+$config = { Config::General->new( $config_file )->getall }
+ if -e $config_file;
+
+my $args = Getopt::Declare->new(
+  q(
+    [strict]
+    -q                 	Quiet mode
+    --quiet            	[ditto]
+
+    -n<N>              	Output the last N lines of each file before tailing
+                        (defaults to 10)
+
+    <file>...          	Files to tail, see --help for how to specify sudo
+                        /remote files or groups [required]
+
+    Files to tail can be specified in the following ways ...
+
+     @<groupname>             - expands the group (from .mtailrc) to a list of
+                                files to tail
+
+     <filename>               - tails a local file.
+
+     +<filename>              - attempts to sudo and tail a local file (will
+                                prompt for pwd if required).
+
+     <remotehost>:<filename>  - attempts to invoke tail via ssh on a remote
+                                host.
+
+     +<remotehost>:<filename> - attempts to invoke sudo tail via ssh on a
+                                remote host (will prompt for pwd if required).
+)
+);
+
+exit 1 unless defined $args;
+
+$args->{'-n'} = 10 unless defined $args->{'-n'};
+
+exit 2 unless $args->{'-n'} =~ m{ \A \d+ \z }xms;
+
+my $io_select = IO::Select->new();
+my %info_for  = ();
+
+add_cli_files( $args->{'<file>'} );
+
+# Boolean to track if there's been a timeout
+my $new_lines = 0;
+
+while ( 1 ) {
+  my @ready = $io_select->can_read( 3 );
+
+  if ( @ready ) {
+    if ( $new_lines ) {
+      print "\n\n\n\n\n";
+      $new_lines = 0;
+    }
+    for my $fh ( @ready ) {
+      my $info = $info_for{$fh};
+      while ( my $data = <$fh> ) {
+        if ( defined $info->{prefix} ) {
+          $data = $info->{prefix} . $data;
+        }
+        print $data;
+      }
+    }
+  }
+  else {
+    $new_lines = 1;
+  }
+}
+
+sub add_cli_files {    #{{{
+  my $files = shift;
+
+  for my $file ( @$files ) {
+    if ( $file =~ m{ \A (\+)? (.*) : (.*) \z }xms and not -f $file ) {
+      my $info = {
+        sudo     => $1,
+        host     => $2,
+        filename => $3,
+        mode     => 'cli',
+      };
+      add_file( $info );
+    }
+    elsif ( $file =~ m{ \A \@ (\w+) \z }xms ) {
+      add_group( $1 );
+    }
+    elsif ( $file =~ m{ \A (\+)? (.*) \z }xms ) {
+      my $info = {
+        sudo     => $1,
+        filename => $2,
+        mode     => 'cli',
+      };
+      if ( -f $info->{filename} ) {
+        add_file( $info );
+      }
+      else {
+        print STDERR "Skipping non-existant file $info->{filename}\n";
+      }
+    }
+  }
+}    #}}}
+
+sub add_group {
+  my $group = shift;
+
+  unless ( exists $config->{group}{$group} ) {
+    print STDERR "Couldn't find group '$group' in $config_file\n";
+    return;
+  }
+
+  if ( ref $config->{group}{$group}{file} ne 'ARRAY' ) {
+    $config->{group}{$group}{file} = [ $config->{group}{$group}{file} ];
+  }
+
+  for my $file ( @{ $config->{group}{$group}{file} } ) {
+    my $info = {
+      filename => $file->{filename}
+       || $config->{group}{$group}{filename},
+      host   => $file->{host}   || $config->{group}{$group}{host},
+      sudo   => $file->{sudo}   || $config->{group}{$group}{sudo},
+      prefix => $file->{prefix} || $config->{group}{$group}{prefix},
+      mode => 'from group ' . $group,
+    };
+    if ( defined $info->{sudo}
+      and $info->{sudo} =~ m{ \A (?: no | false ) \z }ixms ) {
+      $info->{sudo} = 0;
+    }
+    add_file( $info );
+  }
+}
+
+# Adds a single file to the tail list.
+#
+# file to tail is passed as a hashref containing:
+#   - filename (mandatory)
+#   - host
+#   - sudo
+#   - prefix
+#   - mode
+#
+sub add_file {
+  my ( $file ) = @_;
+
+  my $fh;
+
+  # Do sudo auth first
+  if ( $file->{sudo} ) {
+    if ( $file->{host} ) {
+      if (
+        system(
+          'ssh', '-q', '-t', $file->{host}, 'sudo',
+          '-p' => '"Sudo password for [%u] on [%h]: "',
+          '-v'
+        )
+       ) {
+        print STDERR
+         "sudo auth failed on host $file->{host}, ignoring file $file->{filename} on this host\n";
+        return;
+      }
+    }
+    else {
+      if (
+        system(
+          'sudo',
+          '-p' => 'Sudo password for [%u] on [%h]: ',
+          '-v'
+        )
+       ) {
+        print STDERR
+         "sudo auth failed for local file $file->{filename}, ignoring this file\n";
+        return;
+      }
+    }
+  }
+
+  if ( $file->{host} ) {
+    if ( $file->{sudo} ) {
+      open $fh, '-|', 'ssh', '-q', $file->{host}, 'sudo', 'tail',
+       '-n' => $args->{'-n'},
+       '-f', $file->{filename};
+    }
+    else {
+      open $fh, '-|', 'ssh', '-q', $file->{host}, 'tail',
+       '-n' => $args->{'-n'},
+       '-f', $file->{filename};
+    }
+  }
+  else {
+    if ( $file->{sudo} ) {
+      open $fh, '-|', 'sudo', 'tail',
+       '-n' => $args->{'-n'},
+       '-f', $file->{filename};
+    }
+    else {
+      open $fh, '-|', 'tail',
+       '-n' => $args->{'-n'},
+       '-f', $file->{filename};
+    }
+  }
+
+  unless ( defined $fh ) {
+    print STDERR "failed to open file handle for $file->{filename}\n";
+    return;
+  }
+
+  $file->{fh} = $fh;
+  $info_for{$fh} = $file;
+
+  $fh->blocking( 0 );
+  $io_select->add( $fh );
+
+  print STDERR "Tailing $file->{filename}\n" unless $args->{-q};
+}
