@@ -23,6 +23,7 @@ use IO::Select;
 use IO::Handle;
 use Config::General;
 use Getopt::Declare;
+use Term::ANSIColor;
 
 my $config_file = $ENV{HOME} . '/.mtailrc';
 my $config      = {};
@@ -66,7 +67,11 @@ $args->{'-n'} = 10 unless defined $args->{'-n'};
 exit 2 unless $args->{'-n'} =~ m{ \A \d+ \z }xms;
 
 my $io_select = IO::Select->new();
-my %info_for  = ();
+my $fountain  = make_fountain(
+  'bright_red',     'bright_green', 'bright_yellow', 'bright_blue',
+  'bright_magenta', 'bright_cyan',  'red',           'green',
+  'yellow',         'blue',         'magenta',       'cyan',
+);
 
 add_cli_files( $args->{'<file>'} );
 
@@ -81,13 +86,13 @@ while ( 1 ) {
       print "\n\n\n\n\n";
       $new_lines = 0;
     }
-    for my $fh ( @ready ) {
-      my $info = $info_for{$fh};
+    for my $rdy ( @ready ) {
+      my ( $fh, $colour, $info ) = @$rdy;
       while ( my $data = <$fh> ) {
         if ( defined $info->{prefix} ) {
           $data = $info->{prefix} . $data;
         }
-        print $data;
+        print colored( $data, $colour );
       }
     }
   }
@@ -155,6 +160,15 @@ sub add_group {
     }
     add_file( $info );
   }
+}
+
+sub make_fountain {
+  my @args = @_;
+  return sub {
+    my $elt = shift @args;
+    push @args, $elt;
+    return $elt;
+  };
 }
 
 # Adds a single file to the tail list.
@@ -232,10 +246,8 @@ sub add_file {
   }
 
   $file->{fh} = $fh;
-  $info_for{$fh} = $file;
-
   $fh->blocking( 0 );
-  $io_select->add( $fh );
+  $io_select->add( [ $fh, $fountain->(), $file ] );
 
   print STDERR "Tailing $file->{filename}\n" unless $args->{-q};
 }
