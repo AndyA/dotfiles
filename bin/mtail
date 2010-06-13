@@ -78,6 +78,11 @@ add_cli_files( $args->{'<file>'} );
 # Boolean to track if there's been a timeout
 my $new_lines = 0;
 
+$SIG{INT} = sub {
+  print color 'reset';
+  exit;
+};
+
 while ( 1 ) {
   my @ready = $io_select->can_read( 3 );
 
@@ -101,7 +106,7 @@ while ( 1 ) {
   }
 }
 
-sub add_cli_files {    #{{{
+sub add_cli_files {
   my $files = shift;
 
   for my $file ( @$files ) {
@@ -131,7 +136,7 @@ sub add_cli_files {    #{{{
       }
     }
   }
-}    #}}}
+}
 
 sub add_group {
   my $group = shift;
