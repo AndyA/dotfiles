@@ -88,7 +88,7 @@ while ( 1 ) {
 
   if ( @ready ) {
     if ( $new_lines ) {
-      print "\n\n\n\n\n";
+      print "\n\n\n";
       $new_lines = 0;
     }
     for my $rdy ( @ready ) {
