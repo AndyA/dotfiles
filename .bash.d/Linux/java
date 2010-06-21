@@ -1,1 +1,1 @@
-which java > /dev/null && export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+#which java > /dev/null && export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
