@@ -1,0 +1,6 @@
+# Setup agent forwarding
+[ -z "$SSH_CLIENT" ] && . $HOME/.ssh-agent
+
+alias keyon="ssh-add -t 10800"
+alias keyoff='ssh-add -D'
+alias keylist='ssh-add -l'
