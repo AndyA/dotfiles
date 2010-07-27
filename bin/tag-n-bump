@@ -27,6 +27,7 @@ if ( -d '.svn' ) {
   my $trunk = svn_info()->{URL};
 
   die "No revision here\n" unless defined $trunk;
+  $trunk =~ s{(/trunk)/.*}{$1};
   die "This isn't trunk\n" unless $trunk =~ m{/trunk$};
   die "Uncommitted changes found\n" if svn_has_uncommitted();
   my $version = get_version();
