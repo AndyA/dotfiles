@@ -1,5 +1,5 @@
 #!/bin/sh
-VERSION=1.6.9
+VERSION=1.6.12
 PREFIX=/alt/local
 TEMP="/tmp/svn.$$"
 HERE=$(pwd)
