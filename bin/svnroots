@@ -25,7 +25,8 @@ sub scan {
     if ( defined( $url = $info->{URL} ) ) {
       my @path = File::Spec->splitdir( $dir );
       my $leaf = pop @path;
-      unless ( defined $parent && $url eq join '/', $parent, $leaf ) {
+      unless ( defined $parent
+        && $url eq join( '/', $parent, encode( $leaf ) ) ) {
         my $ext = svn_externals( File::Spec->catdir( @path ) )->{$leaf};
         unless ( defined $ext && $ext eq $url ) {
           print "$dir";
@@ -46,6 +47,12 @@ sub scan {
   else {
     warn "Can't read $dir ($!)\n";
   }
+}
+
+sub encode {
+  my $u = shift;
+  $u =~ s/([\s])/sprintf '%%%02x', ord $1/eg;
+  return $u;
 }
 
 sub tidy {
@@ -89,6 +96,6 @@ sub svn_externals {
   return {} unless -d File::Spec->catdir( $dir, '.svn' );
   with_svn(
     propget => 'svn:externals',
-    $dir, sub { split /\s+/, $_, 2 }
+    $dir, sub { map tidy( $_ ), split /\s+/, $_, 2 }
   );
 }
