@@ -1,0 +1,166 @@
+#!/usr/bin/env perl
+
+package reader;
+
+use strict;
+use warnings;
+
+use Carp qw( croak );
+use DateTime;
+
+my %LOGFORMAT = (
+  java => sub {
+    m{^ \[ (\d{4}) \. (\d{2}) \. (\d{2}) \s+
+           (\d{2}) : (\d{2}) : (\d{2}) : (\d{4}) \] \s }x
+     && return ( $1, $2, $3, $4, $5, $6, $7 );
+    return;
+  },
+  signiant => sub {
+    m{^ (\d{4}) / (\d{2}) / (\d{2}) \s+
+        (\d{2}) : (\d{2}) : (\d{2}) \s }x
+     && return ( $1, $2, $3, $4, $5, $6, 0 );
+    return;
+  },
+);
+
+sub new {
+  my ( $class, $file, %opt ) = @_;
+  open my $fh, '<', $file or die "Can't read $file\n";
+  my $self = bless {
+    file      => $file,
+    fh        => $fh,
+    buf       => [],
+    time_zone => 'UTC',
+    %opt,
+  };
+  my $type = $self->_guess_type( \my @buf )
+   or croak "Can't guess type for $file";
+
+  $self->{buf}       = \@buf;
+  $self->{type}      = $type;
+  $self->{decode}    = $LOGFORMAT{$type};
+  $self->{last_time} = 0;
+  $self->{last_line} = undef;
+
+  return $self;
+}
+
+sub line { shift->{cur_line} }
+sub time { shift->{cur_time} }
+sub type { shift->{type} }
+sub file { shift->{file} }
+
+sub _buf_item {
+  my $self = shift;
+
+  @{$self}{ 'cur_time', 'cur_line' }
+   = @{$self}{ 'last_time', 'last_line' };
+
+  my ( $dt, $ln ) = $self->_read_item;
+  unless ( defined $ln ) {
+    delete $self->{last_time};
+    delete $self->{last_line};
+    return;
+  }
+
+  $self->{last_time} = $dt if defined $dt;
+  $self->{last_line} = $ln;
+}
+
+sub _read_item {
+  my $self = shift;
+
+  my $ln = $self->_read_line;
+  return unless defined $ln;
+
+  my @ymdhms = do {
+    local $_ = $ln;
+    $self->{decode}->();
+  };
+
+  # Ignore errors
+  my $dt = eval {
+    DateTime->new(
+      year       => $ymdhms[0],
+      month      => $ymdhms[1],
+      day        => $ymdhms[2],
+      hour       => $ymdhms[3],
+      minute     => $ymdhms[4],
+      second     => $ymdhms[5],
+      nanosecond => $ymdhms[6],
+      time_zone  => $self->{time_zone}
+    )->hires_epoch;
+  };
+
+  return ( $dt, $ln );
+}
+
+sub _read_line {
+  my $self = shift;
+  return shift @{ $self->{buf} } if @{ $self->{buf} };
+  defined( my $fh = $self->{fh} ) or return;
+  my $line = <$fh>;
+  delete $self->{fh} unless defined $line;
+  return $line;
+}
+
+sub _guess_type {
+  my ( $self, $buf ) = @_;
+  while () {
+    return if @$buf > 100;
+    my $ln = $self->_read_line;
+    return unless defined $ln;
+    push @$buf, $ln;
+    for my $type ( keys %LOGFORMAT ) {
+      local $_ = $ln;
+      my @dt = $LOGFORMAT{$type}->();
+      return $type if @dt;
+    }
+  }
+}
+
+package merger;
+
+use strict;
+use warnings;
+
+sub new {
+  my ( $class, @rdr ) = @_;
+  $_->_buf_item for @rdr;
+  return bless { rdr => \@rdr }, $class;
+}
+
+sub next {
+  my $self = shift;
+  my @ord = sort { $a->{last_time} <=> $b->{last_time} }
+   grep { defined $_->{last_time} } @{ $self->{rdr} };
+  return unless @ord;
+  my $rdr = $ord[0];
+  my ( $dt, $ln ) = @{$rdr}{ 'last_time', 'last_line' };
+  $rdr->_buf_item;
+  $self->{rdr} = \@ord;
+  return $rdr;
+}
+
+sub more { @{ shift->{rdr} } }
+
+package main;
+
+use strict;
+use warnings;
+
+my $m = merger->new( map { reader->new( $_ ) } @ARGV );
+my $last_file = undef;
+
+while ( my $r = $m->next ) {
+  my $file = $r->file;
+
+  unless ( defined $last_file && $file eq $last_file ) {
+    print "\n=== $file ===\n\n";
+    $last_file = $file;
+  }
+
+  print $r->line;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
