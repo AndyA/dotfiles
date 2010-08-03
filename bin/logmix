@@ -8,6 +8,21 @@ use warnings;
 use Carp qw( croak );
 use DateTime;
 
+my %MONTH = (
+  Jan => 1,
+  Feb => 2,
+  Mar => 3,
+  Apr => 4,
+  May => 5,
+  Jun => 6,
+  Jul => 7,
+  Aug => 8,
+  Sep => 9,
+  Oct => 10,
+  Nov => 11,
+  Dec => 12
+);
+
 my %LOGFORMAT = (
   java => sub {
     m{^ \[ (\d{4}) \. (\d{2}) \. (\d{2}) \s+
@@ -17,6 +32,20 @@ my %LOGFORMAT = (
   },
   signiant => sub {
     m{^ (\d{4}) / (\d{2}) / (\d{2}) \s+
+        (\d{2}) : (\d{2}) : (\d{2}) \. (\d+) }x
+     && return ( $1, $2, $3, $4, $5, $6, $7 );
+    return;
+  },
+  sigdelivery => sub {
+    return
+     unless m{^ (\d{2}) : (\d{2}) : (\d{2}) \s+
+        (\w+) \s+ (\d+) \s* , \s+ (\d+) \s+ - }x;
+
+    return unless exists $MONTH{$4};
+    return ( $6, $MONTH{$4}, $5, $1, $2, $3, 0 );
+  },
+  general => sub {
+    m{^ (\d{4}) / (\d{2}) / (\d{2}) \s+
         (\d{2}) : (\d{2}) : (\d{2}) \s }x
      && return ( $1, $2, $3, $4, $5, $6, 0 );
     return;
@@ -25,7 +54,7 @@ my %LOGFORMAT = (
 
 sub new {
   my ( $class, $file, %opt ) = @_;
-  open my $fh, '<', $file or die "Can't read $file\n";
+  open my $fh, '<', $file or die "Can't read $file: $!\n";
   my $self = bless {
     file      => $file,
     fh        => $fh,
@@ -148,8 +177,11 @@ package main;
 
 use strict;
 use warnings;
+use Getopt::Long;
 
-my $m = merger->new( map { reader->new( $_ ) } @ARGV );
+GetOptions() or die;
+
+my $m = merger->new( map { parse_file( $_ ) } @ARGV );
 my $last_file = undef;
 
 while ( my $r = $m->next ) {
@@ -161,6 +193,14 @@ while ( my $r = $m->next ) {
   }
 
   print $r->line;
+}
+
+sub parse_file {
+  my $spec = shift;
+  my @part = split /:/, $spec, 2;
+  my $name = pop @part;
+  return reader->new( $name,
+    ( @part ? ( time_zone => $part[0] ) : () ) );
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
