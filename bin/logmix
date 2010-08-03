@@ -107,19 +107,19 @@ sub _read_item {
     $self->{decode}->();
   };
 
-  # Ignore errors
-  my $dt = eval {
-    DateTime->new(
-      year       => $ymdhms[0],
-      month      => $ymdhms[1],
-      day        => $ymdhms[2],
-      hour       => $ymdhms[3],
-      minute     => $ymdhms[4],
-      second     => $ymdhms[5],
-      nanosecond => $ymdhms[6],
-      time_zone  => $self->{time_zone}
-    )->hires_epoch;
-  };
+  my $dt
+   = @ymdhms
+   ? DateTime->new(
+    year       => $ymdhms[0],
+    month      => $ymdhms[1],
+    day        => $ymdhms[2],
+    hour       => $ymdhms[3],
+    minute     => $ymdhms[4],
+    second     => $ymdhms[5],
+    nanosecond => $ymdhms[6],
+    time_zone  => $self->{time_zone}
+   )->hires_epoch
+   : undef;
 
   return ( $dt, $ln );
 }
@@ -177,9 +177,13 @@ package main;
 
 use strict;
 use warnings;
+
+use POSIX qw( strftime );
 use Getopt::Long;
 
-GetOptions() or die;
+my %opt = ( ts => undef, );
+
+GetOptions( 't' => \$opt{ts}, ) or die;
 
 my $m = merger->new( map { parse_file( $_ ) } @ARGV );
 my $last_file = undef;
@@ -192,6 +196,8 @@ while ( my $r = $m->next ) {
     $last_file = $file;
   }
 
+  print strftime( '%Y/%m/%d %H:%M:%S', gmtime $r->time ), ' ::: '
+   if $opt{ts};
   print $r->line;
 }
 
@@ -199,8 +205,16 @@ sub parse_file {
   my $spec = shift;
   my @part = split /:/, $spec, 2;
   my $name = pop @part;
-  return reader->new( $name,
-    ( @part ? ( time_zone => $part[0] ) : () ) );
+  my %opt  = ();
+  if ( @part ) {
+    for my $term ( split /,/, $part[0] ) {
+      die "Bad option term: $term"
+       unless $term =~ m{^(\w+)=(.+)};
+      $opt{$1} = $2;
+    }
+  }
+
+  return map { reader->new( $_, %opt ) } glob $name;
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
