@@ -1,0 +1,61 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Digest::MD5;
+use File::Find;
+use Getopt::Long;
+
+GetOptions() or die "Bad options\n";
+
+my @dups = finddups( @ARGV );
+use Data::Dumper;
+print Dumper(\@dups);
+for my $set ( @dups ) {
+  print "$_\n" for @$set;
+  print "\n";
+}
+
+sub finddups {
+  my @dirs    = @_;
+  my %by_size = ();
+  my %dup     = ();
+
+  # Find files and group by size
+  find(
+    {
+      wanted => sub {
+        my $obj = $_;
+        return unless -f $obj;
+        push @{ $by_size{ -s $obj } }, $obj;
+      },
+      no_chdir => 1
+    },
+    @dirs
+  );
+
+  # Now group by hash
+  for my $set ( values %by_size ) {
+    next unless @$set > 1;
+    OBJ: for my $obj ( @$set ) {
+      open my $fh, '<', $obj or do {
+        warn "Can't read $obj: $!\n";
+        next OBJ;
+      };
+      my $hash = Digest::MD5->new->addfile( $fh )->hexdigest;
+      push @{ $dup{$hash} }, $obj;
+    }
+  }
+
+  # Now return dups
+  my @ret = ();
+  for my $set ( values %dup ) {
+    next unless @$set > 1;
+    push @ret, $set;
+  }
+  return @ret;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
