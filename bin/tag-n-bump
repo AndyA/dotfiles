@@ -7,15 +7,9 @@ use Perl::Version;
 use Data::Dumper;
 use Getopt::Long;
 
-my %opt = (
-  version => undef,
-  force   => 0,
-);
+my %opt = ( version => undef, );
 
-GetOptions(
-  'version:s' => \$opt{version},
-  'force'     => \$opt{force}
-) or syntax();
+GetOptions( 'version:s' => \$opt{version}, ) or syntax();
 
 if ( @ARGV ) {
   die "Too many args\n" if @ARGV > 1;
@@ -37,35 +31,31 @@ if ( -d '.svn' ) {
 
   unless ( defined svn_info( $tags )->{URL} ) {
     print "Creating $tags\n";
-    with_cmd( 'svn', 'mkdir', $tags, '-m', 'Created tags dir',
-      sub { } );
+    do_cmd( 'svn', 'mkdir', $tags, '-m', 'Created tags dir' );
   }
 
   print "Copying $trunk to $tag\n";
-  with_cmd( 'svn', 'cp', $trunk, $tag, '-m', "Tagging $version",
-    sub { } );
+  do_cmd( 'svn', 'cp', $trunk, $tag, '-m', "Tagging $version" );
 
   my $new_version = reversion( $version, $opt{version} );
 
-  with_cmd( 'svn', 'commit', '-m', "Bump version to $new_version",
-    sub { } );
+  do_cmd( 'svn', 'commit', '-m', "Bump version to $new_version" );
 }
 elsif ( -d '.git' ) {
   die "Uncommitted changes found\n" if git_has_uncommitted();
   my $version = get_version();
   die "Current version can't be determined\n" unless defined $version;
   print "Tagging $version\n";
-  with_cmd( 'git', 'tag', $version, sub { } );
+  do_cmd( 'git', 'tag', $version );
 
   my $new_version = reversion( $version, $opt{version} );
 
-  with_cmd( 'git', 'commit', '--all', '-m',
-    "Bump version to $new_version",
-    sub { } );
+  do_cmd( 'git', 'commit', '--all', '-m',
+    "Bump version to $new_version" );
 }
 else {
-  die
-   "Not under version control. Well, nothing that I understand (git, svn) anyway.\n";
+  die "Not under version control. Well, "
+   . "nothing that I understand (git, svn) anyway.\n";
 }
 
 sub reversion {
@@ -131,7 +121,6 @@ sub get_version {
 sub syntax {
   print STDERR "usage: tag-n-bump [options] [<dir>]\n",
    "\nOptions:\n",
-   "  --force     Force update even if specified version is older\n",
    "  --version V Specify new version\n";
   exit;
 }
@@ -141,6 +130,10 @@ sub tidy {
   $s =~ s/^\s+//;
   $s =~ s/\s+$//;
   return $s;
+}
+
+sub do_cmd {
+  with_cmd( @_, sub { } );
 }
 
 sub with_cmd {
