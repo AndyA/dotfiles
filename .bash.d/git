@@ -1,4 +1,4 @@
 # Augment git exec path
 if [ -d $HOME/bin/git-ext ]; then
-  export GIT_EXEC_PATH=$HOME/bin/git-ext:$($git --exec-path)
+  export GIT_EXEC_PATH=$HOME/bin/git-ext:$(git --exec-path)
 fi
