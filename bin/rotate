@@ -1,0 +1,48 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+
+my %opt = (
+  number  => 4,
+  verbose => 0,
+);
+
+GetOptions(
+  'n:i'       => \$opt{number},
+  'v|verbose' => \$opt{verbose},
+) or die "Bad options\n";
+
+rotate( \%opt, @ARGV );
+
+sub rotate {
+  my ( $opt, @files ) = @_;
+  for my $file ( @files ) {
+    rotate_file( $opt, $file );
+  }
+}
+
+sub rotate_file {
+  my ( $opt, $file ) = @_;
+  my $next = $file;
+  $next .= '.0' unless $next =~ /\.(\d)+$/;
+  $next =~ s/\.(\d+)$/'.' . ($1 + 1)/e;
+  my $gen = $1;
+  if ( -e $next ) {
+    if ( $gen - 1 >= $opt->{number} ) {
+      print "$next -> ** oblivion **\n" if $opt->{verbose};
+      unlink $next or die "Can't remove $next: $!\n";
+    }
+    else {
+      rotate_file( $opt, $next );
+    }
+  }
+
+  print "$file -> $next\n" if $opt->{verbose};
+  rename $file, $next or die "Can't rename $file as $next: $!\n";
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
