@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use File::Path qw( rmtree );
 use Getopt::Long;
 
 my %opt = (
@@ -33,7 +34,8 @@ sub rotate_file {
   if ( -e $next ) {
     if ( $gen - 1 >= $opt->{number} ) {
       print "$next -> ** oblivion **\n" if $opt->{verbose};
-      unlink $next or die "Can't remove $next: $!\n";
+      ( -d $next ? rmtree( $next ) : unlink( $next ) )
+       or die "Can't remove $next: $!\n";
     }
     else {
       rotate_file( $opt, $next );
