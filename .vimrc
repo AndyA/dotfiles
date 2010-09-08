@@ -71,9 +71,6 @@ endif
 noremap <silent> <f3> <esc>:previous<cr>
 noremap <silent> <f4> <esc>:next<cr>
 
-"noremap <f5> <esc>:bprevious<cr>
-"noremap <f6> <esc>:bnext<cr>
-
 noremap <silent> <f7> <esc>:cprevious<cr>
 noremap <silent> <f8> <esc>:cnext<cr>
 
@@ -90,3 +87,6 @@ map <silent> <leader>W :source ~/.vimrc<CR>:filetype detect<CR>
 
 imap <silent> <C-D><C-D> <C-R>=strftime("%Y/%m/%d")<CR>
 imap <silent> <C-T><C-T> <C-R>=strftime("%H:%M:%S")<CR>
+
+noremap <silent> <f6> :call g:align_assignments()<CR>
+
