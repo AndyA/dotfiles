@@ -68,23 +68,25 @@ if has('mac')
   nmap <leader>v :call setreg("\"",system("pbpaste"))<CR>p
 endif
 
-noremap <f3> <esc>:previous<cr>
-noremap <f4> <esc>:next<cr>
+noremap <silent> <f3> <esc>:previous<cr>
+noremap <silent> <f4> <esc>:next<cr>
 
 "noremap <f5> <esc>:bprevious<cr>
 "noremap <f6> <esc>:bnext<cr>
 
-noremap <f7> <esc>:cprevious<cr>
-noremap <f8> <esc>:cnext<cr>
+noremap <silent> <f7> <esc>:cprevious<cr>
+noremap <silent> <f8> <esc>:cnext<cr>
 
 " On MacOS we have terminal keybindings for these too.
-noremap <C-Up>    <esc><C-w>k<C-w>_
-noremap <C-Down>  <esc><C-w>j<C-w>_
-noremap <C-Left>  <esc><C-w>h<C-w>_
-noremap <C-Right> <esc><C-w>l<C-w>_
+noremap <silent> <C-Up>    <esc><C-w>k<C-w>_
+noremap <silent> <C-Down>  <esc><C-w>j<C-w>_
+noremap <silent> <C-Left>  <esc><C-w>h<C-w>_
+noremap <silent> <C-Right> <esc><C-w>l<C-w>_
 
 " Edit, load ~/.vimrc
 map <leader>V :spl ~/.vimrc<CR><C-W>_
 map <silent> <leader>W :source ~/.vimrc<CR>:filetype detect<CR>
       \ :exe ":echo 'vimrc reloaded'"<CR>
 
+imap <silent> <C-D><C-D> <C-R>=strftime("%Y/%m/%d")<CR>
+imap <silent> <C-T><C-T> <C-R>=strftime("%H:%M:%S")<CR>
