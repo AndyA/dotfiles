@@ -80,6 +80,12 @@ noremap <silent> <C-Down>  <esc><C-w>j<C-w>_
 noremap <silent> <C-Left>  <esc><C-w>h<C-w>_
 noremap <silent> <C-Right> <esc><C-w>l<C-w>_
 
+" Bindings above seem to upset screen so define these alternatives
+noremap <silent> <leader>k <esc><C-w>k<C-w>_
+noremap <silent> <leader>j <esc><C-w>j<C-w>_
+noremap <silent> <leader>h <esc><C-w>h<C-w>_
+noremap <silent> <leader>l <esc><C-w>l<C-w>_
+
 " Edit, load ~/.vimrc
 map <leader>V :spl ~/.vimrc<CR><C-W>_
 map <silent> <leader>W :source ~/.vimrc<CR>:filetype detect<CR>
@@ -89,4 +95,7 @@ imap <silent> <C-D><C-D> <C-R>=strftime("%Y/%m/%d")<CR>
 imap <silent> <C-T><C-T> <C-R>=strftime("%H:%M:%S")<CR>
 
 noremap <silent> <f6> :call g:align_assignments()<CR>
+set listchars=tab:▸\ ,eol:¬
+
+map <leader>l :set list!<CR>
 
