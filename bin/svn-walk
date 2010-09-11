@@ -4,6 +4,11 @@ use strict;
 use warnings;
 
 use File::Spec;
+use Getopt::Long;
+
+my %opt = ( svn => 0 );
+
+GetOptions( 'svn:s' => \$opt{svn} ) or die;
 
 for my $dir ( @ARGV || '.' ) {
   walk( $dir );
@@ -13,7 +18,8 @@ sub walk {
   my $dir = shift;
   my $ents = File::Spec->catfile( $dir, '.svn', 'entries' );
   open my $eh, '<', $ents or die "Can't read $ents: $!\n";
-  print "$dir\n";
+  my $loc = $opt{svn} ? $dir : File::Spec->catdir( $dir, '.svn' );
+  print "$loc\n";
   my $recline = -1;
   my %rec     = ();
   my @label   = qw( name type );
