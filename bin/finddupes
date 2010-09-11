@@ -55,7 +55,8 @@ sub filter_set {
     next unless @$set > 1;
     OBJ: for my $obj ( @$set ) {
       my $digest = $func->( $obj );
-      push @{ $by_digest{$digest} }, $obj;
+      push @{ $by_digest{$digest} }, $obj
+       if defined $digest;
     }
   }
   return filter_set( values %by_digest, $funcs );
@@ -69,13 +70,15 @@ sub finddups {
   my $ff = File::Find::Rule->new;
   my $foo = $ff->ignore_vcs unless $opt{vcs};
 
-  my @filt = ();
+  my @filt       = ();
   my @statfields = $opt{strict} ? ( 2, 4, 5, 7 ) : ( 7 );
+  my %seen_inode = ();
 
   push @filt, sub {
     my $obj = shift;
     mention "Checking $obj";
     my @st = lstat $obj;
+    return if $seen_inode{ $st[1] }++;
     return join '/', @st[@statfields];
   };
 
@@ -98,8 +101,9 @@ sub finddups {
 }
 
 sub make_links {
-  my @sets = @_;
-  my $suf  = 'AAAAA';
+  my @sets  = @_;
+  my $suf   = 'AAAAA';
+  my $saved = 0;
   for my $set ( @dups ) {
     my $first = shift @$set;
     my @fst   = lstat $first;
@@ -114,8 +118,10 @@ sub make_links {
       mention "Linking $first to $obj";
       link $first, $tmp or die "Can't link $first to $tmp: $!\n";
       rename $tmp, $obj or die "Can't rename $tmp to $obj: $!\n";
+      $saved += $ost[7];
     }
   }
+  mention "Saved $saved bytes";
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
