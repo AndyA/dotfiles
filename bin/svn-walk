@@ -1,0 +1,42 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use File::Spec;
+
+for my $dir ( @ARGV || '.' ) {
+  walk( $dir );
+}
+
+sub walk {
+  my $dir = shift;
+  my $ents = File::Spec->catfile( $dir, '.svn', 'entries' );
+  open my $eh, '<', $ents or die "Can't read $ents: $!\n";
+  print "$dir\n";
+  my $recline = -1;
+  my %rec     = ();
+  my @label   = qw( name type );
+
+  LINE: while ( defined( my $line = <$eh> ) ) {
+    chomp $line;
+    if ( $line =~ /^\cL$/ ) {
+      if ( $recline >= @label
+        && $rec{type} eq 'dir'
+        && length( $rec{name} ) ) {
+        walk( File::Spec->catdir( $dir, $rec{name} ) );
+      }
+      $recline = 0;
+      %rec     = ();
+      next LINE;
+    }
+
+    if ( $recline >= 0 && $recline < @label ) {
+      $rec{ $label[$recline] } = $line;
+    }
+    $recline++;
+  }
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
