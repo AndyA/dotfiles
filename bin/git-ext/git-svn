@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/alt/local/bin/perl /usr/lib/git-core/git-svn $*
+
