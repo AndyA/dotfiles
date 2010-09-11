@@ -8,9 +8,10 @@ use Getopt::Long;
 
 my %opt = ( svn => 0 );
 
-GetOptions( 'svn:s' => \$opt{svn} ) or die;
+GetOptions( 'svn' => \$opt{svn} ) or die;
 
-for my $dir ( @ARGV || '.' ) {
+@ARGV = ( '.' ) unless @ARGV;
+for my $dir ( @ARGV ) {
   walk( $dir );
 }
 
