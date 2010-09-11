@@ -45,21 +45,20 @@ sub mention(@) {
 }
 
 sub filter_set {
-  my @sets = @_;
+  my @files = @_;
 
-  my $funcs     = pop @sets;
-  my $func      = shift @$funcs or return @sets;
+  my $cb        = pop @files;
+  my $func      = pop @files;
   my %by_digest = ();
 
-  for my $set ( @sets ) {
-    next unless @$set > 1;
-    OBJ: for my $obj ( @$set ) {
-      my $digest = $func->( $obj );
-      push @{ $by_digest{$digest} }, $obj
-       if defined $digest;
-    }
+  for my $file ( @files ) {
+    my $digest = $func->( $file );
+    push @{ $by_digest{$digest} }, $file
+     if defined $digest;
   }
-  return filter_set( values %by_digest, $funcs );
+  while ( my ( $dig, $set ) = each %by_digest ) {
+    $cb->( $dig, @$set ) if @$set > 1;
+  }
 }
 
 sub finddups {
@@ -70,26 +69,53 @@ sub finddups {
   my $ff = File::Find::Rule->new;
   my $foo = $ff->ignore_vcs unless $opt{vcs};
 
-  my @filt       = ();
   my @statfields = $opt{strict} ? ( 2, 4, 5, 7 ) : ( 7 );
   my %seen_inode = ();
 
-  push @filt, sub {
+  my $hash_part = sub {
     my $obj = shift;
-    mention "Checking $obj";
-    my @st = lstat $obj;
-    return if $seen_inode{ $st[1] }++;
-    return join '/', @st[@statfields];
+    mention "Partial Hashing $obj";
+    open my $fh, '<', $obj or die "Can't read $obj: $!\n";
+    defined sysread $fh, my $buf, 2048
+     or die "Read error on $obj: $!\n";
+    return Digest::MD5->new->add( $buf )->hexdigest;
   };
 
-  push @filt, sub {
+  my $hash_full = sub {
     my $obj = shift;
-    mention "Hashing $obj";
+    mention "Full Hashing $obj";
     open my $fh, '<', $obj or die "Can't read $obj: $!\n";
     return Digest::MD5->new->addfile( $fh )->hexdigest;
   };
 
-  my @dups = filter_set( [ $ff->file->in( @dirs ) ], [@filt] );
+  my @dups = ();
+
+  my $keep = sub {
+    my ( $digest, @set ) = @_;
+    push @dups, \@set;
+  };
+
+  filter_set(
+    $ff->file->in( @dirs ),
+    sub {
+      my $obj = shift;
+      mention "Checking $obj";
+      my @st = lstat $obj;
+      return if $seen_inode{ $st[1] }++;
+      return join ' ', @st[@statfields];
+    },
+    sub {
+      my ( $digest, @set ) = @_;
+      my @st = split / /, $digest;
+      if ( $st[-1] >= 65536 ) {
+        filter_set( @set, $hash_part,
+          sub { shift; filter_set( @_, $hash_full, $keep ) } );
+      }
+      else {
+        filter_set( @set, $hash_full, $keep );
+      }
+    }
+  );
 
   # Now return dups
   my @ret = ();
