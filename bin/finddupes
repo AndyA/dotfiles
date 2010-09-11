@@ -4,17 +4,61 @@ use strict;
 use warnings;
 
 use Digest::MD5;
-use File::Find;
+use File::Find::Rule      ();
+use File::Find::Rule::VCS ();
 use Getopt::Long;
 
-GetOptions() or die "Bad options\n";
+select STDERR;
+$| = 1;
+select STDOUT;
+$| = 1;
 
+my %opt = (
+  link    => 0,
+  strict  => 0,
+  vcs     => 0,
+  verbose => 0,
+);
+
+GetOptions(
+  'link'    => \$opt{link},
+  'strict'  => \$opt{strict},
+  'V|vcs'   => \$opt{vcs},
+  'verbose' => \$opt{verbose},
+) or die "Bad options\n";
+
+@ARGV = ( '.' ) unless @ARGV;
 my @dups = finddups( @ARGV );
-use Data::Dumper;
-print Dumper(\@dups);
-for my $set ( @dups ) {
-  print "$_\n" for @$set;
-  print "\n";
+if ( $opt{link} ) {
+  make_links( @dups );
+}
+else {
+  for my $set ( @dups ) {
+    print "$_\n" for @$set;
+    print "\n";
+  }
+}
+
+sub mention(@) {
+  return unless $opt{verbose};
+  print STDERR "$_\n" for split /\n/, join '', @_;
+}
+
+sub filter_set {
+  my @sets = @_;
+
+  my $funcs     = pop @sets;
+  my $func      = shift @$funcs or return @sets;
+  my %by_digest = ();
+
+  for my $set ( @sets ) {
+    next unless @$set > 1;
+    OBJ: for my $obj ( @$set ) {
+      my $digest = $func->( $obj );
+      push @{ $by_digest{$digest} }, $obj;
+    }
+  }
+  return filter_set( values %by_digest, $funcs );
 }
 
 sub finddups {
@@ -22,39 +66,56 @@ sub finddups {
   my %by_size = ();
   my %dup     = ();
 
-  # Find files and group by size
-  find(
-    {
-      wanted => sub {
-        my $obj = $_;
-        return unless -f $obj;
-        push @{ $by_size{ -s $obj } }, $obj;
-      },
-      no_chdir => 1
-    },
-    @dirs
-  );
+  my $ff = File::Find::Rule->file;
+  $ff->ignore_vcs unless $opt{vcs};
 
-  # Now group by hash
-  for my $set ( values %by_size ) {
-    next unless @$set > 1;
-    OBJ: for my $obj ( @$set ) {
-      open my $fh, '<', $obj or do {
-        warn "Can't read $obj: $!\n";
-        next OBJ;
-      };
-      my $hash = Digest::MD5->new->addfile( $fh )->hexdigest;
-      push @{ $dup{$hash} }, $obj;
-    }
-  }
+  my @filt = ();
+  my @statfields = $opt{strict} ? ( 2, 4, 5, 7 ) : ( 7 );
+
+  push @filt, sub {
+    my $obj = shift;
+    mention "Checking $obj";
+    my @st = lstat $obj;
+    return join '/', @st[@statfields];
+  };
+
+  push @filt, sub {
+    my $obj = shift;
+    mention "Hashing $obj";
+    open my $fh, '<', $obj or die "Can't read $obj: $!\n";
+    return Digest::MD5->new->addfile( $fh )->hexdigest;
+  };
+
+  my @dups = filter_set( [ $ff->in( @dirs ) ], [@filt] );
 
   # Now return dups
   my @ret = ();
-  for my $set ( values %dup ) {
+  for my $set ( @dups ) {
     next unless @$set > 1;
     push @ret, $set;
   }
   return @ret;
+}
+
+sub make_links {
+  my @sets = @_;
+  my $suf  = 'AAAAA';
+  for my $set ( @dups ) {
+    my $first = shift @$set;
+    my @fst   = lstat $first;
+    for my $obj ( @$set ) {
+      my @ost = lstat $obj;
+      next if $ost[1] == $fst[1];
+      my $tmp = "$obj.$suf";
+      while ( -e $tmp ) {
+        $suf++;
+        $tmp = "$obj.$suf";
+      }
+      mention "Linking $first to $obj";
+      link $first, $tmp or die "Can't link $first to $tmp: $!\n";
+      rename $tmp, $obj or die "Can't rename $tmp to $obj: $!\n";
+    }
+  }
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
