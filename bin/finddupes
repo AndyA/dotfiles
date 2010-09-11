@@ -66,8 +66,8 @@ sub finddups {
   my %by_size = ();
   my %dup     = ();
 
-  my $ff = File::Find::Rule->file;
-  $ff->ignore_vcs unless $opt{vcs};
+  my $ff = File::Find::Rule->new;
+  my $foo = $ff->ignore_vcs unless $opt{vcs};
 
   my @filt = ();
   my @statfields = $opt{strict} ? ( 2, 4, 5, 7 ) : ( 7 );
@@ -86,7 +86,7 @@ sub finddups {
     return Digest::MD5->new->addfile( $fh )->hexdigest;
   };
 
-  my @dups = filter_set( [ $ff->in( @dirs ) ], [@filt] );
+  my @dups = filter_set( [ $ff->file->in( @dirs ) ], [@filt] );
 
   # Now return dups
   my @ret = ();
