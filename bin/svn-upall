@@ -1,5 +1,6 @@
 #!/bin/sh
 
+cd ${1:-.}
 svnroots | while read dir ; do
   echo "Updating $dir"
   svn up "$dir" || exit
