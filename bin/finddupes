@@ -117,13 +117,7 @@ sub finddups {
     }
   );
 
-  # Now return dups
-  my @ret = ();
-  for my $set ( @dups ) {
-    next unless @$set > 1;
-    push @ret, $set;
-  }
-  return @ret;
+  return grep { @$_ > 1 } @dups;
 }
 
 sub make_links {
