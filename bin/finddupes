@@ -67,7 +67,7 @@ sub finddups {
   my %dup     = ();
 
   my $ff = File::Find::Rule->new;
-  my $foo = $ff->ignore_vcs unless $opt{vcs};
+  $ff->ignore_vcs unless $opt{vcs};
 
   my @statfields = $opt{strict} ? ( 2, 4, 5, 7 ) : ( 7 );
   my %seen_inode = ();
@@ -117,13 +117,7 @@ sub finddups {
     }
   );
 
-  # Now return dups
-  my @ret = ();
-  for my $set ( @dups ) {
-    next unless @$set > 1;
-    push @ret, $set;
-  }
-  return @ret;
+  return grep { @$_ > 1 } @dups;
 }
 
 sub make_links {
