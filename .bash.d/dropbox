@@ -1,0 +1,2 @@
+alias pbput="pbpaste > ~/Dropbox/dotfiles/clipboard"
+alias pbget="cat ~/Dropbox/dotfiles/clipboard | pbcopy"
