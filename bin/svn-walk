@@ -5,6 +5,9 @@ use warnings;
 
 use File::Spec;
 use Getopt::Long;
+use Path::Class;
+
+use constant ENTRIES => ( '.svn', 'entries' );
 
 my %opt = ( svn => 0 );
 
@@ -17,32 +20,38 @@ for my $dir ( @ARGV ) {
 
 sub walk {
   my $dir = shift;
-  my $ents = File::Spec->catfile( $dir, '.svn', 'entries' );
-  open my $eh, '<', $ents or die "Can't read $ents: $!\n";
-  my $loc = $opt{svn} ? $dir : File::Spec->catdir( $dir, '.svn' );
+
+  my $loc = $opt{svn} ? dir( $dir, '.svn' ) : $dir;
   print "$loc\n";
+
   my $recline = -1;
   my %rec     = ();
   my @label   = qw( name type );
 
-  LINE: while ( defined( my $line = <$eh> ) ) {
-    chomp $line;
+  my $handle_rec = sub {
+    if ( $recline >= @label
+      && $rec{type} eq 'dir'
+      && length( $rec{name} ) ) {
+      walk( dir( $dir, $rec{name} ) );
+    }
+    $recline = 0;
+    %rec     = ();
+  };
+
+  LINE:
+  for my $line ( file( $dir, ENTRIES )->slurp( chomp => 1 ) ) {
     if ( $line =~ /^\cL$/ ) {
-      if ( $recline >= @label
-        && $rec{type} eq 'dir'
-        && length( $rec{name} ) ) {
-        walk( File::Spec->catdir( $dir, $rec{name} ) );
-      }
-      $recline = 0;
-      %rec     = ();
+      $handle_rec->();
       next LINE;
     }
 
-    if ( $recline >= 0 && $recline < @label ) {
-      $rec{ $label[$recline] } = $line;
-    }
+    $rec{ $label[$recline] } = $line
+     if $recline >= 0 && $recline < @label;
+
     $recline++;
   }
+
+  $handle_rec->();
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
