@@ -41,6 +41,7 @@
 .dosemu
 .dropbox
 .dropbox-dist
+.eclipse
 .eclipse_keyring
 .esd_auth
 .evolution
@@ -50,10 +51,12 @@
 .gconf
 .gconfd
 .gdb_history
+.gegl-0.0
 .gem
 .gemrc
 .gforth-history
 .gimp-2.4
+.gimp-2.6
 .gitconfig
 .gitk
 .gksu.lock
@@ -94,6 +97,7 @@
 .mysql_history
 .nautilus
 .notifo
+.nvidia-settings-rc
 .openoffice.org
 .openshot
 .openvpn
