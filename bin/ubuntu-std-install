@@ -6,7 +6,6 @@ apt-get remove \
 apt-get install \
   apache2 \
   apache2-utils \
-  apt-file \
   aspell-en \
   autoconf \
   automake \
