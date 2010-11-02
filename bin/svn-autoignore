@@ -44,7 +44,7 @@ sub ignore {
   my $ig = File::Temp->new;
   {
     open my $if, '>', "$ig" or die "Can't write $ig: $!\n";
-    print $if "$_\n" for sort @new;
+    print $if "$_\n" for grep length, sort @new;
   }
   system 'svn', 'propset', 'svn:ignore', $dir, '-F', "$ig"
    and die "Can't set svn:ignore on $dir: $?\n";
