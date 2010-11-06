@@ -53,7 +53,7 @@ sub read_catalog {
 
   my %by_author = ();
 
-  DIST: while ( my ( $dist, $info ) = each %catalog ) {
+  while ( my ( $dist, $info ) = each %catalog ) {
     my ( $id, $name ) = dist_name( $dist, $info );
     $by_author{$id}{$name} = $dist;
   }
