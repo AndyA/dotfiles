@@ -25,6 +25,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor Boston, MA 02110-1301,  USA
 set -e
 VERSION="0.1"
+LAMEVERSION="3.98.4"
 
 BUILDDIR="/tmp/build-ffmpeg-$$"
 mkdir $BUILDDIR
@@ -42,12 +43,12 @@ make
 sudo checkinstall --pkgname=x264 --pkgversion "2:0.`grep X264_BUILD x264.h -m1 | cut -d' ' -f3`.`git rev-list HEAD | wc -l`+git`git rev-list HEAD -n 1 | head -c 7`" --backup=no --default
 
 cd $BUILDDIR
-wget http://downloads.sourceforge.net/project/lame/lame/3.98.4/lame-3.98.4.tar.gz
-tar xzvf lame-3.98.4.tar.gz
-cd lame-3.98.4
+wget http://downloads.sourceforge.net/project/lame/lame/$LAMEVERSION/lame-$LAMEVERSION.tar.gz
+tar xzvf lame-$LAMEVERSION.tar.gz
+cd lame-$LAMEVERSION
 ./configure --enable-nasm --disable-shared
 make
-sudo checkinstall --pkgname=lame-ffmpeg --pkgversion="3.98.4" --backup=no --default --deldoc=yes
+sudo checkinstall --pkgname=lame-ffmpeg --pkgversion=$LAMEVERSION --backup=no --default --deldoc=yes
 
 cd $BUILDDIR
 git clone git://review.webmproject.org/libvpx.git
