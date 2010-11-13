@@ -11,6 +11,7 @@ setlocal comments=:#
 setlocal cinkeys-=0#
 setlocal iskeyword+=:
 setlocal tags=./tags,./perltags,tags,perltags,~/.vim/perltags
+setlocal keywordprg=magic-perldoc
  
 if executable('ack')
   setlocal grepprg=ack\ --type=perl
