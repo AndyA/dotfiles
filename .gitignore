@@ -41,6 +41,7 @@
 .dosemu
 .dropbox
 .dropbox-dist
+.dzil
 .eclipse
 .eclipse_keyring
 .esd_auth
