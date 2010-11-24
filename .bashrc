@@ -40,3 +40,5 @@ MANPATH=`$HOME/bin/path_append $MANPATH`
 export PATH MANPATH
 
 [ -f ~/.aliases ] && source ~/.aliases
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
