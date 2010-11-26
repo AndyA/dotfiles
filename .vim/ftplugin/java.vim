@@ -3,8 +3,10 @@
 so $VIMRUNTIME/ftplugin/java.vim
 
 setlocal shiftround
+setlocal shiftwidth=4
 setlocal expandtab
 setlocal textwidth=72
+setlocal tabstop=4
 
 setlocal cindent
  
