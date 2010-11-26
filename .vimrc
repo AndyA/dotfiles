@@ -52,6 +52,8 @@ if v:version >= 700
   source ~/.vim/vim700.vim
 endif
 
+source ~/.vim/folding.vim
+
 " Jump to line we were on
 autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
   \| exe "normal g'\"" | endif
