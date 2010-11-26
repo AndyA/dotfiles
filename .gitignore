@@ -2,9 +2,11 @@
 .CFUserTextEncoding
 .DS_Store
 .DownloadManager
+.Horgand
 .ICEauthority
 .Skype
 .Trash
+.WorkBench
 .Xauthority
 .Xcode
 .adobe
@@ -12,6 +14,7 @@
 .android
 .apache-test
 .appcfg_nag
+.arista
 .bash_history
 .bash_logout
 .bazaar
@@ -71,6 +74,7 @@
 .hotssh
 .htoprc
 .icons
+.install4j
 .ion3
 .irb_history
 .irssi
@@ -103,6 +107,7 @@
 .openshot
 .openvpn
 .org.eclipse.epp.usagedata.recording.userId
+.padre
 .pause
 .perl
 .perldb_history
@@ -120,6 +125,7 @@
 .pulse-cookie
 .purple
 .putty
+.qt
 .quicksynergy
 .recently-used.xbel
 .remote_test
@@ -161,6 +167,7 @@
 .wine
 .wireshark
 .xchat2
+.xine
 .xsession-errors
 .xsession-errors.old
 .zcompdump
