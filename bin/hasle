@@ -193,9 +193,11 @@ elsif ( $list ) {
 }
 elsif ( $complete ) {
   my $part = shift || '';
-  for my $key ( sort grep /^\Q$part/, $store->all ) {
-    print "$key\n";
+  my @all = sort grep /^\Q$part/, $store->all;
+  if ( $glob ) {
+    @all = grep { -e $store->get( $_ ) } @all;
   }
+  print "$_\n" for @all;
 }
 else {
   die "No operation specified. Please use -g, -p, -l or -c\n";
