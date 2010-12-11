@@ -140,6 +140,7 @@
 .spamassassin
 .splunk
 .sqlite_history
+.squidview
 .srl
 .ssh
 .ssh-agent
