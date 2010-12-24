@@ -1,11 +1,35 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
-my @ff = grep /^-?\d+$/, @ARGV;
-@ARGV = grep $_ !~ /^-?\d+$/, @ARGV;
+use strict;
+use warnings;
+
+use Getopt::Long;
+use Set::IntSpan::Fast;
+
+my %Opt = ( leading => 0, trailing => 0, );
+
+GetOptions(
+  'leading|L'  => \$Opt{leading},
+  'trailing|T' => \$Opt{trailing},
+) or die;
+
+my $range  = qr{\d+(?:\s*-\s*\d+)?};
+my $ranges = qr{^$range(?:\s*,\s*$range)*$}o;
+
+my @ff
+ = Set::IntSpan::Fast->new( grep { $_ =~ $ranges } @ARGV )->as_array;
+@ARGV = grep { $_ !~ $ranges } @ARGV;
+
+my ( $spre, $pad )
+ = $Opt{trailing} ? ( qr{(?<=\s)(?=\S)}, '' )
+ : $Opt{leading}  ? ( qr{(?<=\S)(?=\s)}, '' )
+ :                  ( qr{\s+},           ' ' );
 
 while ( <> ) {
   chomp;
-  s/^\s+//;
-  my @f = split /\s+/;
-  print join( ' ', @f[@ff] ), "\n";
+  s/^\s+// if $pad;
+  my @f = split $spre, $_;
+  print join( $pad, map { defined $_ ? $_ : '' } @f[@ff] ), "\n";
 }
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
