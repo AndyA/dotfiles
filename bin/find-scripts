@@ -16,7 +16,7 @@ GetOptions(
 
 @ARGV = split /:/, $ENV{PATH} unless @ARGV;
 
-my @scripts = uniq( sort map { $_->[$Select] } find_scripts( @ARGV ) );
+my @scripts = uniq( sort map { $_->[$Select] } find_scripts( map { split /:/ } @ARGV ) );
 if ( $OneLine ) {
   print join( ' ', @scripts ), "\n";
 }
