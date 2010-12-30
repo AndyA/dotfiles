@@ -1,9 +1,12 @@
+.*.swp
 .CFUserTextEncoding
 .DS_Store
 .DownloadManager
+.Horgand
 .ICEauthority
 .Skype
 .Trash
+.WorkBench
 .Xauthority
 .Xcode
 .adobe
@@ -11,6 +14,7 @@
 .android
 .apache-test
 .appcfg_nag
+.arista
 .bash_history
 .bash_logout
 .bazaar
@@ -40,6 +44,8 @@
 .dosemu
 .dropbox
 .dropbox-dist
+.dzil
+.eclipse
 .eclipse_keyring
 .esd_auth
 .evolution
@@ -49,10 +55,12 @@
 .gconf
 .gconfd
 .gdb_history
+.gegl-0.0
 .gem
 .gemrc
 .gforth-history
 .gimp-2.4
+.gimp-2.6
 .gitconfig
 .gitk
 .gksu.lock
@@ -63,8 +71,10 @@
 .gstreamer-0.10
 .gtk-bookmarks
 .gvfs
+.hotssh
 .htoprc
 .icons
+.install4j
 .ion3
 .irb_history
 .irssi
@@ -92,10 +102,12 @@
 .mysql_history
 .nautilus
 .notifo
+.nvidia-settings-rc
 .openoffice.org
 .openshot
 .openvpn
 .org.eclipse.epp.usagedata.recording.userId
+.padre
 .pause
 .perl
 .perldb_history
@@ -113,6 +125,7 @@
 .pulse-cookie
 .purple
 .putty
+.qt
 .quicksynergy
 .recently-used.xbel
 .remote_test
@@ -127,6 +140,7 @@
 .spamassassin
 .splunk
 .sqlite_history
+.squidview
 .srl
 .ssh
 .ssh-agent
@@ -154,6 +168,7 @@
 .wine
 .wireshark
 .xchat2
+.xine
 .xsession-errors
 .xsession-errors.old
 .zcompdump
@@ -177,3 +192,4 @@ Videos
 Works
 dwhelper
 svn-prop.tmp
+workspace

@@ -88,7 +88,8 @@ sub with_svn {
 }
 
 sub svn_info {
-  with_svn( info => shift, sub { map tidy( $_ ), split /:/, $_, 2 } );
+  my $dir = shift;
+  with_svn( info => "$dir\@", sub { map tidy( $_ ), split /:/, $_, 2 } );
 }
 
 sub svn_externals {

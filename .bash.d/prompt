@@ -1,6 +1,6 @@
 # Prompt
 function prompt_command {
-    history -a
+  history -a
 }
 
 export -f prompt_command

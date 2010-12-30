@@ -1,4 +1,3 @@
 local: ~/Works/Perl/MiniCPAN/
 remote: http://cpan.hexten.net/
-#remote: http://cpan.hexten.net/
 exact_mirror: 1

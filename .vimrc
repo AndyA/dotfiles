@@ -52,6 +52,8 @@ if v:version >= 700
   source ~/.vim/vim700.vim
 endif
 
+source ~/.vim/folding.vim
+
 " Jump to line we were on
 autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
   \| exe "normal g'\"" | endif
@@ -64,7 +66,7 @@ vmap bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \|
 nmap <leader>tl :TlistToggle<cr>
 
 if has('mac')
-  vmap c y:call system("pbcopy", getreg("\""))<CR>
+  vmap c y :call system("pbcopy", getreg("\""))<CR>
   nmap <leader>v :call setreg("\"",system("pbpaste"))<CR>p
 endif
 

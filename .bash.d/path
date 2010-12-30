@@ -9,3 +9,5 @@ for d in $HOME/bin/local $HOME/bin/$RCUNAME \
   /usr/local/flexsdk/bin /usr/local/apache-maven/bin; do
   [ -d $d ] && PATH=$d:$PATH
 done
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
