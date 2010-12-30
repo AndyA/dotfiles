@@ -6,7 +6,7 @@ use warnings;
 my @ln = grep { /^\d+$/ } @ARGV;
 my @kh = grep { !/^\d+$/ } @ARGV;
 
-die "Only name on known_hosts file\n" if @kh > 1;
+die "Only name one known_hosts file\n" if @kh > 1;
 my $known_hosts = @kh ? $kh[0] : glob '~/.ssh/known_hosts';
 open my $fh, '<', $known_hosts or die "Can't read $known_hosts: $!\n";
 my @l = <$fh>;
