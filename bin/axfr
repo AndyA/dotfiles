@@ -13,7 +13,7 @@ sub axfr {
   my @ns = ns( $dom );
   die "No name servers for $dom\n" unless @ns;
   system 'ssh', $ns[0], 'dig', '-t', 'axfr', $dom
-   or die "Can't dig: $?\n";
+    and die "Can't dig: $?\n";
 }
 
 sub ns {
