@@ -1,0 +1,36 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+for my $dom ( @ARGV ) {
+  axfr( $dom );
+}
+
+sub axfr {
+  my $dom = shift;
+  $dom =~ s/(?<!\.)$/./;
+  my @ns = ns( $dom );
+  die "No name servers for $dom\n" unless @ns;
+  system 'ssh', $ns[0], 'dig', '-t', 'axfr', $dom
+   or die "Can't dig: $?\n";
+}
+
+sub ns {
+  my $dom = shift;
+  my @cmd = ( 'dig', '-t', 'ns', $dom );
+  my @ns  = ();
+  open my $dh, '-|', @cmd or die "Can't ", join( ' ', @cmd ), ": $?\n";
+  while ( <$dh> ) {
+    chomp;
+    push @ns, $1
+     if m{^\Q$dom\E\s+\d+\s+IN\s+NS\s+(\S+)$}io;
+  }
+  close $dh or die "Can't ", join( ' ', @cmd ), ": $?\n";
+  return @ns;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
+__END__
+
