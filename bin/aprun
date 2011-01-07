@@ -211,7 +211,7 @@ sub do_magic {
   while ( my ( $dep, $test ) = each %AUTO_MAGIC ) {
     if ( $test->() ) {
       push @wantmod, $dep;
-      print "Activating '$dep' magic\n";
+      say "Activating '$dep' magic";
     }
   }
 }
@@ -233,12 +233,12 @@ sub run_apache {
       }
       open my $ph, '<', $pidfile or die "Can't read $pidfile: $!\n";
       chomp( my $pid = <$ph> );
-      print "Killing Apache PID $pid\n";
+      say "Killing Apache PID $pid";
       kill TERM => $pid;
       exit;
     };
     system @cmd and die join( ' ', @cmd ), " failed: $?\n";
-    print "Running apache\n";
+    say 'Running apache';
     tail_logs( [ cyan => 'access_log' ], [ red => 'error_log' ] );
   };
 }
@@ -277,7 +277,7 @@ sub make_config {
   for my $f ( keys %$F ) {
     my $cfg = template( $f );
     my $file = File::Spec->catfile( C( 'conf_dir' ), $f );
-    print "Creating $file\n";
+    say "Creating $file";
     open my $fh, '>', $file or die "Can't write $file: $!\n";
     print $fh $cfg;
   }
