@@ -46,35 +46,20 @@ my %DEFAULT = (
     work_dir => sub {
       File::Temp->newdir( 'aprunXXXXXXX', TMPDIR => 1 );
     },
-    logs_dir => D {
-      File::Spec->rel2abs( 'logs', C( 'work_dir' ) );
-    },
-    conf_dir => D {
-      File::Spec->rel2abs( 'conf', C( 'work_dir' ) );
-    },
-    document_root => D {
-      File::Spec->rel2abs( 'htdocs', C( 'work_dir' ) );
-    },
-    apache_host => 'localhost',
-    apache_port => '8080',
-    modules     => '',
-    server_name => sub {
-      C( 'apache_host' );
-    },
-    server_root => sub {
-      File::Spec->rel2abs( '.' );
-    },
-    server_admin => 'me@localhost',
-    uid          => sub { scalar getpwuid( $> ) },
-    gid          => sub { scalar getgrgid( $) ) },
-    warning      => '',
-    load_modules => sub { load_module( @DEFMOD ) },
-    error_log    => sub {
-      File::Spec->rel2abs( 'error_log', C( 'logs_dir' ) );
-    },
-    access_log => sub {
-      File::Spec->rel2abs( 'access_log', C( 'logs_dir' ) );
-    },
+    logs_dir      => '[% work_dir %]/logs',
+    conf_dir      => '[% work_dir %]/conf',
+    document_root => '[% work_dir %]/htdocs',
+    host          => 'localhost',
+    port          => '8080',
+    server_name   => '[% host %]',
+    server_root   => '.',
+    server_admin  => 'me@[% host %]',
+    uid           => sub { scalar getpwuid( $> ) },
+    gid           => sub { scalar getgrgid( $) ) },
+    warning       => '',
+    load_modules  => sub { load_module( @DEFMOD ) },
+    access_log    => '[% logs_dir %]/access_log',
+    error_log     => '[% logs_dir %]/error_log',
   }
 );
 
@@ -172,28 +157,31 @@ my $C = read_config( '.aprun/config.ini', '~/.aprun/config.ini' );
 my $F = read_core_files();
 
 make_config();
+print Dumper( $C );
 run_apache();
 
 sub C($;$) {
   my ( $key, $section ) = @_;
   $section //= '_';
+
   my $val = $C->{$section}{$key} // $DEFAULT{$section}{$key};
+
   die "Config item $key ",
    ( $section eq '_' ? 'at top level' : "in section $section" ),
    " not defined\n"
    unless defined $val;
-  return $C->{$section}{$key} = $val->( $section, $key )
-   if 'CODE' eq ref $val;
-  return "$val";
-}
 
-sub D(&) {
-  my $val = shift;
-  return sub {
-    my $dir = $val->( @_ );
-    make_path( $dir );
-    return $dir;
-  };
+  $val = $val->( $section, $key ) if 'CODE' eq ref $val;
+  $val = expand( "$val" );
+
+  # Special case for directories
+  if ( $section eq '_' && $key =~ /_(?:root|dir)$/ ) {
+    $val = File::Spec->rel2abs( $val );
+    make_path( $val );
+  }
+
+  # Expansions are only performed on first evaluation
+  return $C->{$section}{$key} = $val;
 }
 
 sub run_apache {
@@ -265,12 +253,13 @@ sub make_config {
 
 sub template {
   my $file = shift;
-  my $var  = sub {
-    my $name = shift;
-    return C $name;
-  };
   my $src = $F->{$file} // die "No file $file known\n";
-  $src =~ s/\[% \s* (\w+) \s* %\]/$var->($1)/xeg;
+  return expand( $src );
+}
+
+sub expand {
+  my $src = shift;
+  $src =~ s/\[% \s* (\w+) \s* %\]/C $1/xeg;
   return $src;
 }
 
@@ -1308,7 +1297,7 @@ DocumentRoot "[% document_root %]"
 PidFile "[% logs_dir %]/httpd.pid"
 LockFile "[% logs_dir %]/httpd.lock"
 
-Listen [% apache_host %]:[% apache_port %]
+Listen [% host %]:[% port %]
 
 [% load_modules %]
 
@@ -1399,7 +1388,7 @@ BrowserMatch "^gnome-vfs/1.0" redirect-carefully
 BrowserMatch "^XML Spy" redirect-carefully
 BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
 
-<VirtualHost _default_:[% apache_port %]>
+<VirtualHost _default_:[% port %]>
   LogLevel warn
 
   <Directory "[% document_root %]">
