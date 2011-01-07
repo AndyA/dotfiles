@@ -8,14 +8,15 @@ use warnings;
 
 use Config::Tiny;
 use Data::Dumper;
+use File::Basename qw( basename dirname );
 use File::Path qw( make_path );
 use File::Spec;
-use File::Temp;
 use File::Tail;
-use Term::ANSIColor;
-use File::Which;
+use File::Temp;
 use File::Which qw( which );
 use Getopt::Long;
+use Memoize;
+use Term::ANSIColor;
 
 sub C($);
 sub D(&);
