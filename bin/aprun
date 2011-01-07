@@ -11,6 +11,8 @@ use Data::Dumper;
 use File::Path qw( make_path );
 use File::Spec;
 use File::Temp;
+use File::Tail;
+use Term::ANSIColor;
 use File::Which;
 use Getopt::Long;
 
@@ -30,6 +32,7 @@ my @DEFMOD = qw(
  expires_module
  headers_module
  include_module
+ log_config_module
  mem_cache_module
  mime_magic_module
  mime_module
@@ -44,13 +47,13 @@ my %DEFAULT = (
       File::Temp->newdir( 'aprunXXXXXXX', TMPDIR => 1 );
     },
     logs_dir => D {
-      File::Spec->catdir( C( 'work_dir' ), 'logs' );
+      File::Spec->rel2abs( 'logs', C( 'work_dir' ) );
     },
     conf_dir => D {
-      File::Spec->catdir( C( 'work_dir' ), 'conf' );
+      File::Spec->rel2abs( 'conf', C( 'work_dir' ) );
     },
     document_root => D {
-      File::Spec->catdir( C( 'work_dir' ), 'htdocs' );
+      File::Spec->rel2abs( 'htdocs', C( 'work_dir' ) );
     },
     apache_host => 'localhost',
     apache_port => '8080',
@@ -66,6 +69,12 @@ my %DEFAULT = (
     gid          => sub { scalar getgrgid( $) ) },
     warning      => '',
     load_modules => sub { load_module( @DEFMOD ) },
+    error_log    => sub {
+      File::Spec->rel2abs( 'error_log', C( 'logs_dir' ) );
+    },
+    access_log => sub {
+      File::Spec->rel2abs( 'access_log', C( 'logs_dir' ) );
+    },
   }
 );
 
@@ -119,6 +128,7 @@ my %mods = (
   include_module         => 'mod_include.so',
   info_module            => 'mod_info.so',
   ldap_module            => 'mod_ldap.so',
+  log_config_module      => 'mod_log_config.so',
   log_forensic_module    => 'mod_log_forensic.so',
   log_rotate_module      => 'mod_log_rotate.so',
   mem_cache_module       => 'mod_mem_cache.so',
@@ -156,7 +166,8 @@ my %mods = (
 my $C = read_config( '.aprun/config.ini', '~/.aprun/config.ini' );
 {
   my $g = $C->{_} ||= {};
-  GetOptions( 'work_dir=s' => \$g->{work_dir}, ) or die;
+  GetOptions( map { ( "$_=s" => \$g->{$_} ) } keys %{ $DEFAULT{_} } )
+   or die;
 }
 my $F = read_core_files();
 
@@ -207,8 +218,39 @@ sub run_apache {
       exit;
     };
     system @cmd and die join( ' ', @cmd ), " failed: $?\n";
-    while () { sleep 10 }
+    print "Running apache\n";
+    tail_logs( [ cyan => 'access_log' ], [ red => 'error_log' ] );
   };
+}
+
+sub touch(@) {
+  for my $f ( @_ ) {
+    open my $fh, '>>', $f or die "Can't touch $f: $!\n";
+  }
+}
+
+sub tail_logs {
+  my @spec = @_;
+  my @tail = ();
+  for my $item ( @spec ) {
+    my ( $col, $cfg ) = @$item;
+    my $file = C $cfg;
+    touch $file;
+    my $t = File::Tail->new(
+      name        => $file,
+      interval    => 1,
+      maxinterval => 1,
+    );
+    $t->{_colour} = $col;
+    push @tail, $t;
+  }
+  while () {
+    my ( undef, undef, @pending )
+     = File::Tail::select( undef, undef, undef, 10, @tail );
+    for my $t ( @pending ) {
+      print colored [ $t->{_colour} ], $t->read;
+    }
+  }
 }
 
 sub make_config {
@@ -1260,17 +1302,17 @@ x-conference/x-cooltalk		ice
 =httpd.conf
 # [% warning %]
 # vim:ts=2:sw=2:sts=2:et:ft=apache
-ServerName [% server_name %]
-ServerRoot [% server_root %]
-DocumentRoot [% document_root %]
-PidFile [% logs_dir %]/httpd.pid
-LockFile [% logs_dir %]/httpd.lock
+ServerName "[% server_name %]"
+ServerRoot "[% server_root %]"
+DocumentRoot "[% document_root %]"
+PidFile "[% logs_dir %]/httpd.pid"
+LockFile "[% logs_dir %]/httpd.lock"
 
 Listen [% apache_host %]:[% apache_port %]
 
 [% load_modules %]
 
-ServerAdmin [% server_admin %]
+ServerAdmin "[% server_admin %]"
 
 <Directory />
   Options FollowSymLinks
@@ -1285,23 +1327,23 @@ ServerAdmin [% server_admin %]
   Satisfy All
 </FilesMatch>
 
-ErrorLog [% logs_dir %]/error_log
+ErrorLog "[% error_log %]"
 LogLevel warn
 
 <IfModule mod_mime_magic>
-  MimeMagicFile [% conf_dir %]/magic
+  MimeMagicFile "[% conf_dir %]/magic"
 </IfModule>
 
 <IfModule log_config_module>
   LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
   LogFormat "%h %l %u %t \"%r\" %>s %b" common
-  CustomLog [% logs_dir %]/access_log combined
+  CustomLog "[% access_log %]" combined
 </IfModule>
 
 DefaultType text/plain
 
 <IfModule mime_module>
-  TypesConfig [% conf_dir %]/mime.types
+  TypesConfig "[% conf_dir %]/mime.types"
   AddType application/x-compress  .Z
   AddType application/x-gzip      .gz .tgz
   AddType application/x-httpd-php .php 
@@ -1371,4 +1413,3 @@ BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
           downgrade-1.0 force-response-1.0
 
 </VirtualHost>                                  
-
