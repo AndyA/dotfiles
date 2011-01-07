@@ -41,25 +41,29 @@ my @DEFMOD = qw(
  setenvif_module
 );
 
+my @wantmod = @DEFMOD;
+
 my %DEFAULT = (
   _ => {
     work_dir => sub {
       File::Temp->newdir( 'aprunXXXXXXX', TMPDIR => 1 );
     },
-    logs_dir      => '[% work_dir %]/logs',
-    conf_dir      => '[% work_dir %]/conf',
-    document_root => '[% work_dir %]/htdocs',
-    host          => 'localhost',
-    port          => '8080',
-    server_name   => '[% host %]',
-    server_root   => '.',
-    server_admin  => 'me@[% host %]',
-    uid           => sub { scalar getpwuid( $> ) },
-    gid           => sub { scalar getgrgid( $) ) },
-    warning       => '',
-    load_modules  => sub { load_module( @DEFMOD ) },
-    access_log    => '[% logs_dir %]/access_log',
-    error_log     => '[% logs_dir %]/error_log',
+    logs_dir       => '[% work_dir %]/logs',
+    conf_dir       => '[% work_dir %]/conf',
+    document_root  => '[% work_dir %]/htdocs',
+    host           => 'localhost',
+    port           => '8080',
+    server_name    => '[% host %]',
+    server_root    => '.',
+    server_admin   => 'me@[% host %]',
+    uid            => sub { scalar getpwuid( $> ) },
+    gid            => sub { scalar getgrgid( $) ) },
+    warning        => '',
+    load_modules   => sub { load_module( @wantmod ) },
+    access_log     => '[% logs_dir %]/access_log',
+    error_log      => '[% logs_dir %]/error_log',
+    _php_mime_type => '',
+    index          => 'index.html',
   }
 );
 
@@ -146,6 +150,24 @@ my %mods = (
   vhost_alias_module     => 'mod_vhost_alias.so',
   webauth_module         => 'mod_webauth.so',
   webauthldap_module     => 'mod_webauthldap.so',
+  # Dependencies and bundled module sets
+  php => [
+    '',
+    'php5_module',
+    {
+      _php_mime_type => 'AddType application/x-httpd-php .php',
+      index          => 'index.php, index.html'
+    }
+  ],
+);
+
+my %AUTO_MAGIC = (
+  php => sub {
+    my $dr = C 'document_root';
+    opendir my $dh, $dr or die "Can't open $dr: $!\n";
+    my @f = grep { m{\.php} } grep { !m{^\.} } readdir $dh;
+    return @f;
+  },
 );
 
 my $C = read_config( '.aprun/config.ini', '~/.aprun/config.ini' );
@@ -156,8 +178,9 @@ my $C = read_config( '.aprun/config.ini', '~/.aprun/config.ini' );
 }
 my $F = read_core_files();
 
+do_magic();
 make_config();
-print Dumper( $C );
+#print Dumper( $C );
 run_apache();
 
 sub C($;$) {
@@ -182,6 +205,15 @@ sub C($;$) {
 
   # Expansions are only performed on first evaluation
   return $C->{$section}{$key} = $val;
+}
+
+sub do_magic {
+  while ( my ( $dep, $test ) = each %AUTO_MAGIC ) {
+    if ( $test->() ) {
+      push @wantmod, $dep;
+      print "Activating '$dep' magic\n";
+    }
+  }
 }
 
 sub run_apache {
@@ -284,12 +316,22 @@ sub read_core_files {
 sub load_module {
   my @mods = @_;
   my @cfg  = ();
+  state %done;
   MOD: for my $mod ( @mods ) {
-    my $so_name = $mods{$mod};
-    unless ( defined $so_name ) {
+    if ( 'HASH' eq ref $mod ) {
+      %{ $C->{_} } = ( %{ $C->{_} }, %$mod );
+      next;
+    }
+    next if $done{$mod}++;
+    my $so_info = $mods{$mod};
+    unless ( defined $so_info ) {
       warn "Don't know how to map $mod to a module filename\n";
       next;
     }
+    my ( $so_name, @deps )
+     = 'ARRAY' eq ref $so_info ? @$so_info : ( $so_info );
+    push @cfg, load_module( @deps );
+    next unless defined $so_name && length $so_name;
     my $so = find_on_path( C( 'modules' ), $so_name );
     unless ( defined $so ) {
       warn "Can't find $so_name ($mod)\n";
@@ -1335,7 +1377,7 @@ DefaultType text/plain
   TypesConfig "[% conf_dir %]/mime.types"
   AddType application/x-compress  .Z
   AddType application/x-gzip      .gz .tgz
-  AddType application/x-httpd-php .php 
+  [% _php_mime_type %]
 </IfModule>
 
 User [% uid %]
@@ -1394,7 +1436,7 @@ BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
   <Directory "[% document_root %]">
     Options All
     Allow from all
-    DirectoryIndex index.html
+    DirectoryIndex [% index %]
   </Directory>
 
   SetEnvIf User-Agent ".*MSIE.*" \
