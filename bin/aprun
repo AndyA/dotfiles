@@ -166,6 +166,7 @@ my %MODMAP = (
   vhost_alias_module     => 'mod_vhost_alias.so',
   webauth_module         => 'mod_webauth.so',
   webauthldap_module     => 'mod_webauthldap.so',
+
   # Dependencies and bundled module sets
   php => [
     '',
