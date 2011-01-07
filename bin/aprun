@@ -18,6 +18,8 @@ use Getopt::Long;
 use Memoize;
 use Term::ANSIColor;
 
+memoize 'get_httpd_options';
+
 sub C($);
 sub D(&);
 
@@ -192,7 +194,7 @@ my $F = read_core_files();
 
 do_magic();
 make_config();
-say Dumper( $C );
+#say Dumper( get_httpd_options() );
 run_apache();
 
 sub C($) {
@@ -374,6 +376,34 @@ sub find_dir {
     make_path( $xdirs[-1] );
     return $xdirs[-1];
   };
+}
+
+sub get_httpd_options {
+  my @cmd = ( C 'httpd', '-V' );
+  my $opts = {};
+  open my $ch, '-|', @cmd or die "Can't run httpd: $?\n";
+  while ( <$ch> ) {
+    chomp;
+    if ( /^\s*-D\s+(\w+)(.*)$/ ) {
+      my ( $opt, $tail ) = ( $1, $2 );
+      if ( $tail ) {
+        $tail =~ s/^\s*=?//;
+        $tail =~ s/^"(.*?)"$/$1/;
+        $opts->{$opt} = $tail;
+      }
+      else {
+        $opts->{$opt} = 1;
+      }
+    }
+    elsif ( /^\s*(.+?)\s*:\s*(.*)$/ ) {
+      my ( $k, $v ) = ( $1, $2 );
+      $k =~ s/\s+/_/g;
+      $k =~ s/\W//g;
+      $opts->{ lc $k } = $v;
+    }
+  }
+  close $ch or die "Can't run httpd: $?\n";
+  return $opts;
 }
 
 sub find_which {
