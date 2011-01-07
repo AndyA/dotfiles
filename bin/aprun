@@ -81,7 +81,7 @@ my %DEFAULT = (
   }
 );
 
-my %mods = (
+my %MODMAP = (
   actions_module         => 'mod_actions.so',
   alias_module           => 'mod_alias.so',
   asis_module            => 'mod_asis.so',
@@ -337,7 +337,7 @@ sub load_module {
       next;
     }
     next if $done{$mod}++;
-    my $so_info = $mods{$mod};
+    my $so_info = $MODMAP{$mod};
     unless ( defined $so_info ) {
       warn "Don't know how to map $mod to a module filename\n";
       next;
@@ -404,6 +404,27 @@ sub get_httpd_options {
   }
   close $ch or die "Can't run httpd: $?\n";
   return $opts;
+}
+
+sub find_libexec {
+  my $httpopt = get_httpd_options();
+  my $conf    = $httpopt->{SERVER_CONFIG_FILE};
+  return unless defined $conf && -r $conf;
+  open my $ch, '<', $conf or die "Can't read $conf: $!\n";
+  my %libexec = ();
+  while ( <$ch> ) {
+    chomp;
+    next unless /^\s* LoadModule \s+ (\S+) \s+
+      ( (?: \" (?: \\\" | . )*? \" ) | \S+ ) \s* $/xi;
+    my ( $mod, $file ) = ( $1, $2 );
+    $file =~ s/\\\"/\"/g if $file =~ s/^\"(.+?)\"$/$1/;
+    $file = File::Spec->rel2abs( $file, $httpopt->{HTTPD_ROOT} )
+     if defined $httpopt->{HTTPD_ROOT};
+    my ( $dn, $bn ) = ( dirname( $file ), basename( $file ) );
+    $libexec{$dn}++;
+    $MODMAP{$mod} //= $bn;
+  }
+  return sort keys %libexec;
 }
 
 sub find_which {
