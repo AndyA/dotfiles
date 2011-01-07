@@ -8,12 +8,229 @@ use warnings;
 
 use Config::Tiny;
 use Data::Dumper;
+use File::Path qw( make_path );
+use File::Spec;
+use File::Temp;
 use File::Which;
 use Getopt::Long;
 
-my $O = read_config( '.aprun/config.ini', '~/.aprun/config.ini' );
+sub C($;$);
+sub D(&);
+
+my @DEFMOD = qw(
+ alias_module
+ auth_basic_module
+ auth_digest_module
+ authz_host_module
+ autoindex_module
+ cache_module
+ cgi_module
+ dir_module
+ env_module
+ expires_module
+ headers_module
+ include_module
+ mem_cache_module
+ mime_magic_module
+ mime_module
+ negotiation_module
+ rewrite_module
+ setenvif_module
+);
+
+my %DEFAULT = (
+  _ => {
+    work_dir => sub {
+      File::Temp->newdir( 'aprunXXXXXXX', TMPDIR => 1 );
+    },
+    logs_dir => D {
+      File::Spec->catdir( C( 'work_dir' ), 'logs' );
+    },
+    conf_dir => D {
+      File::Spec->catdir( C( 'work_dir' ), 'conf' );
+    },
+    document_root => D {
+      File::Spec->catdir( C( 'work_dir' ), 'htdocs' );
+    },
+    apache_host => 'localhost',
+    apache_port => '8080',
+    modules     => '',
+    server_name => sub {
+      C( 'apache_host' );
+    },
+    server_root => sub {
+      File::Spec->rel2abs( '.' );
+    },
+    server_admin => 'me@localhost',
+    uid          => sub { scalar getpwuid( $> ) },
+    gid          => sub { scalar getgrgid( $) ) },
+    warning      => '',
+    load_modules => sub { load_module( @DEFMOD ) },
+  }
+);
+
+my %mods = (
+  actions_module         => 'mod_actions.so',
+  alias_module           => 'mod_alias.so',
+  asis_module            => 'mod_asis.so',
+  auth_basic_module      => 'mod_auth_basic.so',
+  auth_digest_module     => 'mod_auth_digest.so',
+  authn_alias_module     => 'mod_authn_alias.so',
+  authn_anon_module      => 'mod_authn_anon.so',
+  authn_dbd_module       => 'mod_authn_dbd.so',
+  authn_dbm_module       => 'mod_authn_dbm.so',
+  authn_default_module   => 'mod_authn_default.so',
+  authn_file_module      => 'mod_authn_file.so',
+  authnz_ldap_module     => 'mod_authnz_ldap.so',
+  authopenid_module      => 'mod_auth_openid.so',
+  authz_dbm_module       => 'mod_authz_dbm.so',
+  authz_default_module   => 'mod_authz_default.so',
+  authz_groupfile_module => 'mod_authz_groupfile.so',
+  authz_host_module      => 'mod_authz_host.so',
+  authz_owner_module     => 'mod_authz_owner.so',
+  authz_svn_module       => 'mod_authz_svn.so',
+  authz_user_module      => 'mod_authz_user.so',
+  autoindex_module       => 'mod_autoindex.so',
+  bw_module              => 'mod_bw.so',
+  cache_module           => 'mod_cache.so',
+  cern_meta_module       => 'mod_cern_meta.so',
+  cgi_module             => 'mod_cgi.so',
+  cgid_module            => 'mod_cgid.so',
+  charset_lite_module    => 'mod_charset_lite.so',
+  dav_fs_module          => 'mod_dav_fs.so',
+  dav_lock_module        => 'mod_dav_lock.so',
+  dav_module             => 'mod_dav.so',
+  dav_svn_module         => 'mod_dav_svn.so',
+  dbd_module             => 'mod_dbd.so',
+  deflate_module         => 'mod_deflate.so',
+  dir_module             => 'mod_dir.so',
+  disk_cache_module      => 'mod_disk_cache.so',
+  dumpio_module          => 'mod_dumpio.so',
+  env_module             => 'mod_env.so',
+  expires_module         => 'mod_expires.so',
+  ext_filter_module      => 'mod_ext_filter.so',
+  fastcgi_module         => 'mod_fastcgi.so',
+  file_cache_module      => 'mod_file_cache.so',
+  filter_module          => 'mod_filter.so',
+  geoip_module           => 'mod_geoip.so',
+  headers_module         => 'mod_headers.so',
+  ident_module           => 'mod_ident.so',
+  imagemap_module        => 'mod_imagemap.so',
+  include_module         => 'mod_include.so',
+  info_module            => 'mod_info.so',
+  ldap_module            => 'mod_ldap.so',
+  log_forensic_module    => 'mod_log_forensic.so',
+  log_rotate_module      => 'mod_log_rotate.so',
+  mem_cache_module       => 'mod_mem_cache.so',
+  mime_magic_module      => 'mod_mime_magic.so',
+  mime_module            => 'mod_mime.so',
+  negotiation_module     => 'mod_negotiation.so',
+  perl_module            => 'mod_perl.so',
+  php5_module            => 'libphp5.so',
+  proxy_ajp_module       => 'mod_proxy_ajp.so',
+  proxy_balancer_module  => 'mod_proxy_balancer.so',
+  proxy_connect_module   => 'mod_proxy_connect.so',
+  proxy_ftp_module       => 'mod_proxy_ftp.so',
+  proxy_html_module      => 'mod_proxy_html.so',
+  proxy_http_module      => 'mod_proxy_http.so',
+  proxy_module           => 'mod_proxy.so',
+  proxy_scgi_module      => 'mod_proxy_scgi.so',
+  python_module          => 'mod_python.so',
+  reqtimeout_module      => 'mod_reqtimeout.so',
+  rewrite_module         => 'mod_rewrite.so',
+  setenvif_module        => 'mod_setenvif.so',
+  speling_module         => 'mod_speling.so',
+  ssl_module             => 'mod_ssl.so',
+  status_module          => 'mod_status.so',
+  substitute_module      => 'mod_substitute.so',
+  suexec_module          => 'mod_suexec.so',
+  unique_id_module       => 'mod_unique_id.so',
+  userdir_module         => 'mod_userdir.so',
+  usertrack_module       => 'mod_usertrack.so',
+  version_module         => 'mod_version.so',
+  vhost_alias_module     => 'mod_vhost_alias.so',
+  webauth_module         => 'mod_webauth.so',
+  webauthldap_module     => 'mod_webauthldap.so',
+);
+
+my $C = read_config( '.aprun/config.ini', '~/.aprun/config.ini' );
+{
+  my $g = $C->{_} ||= {};
+  GetOptions( 'work_dir=s' => \$g->{work_dir}, ) or die;
+}
 my $F = read_core_files();
-say Dumper( $O );
+
+make_config();
+run_apache();
+
+sub C($;$) {
+  my ( $key, $section ) = @_;
+  $section //= '_';
+  my $val = $C->{$section}{$key} // $DEFAULT{$section}{$key};
+  die "Config item $key ",
+   ( $section eq '_' ? 'at top level' : "in section $section" ),
+   " not defined\n"
+   unless defined $val;
+  return $C->{$section}{$key} = $val->( $section, $key )
+   if 'CODE' eq ref $val;
+  return "$val";
+}
+
+sub D(&) {
+  my $val = shift;
+  return sub {
+    my $dir = $val->( @_ );
+    make_path( $dir );
+    return $dir;
+  };
+}
+
+sub run_apache {
+  my @cmd = (
+    C( 'httpd' ),
+    '-f', File::Spec->rel2abs( 'httpd.conf', C( 'conf_dir' ) )
+  );
+  say join ' ', @cmd;
+  {
+    my @ek = keys %{ $C->{env} ||= {} };
+    local @{$ENV}{@ek} = @{ $C->{env} }{@ek};
+    my $pidfile = File::Spec->rel2abs( 'httpd.pid', C( 'logs_dir' ) );
+    local $SIG{INT} = sub {
+      unless ( -f $pidfile ) {
+        warn "Can't find $pidfile\n";
+        exit;
+      }
+      open my $ph, '<', $pidfile or die "Can't read $pidfile: $!\n";
+      chomp( my $pid = <$ph> );
+      print "Killing Apache PID $pid\n";
+      kill TERM => $pid;
+      exit;
+    };
+    system @cmd and die join( ' ', @cmd ), " failed: $?\n";
+    while () { sleep 10 }
+  };
+}
+
+sub make_config {
+  for my $f ( keys %$F ) {
+    my $cfg = template( $f );
+    my $file = File::Spec->catfile( C( 'conf_dir' ), $f );
+    print "Creating $file\n";
+    open my $fh, '>', $file or die "Can't write $file: $!\n";
+    print $fh $cfg;
+  }
+}
+
+sub template {
+  my $file = shift;
+  my $var  = sub {
+    my $name = shift;
+    return C $name;
+  };
+  my $src = $F->{$file} // die "No file $file known\n";
+  $src =~ s/\[% \s* (\w+) \s* %\]/$var->($1)/xeg;
+  return $src;
+}
 
 sub read_config {
   my @f = grep -f, map glob, @_;
@@ -31,6 +248,35 @@ sub read_core_files {
   }
   $_ = join "\n", @$_, '' for values %$f;
   return $f;
+}
+
+sub load_module {
+  my @mods = @_;
+  my @cfg  = ();
+  MOD: for my $mod ( @mods ) {
+    my $so_name = $mods{$mod};
+    unless ( defined $so_name ) {
+      warn "Don't know how to map $mod to a module filename\n";
+      next;
+    }
+    my $so = find_on_path( C( 'modules' ), $so_name );
+    unless ( defined $so ) {
+      warn "Can't find $so_name ($mod)\n";
+      next;
+    }
+    push @cfg, "<IfModule !$mod>", "  LoadModule $mod \"$so\"",
+     "</IfModule>", '';
+  }
+  return join "\n", @cfg;
+}
+
+sub find_on_path {
+  my ( $path, $leaf ) = @_;
+  for my $dir ( 'ARRAY' eq ref $path ? @$path : split /:/, $path ) {
+    my $try = File::Spec->rel2abs( $leaf, $dir );
+    return $try if -f $try;
+  }
+  return;
 }
 
 __DATA__
@@ -1011,43 +1257,20 @@ video/vnd.vivo
 video/x-msvideo			avi
 video/x-sgi-movie		movie
 x-conference/x-cooltalk		ice
-=httpd-dev.conf
+=httpd.conf
 # [% warning %]
 # vim:ts=2:sw=2:sts=2:et:ft=apache
 ServerName [% server_name %]
 ServerRoot [% server_root %]
 DocumentRoot [% document_root %]
-PidFile logs/httpd[].pid
-LockFile logs/httpd.lock
-TypesConfig [% server_root %]/conf/mime.types
+PidFile [% logs_dir %]/httpd.pid
+LockFile [% logs_dir %]/httpd.lock
 
 Listen [% apache_host %]:[% apache_port %]
 
-<IfModule !authz_host_module>
-  LoadModule authz_host_module [% modules %]/mod_authz_host.so
-</IfModule>
+[% load_modules %]
 
-<IfModule !perl_module>
-  LoadModule perl_module [% modules %]/mod_perl.so
-</IfModule>
-
-<IfModule !mime_module>
-  LoadModule mime_module [% modules %]/mod_mime.so
-</IfModule>
-
-<IfModule !negotiation_module>
-  LoadModule negotiation_module [% modules %]/mod_negotiation.so
-</IfModule>
-
-<IfModule !setenvif_module>
-  LoadModule setenvif_module [% modules %]/mod_setenvif.so
-</IfModule>
-
-<IfModule !dir_module>
-  LoadModule dir_module [% modules %]/mod_dir.so
-</IfModule>
-
-ServerAdmin andy.armstrong@bbc.co.uk
+ServerAdmin [% server_admin %]
 
 <Directory />
   Options FollowSymLinks
@@ -1062,18 +1285,23 @@ ServerAdmin andy.armstrong@bbc.co.uk
   Satisfy All
 </FilesMatch>
 
-ErrorLog logs/error_log
+ErrorLog [% logs_dir %]/error_log
 LogLevel warn
+
+<IfModule mod_mime_magic>
+  MimeMagicFile [% conf_dir %]/magic
+</IfModule>
 
 <IfModule log_config_module>
   LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
   LogFormat "%h %l %u %t \"%r\" %>s %b" common
-  CustomLog logs/access_log combined
+  CustomLog [% logs_dir %]/access_log combined
 </IfModule>
 
 DefaultType text/plain
 
 <IfModule mime_module>
+  TypesConfig [% conf_dir %]/mime.types
   AddType application/x-compress  .Z
   AddType application/x-gzip      .gz .tgz
   AddType application/x-httpd-php .php 
@@ -1129,17 +1357,10 @@ BrowserMatch "^gnome-vfs/1.0" redirect-carefully
 BrowserMatch "^XML Spy" redirect-carefully
 BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
 
-PerlSetEnv APPHOME   [% home %]
-PerlSetEnv APPCONFIG [% config %]
-PerlSetEnv FABRIC_XC_WORKDIR [% home %]
-PerlSetEnv SVN_REV "[% svn_rev %]"
-PerlRequire "conf/startup.pl"
-
 <VirtualHost _default_:[% apache_port %]>
-
   LogLevel warn
 
-  <Directory "[% htdocs %]">
+  <Directory "[% document_root %]">
     Options All
     Allow from all
     DirectoryIndex index.html
@@ -1148,33 +1369,6 @@ PerlRequire "conf/startup.pl"
   SetEnvIf User-Agent ".*MSIE.*" \
           nokeepalive ssl-unclean-shutdown \
           downgrade-1.0 force-response-1.0
-
-  <Location />
-    SetHandler perl-script
-    PerlResponseHandler BBC::Fabric::XCode::Handler::Admin
-  </Location>
-
-  <Location /xcode>
-    SetHandler perl-script
-    PerlResponseHandler BBC::Fabric::XCode::Handler::Service
-  </Location>
-
-  <Location /sjc>
-    SetHandler perl-script
-    PerlResponseHandler BBC::Fabric::XCode::Handler::SJC
-  </Location>
-
-  <Location /js>
-    SetHandler None
-  </Location>
-
-  <Location /css>
-    SetHandler None
-  </Location>
-
-  <Location /favicon.ico>
-    SetHandler None
-  </Location>
 
 </VirtualHost>                                  
 
