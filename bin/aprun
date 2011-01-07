@@ -18,7 +18,7 @@ use Getopt::Long;
 use Memoize;
 use Term::ANSIColor;
 
-memoize 'get_httpd_options';
+memoize 'get_httpd_options', 'get_httpd_builtins';
 
 sub C($);
 sub D(&);
@@ -333,12 +333,13 @@ sub load_module {
   my @mods = @_;
   my @cfg  = ();
   state %done;
+  my $builtin = get_httpd_builtins();
   MOD: for my $mod ( @mods ) {
     if ( 'HASH' eq ref $mod ) {
       %{ $C->{_} } = ( %{ $C->{_} }, %$mod );
       next;
     }
-    next if $done{$mod}++;
+    next if $builtin->{$mod} || $done{$mod}++;
     my $so_info = $MODMAP{$mod};
     unless ( defined $so_info ) {
       warn "Don't know how to map $mod to a module filename\n";
@@ -351,6 +352,7 @@ sub load_module {
     my $so = find_on_path( C( 'modules' ), $so_name );
     unless ( defined $so ) {
       warn "Can't find $so_name ($mod)\n";
+      warn "Modules path: ", C( 'modules' ), "\n";
       next;
     }
     push @cfg, "<IfModule !$mod>", "  LoadModule $mod \"$so\"",
@@ -408,24 +410,66 @@ sub get_httpd_options {
   return $opts;
 }
 
-sub find_libexec {
-  my $httpopt = get_httpd_options();
-  my $conf    = $httpopt->{SERVER_CONFIG_FILE};
-  return unless defined $conf && -r $conf;
-  open my $ch, '<', $conf or die "Can't read $conf: $!\n";
-  my %libexec = ();
+sub get_httpd_builtins {
+  my @cmd = ( C 'httpd', '-l' );
+  my $mods = {};
+  open my $ch, '-|', @cmd or die "Can't run httpd: $?\n";
   while ( <$ch> ) {
     chomp;
-    next unless /^\s* LoadModule \s+ (\S+) \s+
-      ( (?: \" (?: \\\" | . )*? \" ) | \S+ ) \s* $/xi;
-    my ( $mod, $file ) = ( $1, $2 );
-    $file =~ s/\\\"/\"/g if $file =~ s/^\"(.+?)\"$/$1/;
-    $file = File::Spec->rel2abs( $file, $httpopt->{HTTPD_ROOT} )
-     if defined $httpopt->{HTTPD_ROOT};
-    my ( $dn, $bn ) = ( dirname( $file ), basename( $file ) );
-    $libexec{$dn}++;
-    $MODMAP{$mod} //= $bn;
+    next unless /^\s+(\S+?)(?:\.c)?\s*$/;
+    $mods->{$1}++;
   }
+  close $ch or die "Can't run httpd: $?\n";
+  return $mods;
+}
+
+sub read_httpd_conf {
+  my ( $conf, $libexec ) = @_;
+  state %seen;
+  return if $seen{$conf}++;
+  say "Reading $conf";
+  my $httpopt = get_httpd_options();
+  open my $ch, '<', $conf or die "Can't read $conf: $!\n";
+  my $qs   = qr{ (?: \" (?: \\\" | . )*? \" ) | \S+ }x;
+  my $unq  = sub { $_[0] =~ s/\\\"/\"/g if $_[0] =~ s/^\"(.+?)\"$/$1/ };
+  my $root = sub {
+    $_[0] = File::Spec->rel2abs( $_[0], $httpopt->{HTTPD_ROOT} )
+     if defined $httpopt->{HTTPD_ROOT};
+  };
+  while ( <$ch> ) {
+    chomp;
+    if ( /^\s* Include \s+ ($qs) \s* $/xi ) {
+      my $inc = $1;
+      $unq->( $inc );
+      $root->( $inc );
+      for my $obj ( glob $inc ) {
+        if ( -f $obj ) {
+          read_httpd_conf( $obj, $libexec );
+        }
+        elsif ( -d $obj ) {
+          read_httpd_conf( $_ ) for do {
+            opendir my $dh, $obj or die "Can't read $obj: $!\n";
+            map { File::Spec->catfile( $obj, $_ ) }
+             grep { !/^\./ } readdir $dh;
+          };
+        }
+      }
+    }
+    elsif ( /^\s* LoadModule \s+ (\S+) \s+ ( $qs ) \s* $/xi ) {
+      my ( $mod, $file ) = ( $1, $2 );
+      $unq->( $file );
+      $root->( $file );
+      my ( $dn, $bn ) = ( dirname( $file ), basename( $file ) );
+      $libexec->{$dn}++;
+      $MODMAP{$mod} //= $bn;
+    }
+  }
+}
+
+sub find_libexec {
+  my $conf = get_httpd_options()->{SERVER_CONFIG_FILE};
+  return unless defined $conf && -r $conf;
+  read_httpd_conf( $conf, \my %libexec );
   return sort keys %libexec;
 }
 
