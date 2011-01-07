@@ -48,9 +48,19 @@ my %DEFAULT = (
     work_dir => sub {
       File::Temp->newdir( 'aprunXXXXXXX', TMPDIR => 1 );
     },
-    logs_dir       => '[% work_dir %]/logs',
-    conf_dir       => '[% work_dir %]/conf',
-    document_root  => '[% work_dir %]/htdocs',
+    logs_dir      => '[% work_dir %]/logs',
+    conf_dir      => '[% work_dir %]/conf',
+    document_root => find_dir(
+      '[% server_root %]/htdocs',
+      '[% server_root %]/wwwroot',
+      '[% work_dir %]/htdocs'
+    ),
+    templates => find_dir(
+      '[% server_root %]/.aprun/templates',
+      '.aprun/templates',
+      '~/.aprun/templates',
+      '[% work_dir %]/templates'
+    ),
     host           => 'localhost',
     port           => '8080',
     server_name    => '[% host %]',
@@ -350,6 +360,18 @@ sub find_on_path {
     return $try if -f $try;
   }
   return;
+}
+
+sub find_dir {
+  my @dirs = @_;
+  return sub {
+    my @xdirs = map glob( expand( $_ ) ), @dirs;
+    for my $dir ( @xdirs ) {
+      return $dir if -d $dir;
+    }
+    make_path( $xdirs[-1] );
+    return $xdirs[-1];
+  };
 }
 
 __DATA__
