@@ -78,6 +78,8 @@ my %DEFAULT = (
     error_log      => '[% logs_dir %]/error_log',
     _php_mime_type => '',
     index          => 'index.html',
+    modules        => sub { join ':', find_libexec() },
+    httpd          => sub { find_which( 'httpd', 'apache2' ) },
   }
 );
 
