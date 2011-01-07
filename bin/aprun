@@ -14,6 +14,7 @@ use File::Temp;
 use File::Tail;
 use Term::ANSIColor;
 use File::Which;
+use File::Which qw( which );
 use Getopt::Long;
 
 sub C($);
@@ -372,6 +373,14 @@ sub find_dir {
     make_path( $xdirs[-1] );
     return $xdirs[-1];
   };
+}
+
+sub find_which {
+  for my $exe ( @_ ) {
+    my $try = which $exe;
+    return $try if defined $try;
+  }
+  return;
 }
 
 __DATA__
