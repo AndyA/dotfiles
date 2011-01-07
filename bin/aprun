@@ -16,7 +16,7 @@ use Term::ANSIColor;
 use File::Which;
 use Getopt::Long;
 
-sub C($;$);
+sub C($);
 sub D(&);
 
 my @DEFMOD = qw(
@@ -180,13 +180,13 @@ my $F = read_core_files();
 
 do_magic();
 make_config();
-#print Dumper( $C );
+say Dumper( $C );
 run_apache();
 
-sub C($;$) {
-  my ( $key, $section ) = @_;
-  $section //= '_';
+sub C($) {
+  my $name = shift;
 
+  my ( $section, $key ) = ( '_', split /\./, $name, 2 )[ -2, -1 ];
   my $val = $C->{$section}{$key} // $DEFAULT{$section}{$key};
 
   die "Config item $key ",
@@ -291,7 +291,7 @@ sub template {
 
 sub expand {
   my $src = shift;
-  $src =~ s/\[% \s* (\w+) \s* %\]/C $1/xeg;
+  $src =~ s/\[% \s* (\w+(?:\.\w+)*) \s* %\]/C $1/xeg;
   return $src;
 }
 
