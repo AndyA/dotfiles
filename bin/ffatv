@@ -1,6 +1,11 @@
 #!/bin/sh
 
-FFMPEG=/usr/local/bin/ffmpeg
+# Look for ffmpeg ignoring $PATH
+for p in /usr/local/bin /opt/local/bin /alt/local/bin /usr/bin; do
+  FFMPEG=$p/ffmpeg
+  [ -x $FFMPEG ] && break
+done
+
 BITRATE=1500000
 
 for INFILE in $@; do
