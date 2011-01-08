@@ -255,7 +255,7 @@ sub run_apache {
       exit;
     };
     system @cmd and die join( ' ', @cmd ), " failed: $?\n";
-    say 'Running apache';
+    say expand( 'Running apache on http://[% host %]:[% port %]/' );
     tail_logs( [ cyan => 'access_log' ], [ red => 'error_log' ] );
   };
 }
