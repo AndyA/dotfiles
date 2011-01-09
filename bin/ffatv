@@ -20,7 +20,7 @@ for INFILE in $@; do
     -pass 1 -vcodec libx264 -vpre slow_firstpass -b $BITRATE \
     -threads 0 "$OUTFILE" && \
   $FFMPEG -y -i "$INFILE" \
-    -acodec libfaac -ab 128k \
+    -acodec libfaac -ab 192k \
     -pass 2 -vcodec libx264 -vpre slow -b $BITRATE \
     -threads 0 "$OUTFILE"
   set +x
