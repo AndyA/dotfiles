@@ -7,7 +7,7 @@ for p in /usr/local/bin /opt/local/bin /alt/local/bin /usr/bin; do
 done
 
 [ -z $BITRATE ] && BITRATE=1500000
-[ -z $EXT     ] && EXT=.mp4
+[ -z $EXT     ] && EXT="mp4"
 echo "ffmpeg:    $FFMPEG"
 echo "bitrate:   $BITRATE"
 echo "extension: $EXT"
