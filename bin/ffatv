@@ -21,7 +21,9 @@ function cleanup() {
   rm -f \
     ffmpeg2pass-0.log \
     x264_2pass.log \
-    x264_2pass.log.mbtree
+    x264_2pass.log.mbtree \
+    x264_2pass.log.mbtree.temp \
+    x264_2pass.log.temp
 }
 
 trap cleanup SIGINT
