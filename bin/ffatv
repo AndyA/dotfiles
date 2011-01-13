@@ -6,25 +6,42 @@ for p in /usr/local/bin /opt/local/bin /alt/local/bin /usr/bin; do
   [ -x $FFMPEG ] && break
 done
 
-[ -z $BITRATE ] && BITRATE=1500000
-[ -z $EXT     ] && EXT=.mp4
-echo "ffmpeg:    $FFMPEG"
-echo "bitrate:   $BITRATE"
-echo "extension: $EXT"
+[ -z $BITRATE   ] && BITRATE=1500000
+[ -z $FRAMERATE ] && FRAMERATE=25
+[ -z $EXT       ] && EXT=.mov
+[ -z $PROFILE   ] && PROFILE=baseline
+
+echo "ffmpeg:      $FFMPEG"
+echo "bitrate:     $BITRATE"
+echo "framerate:   $FRAMERATE"
+echo "extension:   $EXT"
+echo "profile:     $PROFILE"
+
+function cleanup() {
+  rm -f \
+    ffmpeg2pass-0.log \
+    x264_2pass.log \
+    x264_2pass.log.mbtree
+}
+
+trap cleanup SIGINT
 
 for INFILE in $@; do
   OUTFILE="$INFILE.$EXT"
   set -x
   $FFMPEG -y -i "$INFILE" \
     -an \
-    -pass 1 -vcodec libx264 -vpre fast_firstpass -vpre baseline -b $BITRATE \
+    -pass 1 -vcodec libx264 -vpre fast_firstpass -vpre $PROFILE \
+    -b $BITRATE -r $FRAMERATE \
     -threads 0 "$OUTFILE" && \
   $FFMPEG -y -i "$INFILE" \
     -acodec libfaac -ab 192k \
-    -pass 2 -vcodec libx264 -vpre slow -vpre baseline -b $BITRATE \
+    -pass 2 -vcodec libx264 -vpre slow -vpre $PROFILE \
+    -b $BITRATE -r $FRAMERATE \
     -threads 0 "$OUTFILE"
   set +x
 done
 
+cleanup
 
 # vim:ts=2:sw=2:sts=2:et:ft=sh
