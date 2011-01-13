@@ -6,17 +6,21 @@ for p in /usr/local/bin /opt/local/bin /alt/local/bin /usr/bin; do
   [ -x $FFMPEG ] && break
 done
 
-BITRATE=1500000
+[ -z $BITRATE ] && BITRATE=1500000
+[ -z $EXT     ] && EXT=.mp4
+echo "ffmpeg:    $FFMPEG"
+echo "bitrate:   $BITRATE"
+echo "extension: $EXT"
 
 for INFILE in $@; do
-  OUTFILE="$INFILE.mp4"
+  OUTFILE="$INFILE.$EXT"
   set -x
   $FFMPEG -y -i "$INFILE" \
     -an \
     -pass 1 -vcodec libx264 -vpre fast_firstpass -vpre baseline -b $BITRATE \
     -threads 0 "$OUTFILE" && \
   $FFMPEG -y -i "$INFILE" \
-    -acodec libfaac -ab 128k \
+    -acodec libfaac -ab 192k \
     -pass 2 -vcodec libx264 -vpre slow -vpre baseline -b $BITRATE \
     -threads 0 "$OUTFILE"
   set +x
