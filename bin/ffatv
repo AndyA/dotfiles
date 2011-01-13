@@ -26,7 +26,7 @@ function cleanup() {
 
 trap cleanup SIGINT
 
-for INFILE in $@; do
+for INFILE in "$@"; do
   OUTFILE="$INFILE.$EXT"
   set -x
   $FFMPEG -y -i "$INFILE" \
