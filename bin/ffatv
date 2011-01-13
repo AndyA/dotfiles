@@ -8,7 +8,7 @@ done
 
 [ -z $BITRATE   ] && BITRATE=1500000
 [ -z $FRAMERATE ] && FRAMERATE=25
-[ -z $EXT       ] && EXT=.mov
+[ -z $EXT       ] && EXT=mov
 [ -z $PROFILE   ] && PROFILE=baseline
 
 echo "ffmpeg:      $FFMPEG"
