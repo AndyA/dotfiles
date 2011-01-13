@@ -13,11 +13,11 @@ for INFILE in $@; do
   set -x
   $FFMPEG -y -i "$INFILE" \
     -an \
-    -pass 1 -vcodec libx264 -vpre slow_firstpass -b $BITRATE \
+    -pass 1 -vcodec libx264 -vpre fast_firstpass -vpre baseline -b $BITRATE \
     -threads 0 "$OUTFILE" && \
   $FFMPEG -y -i "$INFILE" \
     -acodec libfaac -ab 128k \
-    -pass 2 -vcodec libx264 -vpre slow -b $BITRATE \
+    -pass 2 -vcodec libx264 -vpre slow -vpre baseline -b $BITRATE \
     -threads 0 "$OUTFILE"
   set +x
 done
