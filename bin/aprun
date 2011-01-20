@@ -178,7 +178,7 @@ my %MODMAP = (
 my %AUTO_MAGIC = (
   php => sub {
     my $dr = C 'document_root';
-    opendir my $dh, $dr;
+    opendir my ( $dh ), $dr;
     my @f = grep { m{\.php} } grep { !m{^\.} } readdir $dh;
     return @f;
   },
@@ -446,7 +446,7 @@ sub read_httpd_conf {
         }
         elsif ( -d $obj ) {
           read_httpd_conf( $_ ) for do {
-            opendir my $dh, $obj;
+            opendir my ( $dh ), $obj;
             map { File::Spec->catfile( $obj, $_ ) }
              grep { !/^\./ } readdir $dh;
           };
