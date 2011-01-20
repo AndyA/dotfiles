@@ -1,10 +1,7 @@
 #!/usr/bin/env perl
 # vim:ts=2:sw=2:sts=2:et:ft=perl
 
-use 5.010;
-
-use strict;
-use warnings;
+use perl5i::2;
 
 use Config::Tiny;
 use Data::Dumper;
@@ -181,7 +178,7 @@ my %MODMAP = (
 my %AUTO_MAGIC = (
   php => sub {
     my $dr = C 'document_root';
-    opendir my $dh, $dr or die "Can't open $dr: $!\n";
+    opendir my $dh, $dr;
     my @f = grep { m{\.php} } grep { !m{^\.} } readdir $dh;
     return @f;
   },
@@ -248,13 +245,13 @@ sub run_apache {
         warn "Can't find $pidfile\n";
         exit;
       }
-      open my $ph, '<', $pidfile or die "Can't read $pidfile: $!\n";
+      open my $ph, '<', $pidfile;
       chomp( my $pid = <$ph> );
       say "Killing Apache PID $pid";
       kill TERM => $pid;
       exit;
     };
-    system @cmd and die join( ' ', @cmd ), " failed: $?\n";
+    system @cmd;
     say expand( 'Running apache on http://[% host %]:[% port %]/' );
     tail_logs( [ cyan => 'access_log' ], [ red => 'error_log' ] );
   };
@@ -262,7 +259,7 @@ sub run_apache {
 
 sub touch(@) {
   for my $f ( @_ ) {
-    open my $fh, '>>', $f or die "Can't touch $f: $!\n";
+    open my $fh, '>>', $f;
   }
 }
 
@@ -295,7 +292,7 @@ sub make_config {
     my $cfg = template( $f );
     my $file = File::Spec->catfile( C( 'conf_dir' ), $f );
     say "Creating $file";
-    open my $fh, '>', $file or die "Can't write $file: $!\n";
+    open my $fh, '>', $file;
     print $fh $cfg;
   }
 }
@@ -349,7 +346,7 @@ sub load_module {
     my ( $so_name, @deps )
      = 'ARRAY' eq ref $so_info ? @$so_info : ( $so_info );
     push @cfg, load_module( @deps );
-    next unless defined $so_name && length $so_name;
+    next unless defined $so_name && $so_name->length;
     my $so = find_on_path( C( 'modules' ), $so_name );
     unless ( defined $so ) {
       warn "Can't find $so_name ($mod)\n";
@@ -386,7 +383,7 @@ sub find_dir {
 sub get_httpd_options {
   my @cmd = ( C 'httpd', '-V' );
   my $opts = {};
-  open my $ch, '-|', @cmd or die "Can't run httpd: $?\n";
+  open my $ch, '-|', @cmd;
   while ( <$ch> ) {
     chomp;
     if ( /^\s*-D\s+(\w+)(.*)$/ ) {
@@ -407,20 +404,20 @@ sub get_httpd_options {
       $opts->{ lc $k } = $v;
     }
   }
-  close $ch or die "Can't run httpd: $?\n";
+  close $ch;
   return $opts;
 }
 
 sub get_httpd_builtins {
   my @cmd = ( C 'httpd', '-l' );
   my $mods = {};
-  open my $ch, '-|', @cmd or die "Can't run httpd: $?\n";
+  open my $ch, '-|', @cmd;
   while ( <$ch> ) {
     chomp;
     next unless /^\s+(\S+?)(?:\.c)?\s*$/;
     $mods->{$1}++;
   }
-  close $ch or die "Can't run httpd: $?\n";
+  close $ch;
   return $mods;
 }
 
@@ -449,7 +446,7 @@ sub read_httpd_conf {
         }
         elsif ( -d $obj ) {
           read_httpd_conf( $_ ) for do {
-            opendir my $dh, $obj or die "Can't read $obj: $!\n";
+            opendir my $dh, $obj;
             map { File::Spec->catfile( $obj, $_ ) }
              grep { !/^\./ } readdir $dh;
           };
