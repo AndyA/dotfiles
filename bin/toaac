@@ -7,6 +7,8 @@ use warnings;
 
 use File::Find;
 
+@ARGV = '.' unless @ARGV;
+
 find {
   no_chdir => 1,
   wanted   => sub {
@@ -14,7 +16,7 @@ find {
     toaac( $_ );
   },
  },
- '.';
+ @ARGV;
 
 sub toaac {
   my $raw = shift;
