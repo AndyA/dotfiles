@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use File::Basename qw( dirname basename );
+
+open my $ph, '-|', 'svnroots', '-a', @ARGV
+ or die "Can't run svnroots: $?\n";
+while ( <$ph> ) {
+  chomp;
+  my ( $dir, $url ) = split /\t/, $_, 2;
+  my ( $pdir, $ldir ) = ( dirname( $dir ), basename( $dir ) );
+  print
+   "mkdir -p '$pdir'\n", "pushd '$pdir' > /dev/null\n"
+   unless $pdir eq '.';
+  print "[ -d '$ldir/.svn' ] || svn co '$url' '$ldir'\n";
+  print "popd > /dev/null\n" unless $pdir eq '.';
+}
+close $ph or die "Failed: $?\n";
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+

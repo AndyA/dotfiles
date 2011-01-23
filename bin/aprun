@@ -1,0 +1,1573 @@
+#!/usr/bin/env perl
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
+use perl5i::2;
+
+use Config::Tiny;
+use Data::Dumper;
+use File::Basename qw( basename dirname );
+use File::Path qw( make_path );
+use File::Spec;
+use File::Tail;
+use File::Temp;
+use File::Which qw( which );
+use Getopt::Long;
+use Memoize;
+use Term::ANSIColor;
+
+memoize 'get_httpd_options', 'get_httpd_builtins';
+
+sub C($);
+sub D(&);
+
+my @DEFMOD = qw(
+ alias_module
+ auth_basic_module
+ auth_digest_module
+ authz_host_module
+ autoindex_module
+ cache_module
+ cgi_module
+ dir_module
+ env_module
+ expires_module
+ headers_module
+ include_module
+ log_config_module
+ mem_cache_module
+ mime_magic_module
+ mime_module
+ negotiation_module
+ rewrite_module
+ setenvif_module
+);
+
+my @wantmod = @DEFMOD;
+
+my %DEFAULT = (
+  _ => {
+    work_dir => sub {
+      File::Temp->newdir( 'aprunXXXXXXX', TMPDIR => 1 );
+    },
+    logs_dir      => '[% work_dir %]/logs',
+    conf_dir      => '[% work_dir %]/conf',
+    document_root => find_dir(
+      '[% server_root %]/htdocs',
+      '[% server_root %]/wwwroot',
+      '[% work_dir %]/htdocs'
+    ),
+    templates => find_dir(
+      '[% server_root %]/.aprun/templates',
+      '.aprun/templates',
+      '~/.aprun/templates',
+      '[% work_dir %]/templates'
+    ),
+    host           => 'localhost',
+    port           => '8080',
+    server_name    => '[% host %]',
+    server_root    => '.',
+    server_admin   => 'me@[% host %]',
+    uid            => sub { scalar getpwuid( $> ) },
+    gid            => sub { scalar getgrgid( $) ) },
+    warning        => '',
+    load_modules   => sub { load_module( @wantmod ) },
+    access_log     => '[% logs_dir %]/access_log',
+    error_log      => '[% logs_dir %]/error_log',
+    _php_mime_type => '',
+    index          => 'index.html',
+    modules        => sub { join ':', find_libexec() },
+    httpd          => sub { find_which( 'httpd', 'apache2' ) },
+  }
+);
+
+my %MODMAP = (
+  actions_module         => 'mod_actions.so',
+  alias_module           => 'mod_alias.so',
+  asis_module            => 'mod_asis.so',
+  auth_basic_module      => 'mod_auth_basic.so',
+  auth_digest_module     => 'mod_auth_digest.so',
+  authn_alias_module     => 'mod_authn_alias.so',
+  authn_anon_module      => 'mod_authn_anon.so',
+  authn_dbd_module       => 'mod_authn_dbd.so',
+  authn_dbm_module       => 'mod_authn_dbm.so',
+  authn_default_module   => 'mod_authn_default.so',
+  authn_file_module      => 'mod_authn_file.so',
+  authnz_ldap_module     => 'mod_authnz_ldap.so',
+  authopenid_module      => 'mod_auth_openid.so',
+  authz_dbm_module       => 'mod_authz_dbm.so',
+  authz_default_module   => 'mod_authz_default.so',
+  authz_groupfile_module => 'mod_authz_groupfile.so',
+  authz_host_module      => 'mod_authz_host.so',
+  authz_owner_module     => 'mod_authz_owner.so',
+  authz_svn_module       => 'mod_authz_svn.so',
+  authz_user_module      => 'mod_authz_user.so',
+  autoindex_module       => 'mod_autoindex.so',
+  bw_module              => 'mod_bw.so',
+  cache_module           => 'mod_cache.so',
+  cern_meta_module       => 'mod_cern_meta.so',
+  cgi_module             => 'mod_cgi.so',
+  cgid_module            => 'mod_cgid.so',
+  charset_lite_module    => 'mod_charset_lite.so',
+  dav_fs_module          => 'mod_dav_fs.so',
+  dav_lock_module        => 'mod_dav_lock.so',
+  dav_module             => 'mod_dav.so',
+  dav_svn_module         => 'mod_dav_svn.so',
+  dbd_module             => 'mod_dbd.so',
+  deflate_module         => 'mod_deflate.so',
+  dir_module             => 'mod_dir.so',
+  disk_cache_module      => 'mod_disk_cache.so',
+  dumpio_module          => 'mod_dumpio.so',
+  env_module             => 'mod_env.so',
+  expires_module         => 'mod_expires.so',
+  ext_filter_module      => 'mod_ext_filter.so',
+  fastcgi_module         => 'mod_fastcgi.so',
+  file_cache_module      => 'mod_file_cache.so',
+  filter_module          => 'mod_filter.so',
+  geoip_module           => 'mod_geoip.so',
+  headers_module         => 'mod_headers.so',
+  ident_module           => 'mod_ident.so',
+  imagemap_module        => 'mod_imagemap.so',
+  include_module         => 'mod_include.so',
+  info_module            => 'mod_info.so',
+  ldap_module            => 'mod_ldap.so',
+  log_config_module      => 'mod_log_config.so',
+  log_forensic_module    => 'mod_log_forensic.so',
+  log_rotate_module      => 'mod_log_rotate.so',
+  mem_cache_module       => 'mod_mem_cache.so',
+  mime_magic_module      => 'mod_mime_magic.so',
+  mime_module            => 'mod_mime.so',
+  negotiation_module     => 'mod_negotiation.so',
+  perl_module            => 'mod_perl.so',
+  php5_module            => 'libphp5.so',
+  proxy_ajp_module       => 'mod_proxy_ajp.so',
+  proxy_balancer_module  => 'mod_proxy_balancer.so',
+  proxy_connect_module   => 'mod_proxy_connect.so',
+  proxy_ftp_module       => 'mod_proxy_ftp.so',
+  proxy_html_module      => 'mod_proxy_html.so',
+  proxy_http_module      => 'mod_proxy_http.so',
+  proxy_module           => 'mod_proxy.so',
+  proxy_scgi_module      => 'mod_proxy_scgi.so',
+  python_module          => 'mod_python.so',
+  reqtimeout_module      => 'mod_reqtimeout.so',
+  rewrite_module         => 'mod_rewrite.so',
+  setenvif_module        => 'mod_setenvif.so',
+  speling_module         => 'mod_speling.so',
+  ssl_module             => 'mod_ssl.so',
+  status_module          => 'mod_status.so',
+  substitute_module      => 'mod_substitute.so',
+  suexec_module          => 'mod_suexec.so',
+  unique_id_module       => 'mod_unique_id.so',
+  userdir_module         => 'mod_userdir.so',
+  usertrack_module       => 'mod_usertrack.so',
+  version_module         => 'mod_version.so',
+  vhost_alias_module     => 'mod_vhost_alias.so',
+  webauth_module         => 'mod_webauth.so',
+  webauthldap_module     => 'mod_webauthldap.so',
+
+  # Dependencies and bundled module sets
+  php => [
+    '',
+    'php5_module',
+    {
+      _php_mime_type => 'AddType application/x-httpd-php .php',
+      index          => 'index.php, index.html'
+    }
+  ],
+);
+
+my %AUTO_MAGIC = (
+  php => sub {
+    my $dr = C 'document_root';
+    opendir my ( $dh ), $dr;
+    my @f = grep { m{\.php} } grep { !m{^\.} } readdir $dh;
+    return @f;
+  },
+);
+
+my $C = read_config( '.aprun/config.ini', '~/.aprun/config.ini' );
+{
+  my $g = $C->{_} ||= {};
+  GetOptions( map { ( "$_=s" => \$g->{$_} ) } keys %{ $DEFAULT{_} } )
+   or die;
+}
+my $F = read_core_files();
+
+do_magic();
+make_config();
+#say Dumper( get_httpd_options() );
+run_apache();
+
+sub C($) {
+  my $name = shift;
+
+  my ( $section, $key ) = ( '_', split /\./, $name, 2 )[ -2, -1 ];
+  my $val = $C->{$section}{$key} // $DEFAULT{$section}{$key};
+
+  die "Config item $key ",
+   ( $section eq '_' ? 'at top level' : "in section $section" ),
+   " not defined\n"
+   unless defined $val;
+
+  $val = $val->( $section, $key ) if 'CODE' eq ref $val;
+  $val = expand( "$val" );
+
+  # Special case for directories
+  if ( $section eq '_' && $key =~ /_(?:root|dir)$/ ) {
+    $val = File::Spec->rel2abs( $val );
+    make_path( $val );
+  }
+
+  # Expansions are only performed on first evaluation
+  return $C->{$section}{$key} = $val;
+}
+
+sub do_magic {
+  while ( my ( $dep, $test ) = each %AUTO_MAGIC ) {
+    if ( $test->() ) {
+      push @wantmod, $dep;
+      say "Activating '$dep' magic";
+    }
+  }
+}
+
+sub run_apache {
+  my @cmd = (
+    C( 'httpd' ),
+    '-f', File::Spec->rel2abs( 'httpd.conf', C( 'conf_dir' ) )
+  );
+  say join ' ', @cmd;
+  {
+    my @ek = keys %{ $C->{env} ||= {} };
+    local @{$ENV}{@ek} = @{ $C->{env} }{@ek};
+    my $pidfile = File::Spec->rel2abs( 'httpd.pid', C( 'logs_dir' ) );
+    local $SIG{INT} = sub {
+      unless ( -f $pidfile ) {
+        warn "Can't find $pidfile\n";
+        exit;
+      }
+      open my $ph, '<', $pidfile;
+      chomp( my $pid = <$ph> );
+      say "Killing Apache PID $pid";
+      kill TERM => $pid;
+      exit;
+    };
+    system @cmd;
+    say expand( 'Running apache on http://[% host %]:[% port %]/' );
+    tail_logs( [ cyan => 'access_log' ], [ red => 'error_log' ] );
+  };
+}
+
+sub touch(@) {
+  for my $f ( @_ ) {
+    open my $fh, '>>', $f;
+  }
+}
+
+sub tail_logs {
+  my @spec = @_;
+  my @tail = ();
+  for my $item ( @spec ) {
+    my ( $col, $cfg ) = @$item;
+    my $file = C $cfg;
+    touch $file;
+    my $t = File::Tail->new(
+      name        => $file,
+      interval    => 1,
+      maxinterval => 1,
+    );
+    $t->{_colour} = $col;
+    push @tail, $t;
+  }
+  while () {
+    my ( undef, undef, @pending )
+     = File::Tail::select( undef, undef, undef, 10, @tail );
+    for my $t ( @pending ) {
+      print colored [ $t->{_colour} ], $t->read;
+    }
+  }
+}
+
+sub make_config {
+  for my $f ( keys %$F ) {
+    my $cfg = template( $f );
+    my $file = File::Spec->catfile( C( 'conf_dir' ), $f );
+    say "Creating $file";
+    open my $fh, '>', $file;
+    print $fh $cfg;
+  }
+}
+
+sub template {
+  my $file = shift;
+  my $src = $F->{$file} // die "No file $file known\n";
+  return expand( $src );
+}
+
+sub expand {
+  my $src = shift;
+  $src =~ s/\[% \s* (\w+(?:\.\w+)*) \s* %\]/C $1/xeg;
+  return $src;
+}
+
+sub read_config {
+  my @f = grep -f, map glob, @_;
+  return {} unless @f;
+  return Config::Tiny->read( $f[0] );
+}
+
+sub read_core_files {
+  my $f = {};
+  my $section;
+  while ( <DATA> ) {
+    chomp;
+    ( $section = $1 ), next if /^=(.+)/;
+    push @{ $f->{$section} }, $_ if defined $section;
+  }
+  $_ = join "\n", @$_, '' for values %$f;
+  return $f;
+}
+
+sub load_module {
+  my @mods = @_;
+  my @cfg  = ();
+  state %done;
+  my $builtin = get_httpd_builtins();
+  MOD: for my $mod ( @mods ) {
+    if ( 'HASH' eq ref $mod ) {
+      %{ $C->{_} } = ( %{ $C->{_} }, %$mod );
+      next;
+    }
+    next if $builtin->{$mod} || $done{$mod}++;
+    my $so_info = $MODMAP{$mod};
+    unless ( defined $so_info ) {
+      warn "Don't know how to map $mod to a module filename\n";
+      next;
+    }
+    my ( $so_name, @deps )
+     = 'ARRAY' eq ref $so_info ? @$so_info : ( $so_info );
+    push @cfg, load_module( @deps );
+    next unless defined $so_name && $so_name->length;
+    my $so = find_on_path( C( 'modules' ), $so_name );
+    unless ( defined $so ) {
+      warn "Can't find $so_name ($mod)\n";
+      warn "Modules path: ", C( 'modules' ), "\n";
+      next;
+    }
+    push @cfg, "<IfModule !$mod>", "  LoadModule $mod \"$so\"",
+     "</IfModule>", '';
+  }
+  return join "\n", @cfg;
+}
+
+sub find_on_path {
+  my ( $path, $leaf ) = @_;
+  for my $dir ( 'ARRAY' eq ref $path ? @$path : split /:/, $path ) {
+    my $try = File::Spec->rel2abs( $leaf, $dir );
+    return $try if -f $try;
+  }
+  return;
+}
+
+sub find_dir {
+  my @dirs = @_;
+  return sub {
+    my @xdirs = map glob( expand( $_ ) ), @dirs;
+    for my $dir ( @xdirs ) {
+      return $dir if -d $dir;
+    }
+    make_path( $xdirs[-1] );
+    return $xdirs[-1];
+  };
+}
+
+sub get_httpd_options {
+  my @cmd = ( C 'httpd', '-V' );
+  my $opts = {};
+  open my $ch, '-|', @cmd;
+  while ( <$ch> ) {
+    chomp;
+    if ( /^\s*-D\s+(\w+)(.*)$/ ) {
+      my ( $opt, $tail ) = ( $1, $2 );
+      if ( $tail ) {
+        $tail =~ s/^\s*=?//;
+        $tail =~ s/^"(.*?)"$/$1/;
+        $opts->{$opt} = $tail;
+      }
+      else {
+        $opts->{$opt} = 1;
+      }
+    }
+    elsif ( /^\s*(.+?)\s*:\s*(.*)$/ ) {
+      my ( $k, $v ) = ( $1, $2 );
+      $k =~ s/\s+/_/g;
+      $k =~ s/\W//g;
+      $opts->{ lc $k } = $v;
+    }
+  }
+  close $ch;
+  return $opts;
+}
+
+sub get_httpd_builtins {
+  my @cmd = ( C 'httpd', '-l' );
+  my $mods = {};
+  open my $ch, '-|', @cmd;
+  while ( <$ch> ) {
+    chomp;
+    next unless /^\s+(\S+?)(?:\.c)?\s*$/;
+    $mods->{$1}++;
+  }
+  close $ch;
+  return $mods;
+}
+
+sub read_httpd_conf {
+  my ( $conf, $libexec ) = @_;
+  state %seen;
+  return if $seen{$conf}++;
+  say "Reading $conf";
+  my $httpopt = get_httpd_options();
+  open my $ch, '<', $conf or die "Can't read $conf: $!\n";
+  my $qs   = qr{ (?: \" (?: \\\" | . )*? \" ) | \S+ }x;
+  my $unq  = sub { $_[0] =~ s/\\\"/\"/g if $_[0] =~ s/^\"(.+?)\"$/$1/ };
+  my $root = sub {
+    $_[0] = File::Spec->rel2abs( $_[0], $httpopt->{HTTPD_ROOT} )
+     if defined $httpopt->{HTTPD_ROOT};
+  };
+  while ( <$ch> ) {
+    chomp;
+    if ( /^\s* Include \s+ ($qs) \s* $/xi ) {
+      my $inc = $1;
+      $unq->( $inc );
+      $root->( $inc );
+      for my $obj ( glob $inc ) {
+        if ( -f $obj ) {
+          read_httpd_conf( $obj, $libexec );
+        }
+        elsif ( -d $obj ) {
+          read_httpd_conf( $_ ) for do {
+            opendir my ( $dh ), $obj;
+            map { File::Spec->catfile( $obj, $_ ) }
+             grep { !/^\./ } readdir $dh;
+          };
+        }
+      }
+    }
+    elsif ( /^\s* LoadModule \s+ (\S+) \s+ ( $qs ) \s* $/xi ) {
+      my ( $mod, $file ) = ( $1, $2 );
+      $unq->( $file );
+      $root->( $file );
+      my ( $dn, $bn ) = ( dirname( $file ), basename( $file ) );
+      $libexec->{$dn}++;
+      $MODMAP{$mod} //= $bn;
+    }
+  }
+}
+
+sub find_libexec {
+  my $conf = get_httpd_options()->{SERVER_CONFIG_FILE};
+  return unless defined $conf && -r $conf;
+  read_httpd_conf( $conf, \my %libexec );
+  return sort keys %libexec;
+}
+
+sub find_which {
+  for my $exe ( @_ ) {
+    my $try = which $exe;
+    return $try if defined $try;
+  }
+  return;
+}
+
+__DATA__
+
+=magic
+# Magic data for mod_mime_magic Apache module (originally for file(1) command)
+# The module is described in /manual/mod/mod_mime_magic.html
+#
+# The format is 4-5 columns:
+#    Column #1: byte number to begin checking from, ">" indicates continuation
+#    Column #2: type of data to match
+#    Column #3: contents of data to match
+#    Column #4: MIME type of result
+#    Column #5: MIME encoding of result (optional)
+
+#------------------------------------------------------------------------------
+# Localstuff:  file(1) magic for locally observed files
+# Add any locally observed files here.
+
+#------------------------------------------------------------------------------
+# end local stuff
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# Java
+
+0	short		0xcafe
+>2	short		0xbabe		application/java
+
+#------------------------------------------------------------------------------
+# audio:  file(1) magic for sound formats
+#
+# from Jan Nicolai Langfeldt <janl@ifi.uio.no>,
+#
+
+# Sun/NeXT audio data
+0	string		.snd
+>12	belong		1		audio/basic
+>12	belong		2		audio/basic
+>12	belong		3		audio/basic
+>12	belong		4		audio/basic
+>12	belong		5		audio/basic
+>12	belong		6		audio/basic
+>12	belong		7		audio/basic
+
+>12	belong		23		audio/x-adpcm
+
+# DEC systems (e.g. DECstation 5000) use a variant of the Sun/NeXT format
+# that uses little-endian encoding and has a different magic number
+# (0x0064732E in little-endian encoding).
+0	lelong		0x0064732E	
+>12	lelong		1		audio/x-dec-basic
+>12	lelong		2		audio/x-dec-basic
+>12	lelong		3		audio/x-dec-basic
+>12	lelong		4		audio/x-dec-basic
+>12	lelong		5		audio/x-dec-basic
+>12	lelong		6		audio/x-dec-basic
+>12	lelong		7		audio/x-dec-basic
+#                                       compressed (G.721 ADPCM)
+>12	lelong		23		audio/x-dec-adpcm
+
+# Bytes 0-3 of AIFF, AIFF-C, & 8SVX audio files are "FORM"
+#					AIFF audio data
+8	string		AIFF		audio/x-aiff	
+#					AIFF-C audio data
+8	string		AIFC		audio/x-aiff	
+#					IFF/8SVX audio data
+8	string		8SVX		audio/x-aiff	
+
+# Creative Labs AUDIO stuff
+#					Standard MIDI data
+0	string	MThd			audio/unknown	
+#>9 	byte	>0			(format %d)
+#>11	byte	>1			using %d channels
+#					Creative Music (CMF) data
+0	string	CTMF			audio/unknown	
+#					SoundBlaster instrument data
+0	string	SBI			audio/unknown	
+#					Creative Labs voice data
+0	string	Creative\ Voice\ File	audio/unknown	
+## is this next line right?  it came this way...
+#>19	byte	0x1A
+#>23	byte	>0			- version %d
+#>22	byte	>0			\b.%d
+
+# [GRR 950115:  is this also Creative Labs?  Guessing that first line
+#  should be string instead of unknown-endian long...]
+#0	long		0x4e54524b	MultiTrack sound data
+#0	string		NTRK		MultiTrack sound data
+#>4	long		x		- version %ld
+
+# Microsoft WAVE format (*.wav)
+# [GRR 950115:  probably all of the shorts and longs should be leshort/lelong]
+#					Microsoft RIFF
+0	string		RIFF		audio/unknown
+#					- WAVE format
+>8	string		WAVE		audio/x-wav
+# MPEG audio.
+0   beshort&0xfff0  0xfff0  audio/mpeg
+# C64 SID Music files, from Linus Walleij <triad@df.lth.se>
+0   string      PSID        audio/prs.sid
+
+#------------------------------------------------------------------------------
+# c-lang:  file(1) magic for C programs or various scripts
+#
+
+# XPM icons (Greg Roelofs, newt@uchicago.edu)
+# ideally should go into "images", but entries below would tag XPM as C source
+0	string		/*\ XPM		image/x-xbm	7bit
+
+# this first will upset you if you're a PL/1 shop... (are there any left?)
+# in which case rm it; ascmagic will catch real C programs
+#					C or REXX program text
+0	string		/*		text/plain
+#					C++ program text
+0	string		//		text/plain
+
+#------------------------------------------------------------------------------
+# compress:  file(1) magic for pure-compression formats (no archives)
+#
+# compress, gzip, pack, compact, huf, squeeze, crunch, freeze, yabba, whap, etc.
+#
+# Formats for various forms of compressed data
+# Formats for "compress" proper have been moved into "compress.c",
+# because it tries to uncompress it to figure out what's inside.
+
+# standard unix compress
+0	string		\037\235	application/octet-stream	x-compress
+
+# gzip (GNU zip, not to be confused with [Info-ZIP/PKWARE] zip archiver)
+0       string          \037\213        application/octet-stream	x-gzip
+
+# According to gzip.h, this is the correct byte order for packed data.
+0	string		\037\036	application/octet-stream
+#
+# This magic number is byte-order-independent.
+#
+0	short		017437		application/octet-stream
+
+# XXX - why *two* entries for "compacted data", one of which is
+# byte-order independent, and one of which is byte-order dependent?
+#
+# compacted data
+0	short		0x1fff		application/octet-stream
+0	string		\377\037	application/octet-stream
+# huf output
+0	short		0145405		application/octet-stream
+
+# Squeeze and Crunch...
+# These numbers were gleaned from the Unix versions of the programs to
+# handle these formats.  Note that I can only uncrunch, not crunch, and
+# I didn't have a crunched file handy, so the crunch number is untested.
+#				Keith Waclena <keith@cerberus.uchicago.edu>
+#0	leshort		0x76FF		squeezed data (CP/M, DOS)
+#0	leshort		0x76FE		crunched data (CP/M, DOS)
+
+# Freeze
+#0	string		\037\237	Frozen file 2.1
+#0	string		\037\236	Frozen file 1.0 (or gzip 0.5)
+
+# lzh?
+#0	string		\037\240	LZH compressed data
+
+#------------------------------------------------------------------------------
+# frame:  file(1) magic for FrameMaker files
+#
+# This stuff came on a FrameMaker demo tape, most of which is
+# copyright, but this file is "published" as witness the following:
+#
+0	string		\<MakerFile	application/x-frame
+0	string		\<MIFFile	application/x-frame
+0	string		\<MakerDictionary	application/x-frame
+0	string		\<MakerScreenFon	application/x-frame
+0	string		\<MML		application/x-frame
+0	string		\<Book		application/x-frame
+0	string		\<Maker		application/x-frame
+
+#------------------------------------------------------------------------------
+# html:  file(1) magic for HTML (HyperText Markup Language) docs
+#
+# from Daniel Quinlan <quinlan@yggdrasil.com>
+# and Anna Shergold <anna@inext.co.uk>
+#
+0   string      \<!DOCTYPE\ HTML    text/html
+0   string      \<!doctype\ html    text/html
+0   string      \<HEAD      text/html
+0   string      \<head      text/html
+0   string      \<TITLE     text/html
+0   string      \<title     text/html
+0   string      \<html      text/html
+0   string      \<HTML      text/html
+0   string      \<!--       text/html
+0   string      \<h1        text/html
+0   string      \<H1        text/html
+
+# XML eXtensible Markup Language, from Linus Walleij <triad@df.lth.se>
+0   string      \<?xml      text/xml
+
+#------------------------------------------------------------------------------
+# images:  file(1) magic for image formats (see also "c-lang" for XPM bitmaps)
+#
+# originally from jef@helios.ee.lbl.gov (Jef Poskanzer),
+# additions by janl@ifi.uio.no as well as others. Jan also suggested
+# merging several one- and two-line files into here.
+#
+# XXX - byte order for GIF and TIFF fields?
+# [GRR:  TIFF allows both byte orders; GIF is probably little-endian]
+#
+
+# [GRR:  what the hell is this doing in here?]
+#0	string		xbtoa		btoa'd file
+
+# PBMPLUS
+#					PBM file
+0	string		P1		image/x-portable-bitmap	7bit
+#					PGM file
+0	string		P2		image/x-portable-greymap	7bit
+#					PPM file
+0	string		P3		image/x-portable-pixmap	7bit
+#					PBM "rawbits" file
+0	string		P4		image/x-portable-bitmap
+#					PGM "rawbits" file
+0	string		P5		image/x-portable-greymap
+#					PPM "rawbits" file
+0	string		P6		image/x-portable-pixmap
+
+# NIFF (Navy Interchange File Format, a modification of TIFF)
+# [GRR:  this *must* go before TIFF]
+0	string		IIN1		image/x-niff
+
+# TIFF and friends
+#					TIFF file, big-endian
+0	string		MM		image/tiff
+#					TIFF file, little-endian
+0	string		II		image/tiff
+
+# possible GIF replacements; none yet released!
+# (Greg Roelofs, newt@uchicago.edu)
+#
+# GRR 950115:  this was mine ("Zip GIF"):
+#					ZIF image (GIF+deflate alpha)
+0	string		GIF94z		image/unknown
+#
+# GRR 950115:  this is Jeremy Wohl's Free Graphics Format (better):
+#					FGF image (GIF+deflate beta)
+0	string		FGF95a		image/unknown
+#
+# GRR 950115:  this is Thomas Boutell's Portable Bitmap Format proposal
+# (best; not yet implemented):
+#					PBF image (deflate compression)
+0	string		PBF		image/unknown
+
+# GIF
+0	string		GIF		image/gif
+
+# JPEG images
+0	beshort		0xffd8		image/jpeg
+
+# PC bitmaps (OS/2, Windoze BMP files)  (Greg Roelofs, newt@uchicago.edu)
+0	string		BM		image/bmp
+#>14	byte		12		(OS/2 1.x format)
+#>14	byte		64		(OS/2 2.x format)
+#>14	byte		40		(Windows 3.x format)
+#0	string		IC		icon
+#0	string		PI		pointer
+#0	string		CI		color icon
+#0	string		CP		color pointer
+#0	string		BA		bitmap array
+
+
+#------------------------------------------------------------------------------
+# lisp:  file(1) magic for lisp programs
+#
+# various lisp types, from Daniel Quinlan (quinlan@yggdrasil.com)
+0	string	;;			text/plain	8bit
+# Emacs 18 - this is always correct, but not very magical.
+0	string	\012(			application/x-elc
+# Emacs 19
+0	string	;ELC\023\000\000\000	application/x-elc
+
+#------------------------------------------------------------------------------
+# mail.news:  file(1) magic for mail and news
+#
+# There are tests to ascmagic.c to cope with mail and news.
+0	string		Relay-Version: 	message/rfc822	7bit
+0	string		#!\ rnews	message/rfc822	7bit
+0	string		N#!\ rnews	message/rfc822	7bit
+0	string		Forward\ to 	message/rfc822	7bit
+0	string		Pipe\ to 	message/rfc822	7bit
+0	string		Return-Path:	message/rfc822	7bit
+0	string		Path:		message/news	8bit
+0	string		Xref:		message/news	8bit
+0	string		From:		message/rfc822	7bit
+0	string		Article 	message/news	8bit
+#------------------------------------------------------------------------------
+# msword: file(1) magic for MS Word files
+#
+# Contributor claims:
+# Reversed-engineered MS Word magic numbers
+#
+
+0	string		\376\067\0\043			application/msword
+0	string		\333\245-\0\0\0			application/msword
+
+# disable this one because it applies also to other
+# Office/OLE documents for which msword is not correct. See PR#2608.
+#0	string		\320\317\021\340\241\261	application/msword
+
+
+
+#------------------------------------------------------------------------------
+# printer:  file(1) magic for printer-formatted files
+#
+
+# PostScript
+0	string		%!		application/postscript
+0	string		\004%!		application/postscript
+
+# Acrobat
+# (due to clamen@cs.cmu.edu)
+0	string		%PDF-		application/pdf
+
+#------------------------------------------------------------------------------
+# sc:  file(1) magic for "sc" spreadsheet
+#
+38	string		Spreadsheet	application/x-sc
+
+#------------------------------------------------------------------------------
+# tex:  file(1) magic for TeX files
+#
+# XXX - needs byte-endian stuff (big-endian and little-endian DVI?)
+#
+# From <conklin@talisman.kaleida.com>
+
+# Although we may know the offset of certain text fields in TeX DVI
+# and font files, we can't use them reliably because they are not
+# zero terminated. [but we do anyway, christos]
+0	string		\367\002	application/x-dvi
+#0	string		\367\203	TeX generic font data
+#0	string		\367\131	TeX packed font data
+#0	string		\367\312	TeX virtual font data
+#0	string		This\ is\ TeX,	TeX transcript text	
+#0	string		This\ is\ METAFONT,	METAFONT transcript text
+
+# There is no way to detect TeX Font Metric (*.tfm) files without
+# breaking them apart and reading the data.  The following patterns
+# match most *.tfm files generated by METAFONT or afm2tfm.
+#2	string		\000\021	TeX font metric data
+#2	string		\000\022	TeX font metric data
+#>34	string		>\0		(%s)
+
+# Texinfo and GNU Info, from Daniel Quinlan (quinlan@yggdrasil.com)
+#0	string		\\input\ texinfo	Texinfo source text
+#0	string		This\ is\ Info\ file	GNU Info text
+
+# correct TeX magic for Linux (and maybe more)
+# from Peter Tobias (tobias@server.et-inf.fho-emden.de)
+#
+0	leshort		0x02f7		application/x-dvi
+
+# RTF - Rich Text Format
+0	string		{\\rtf		application/rtf
+
+#------------------------------------------------------------------------------
+# animation:  file(1) magic for animation/movie formats
+#
+# animation formats, originally from vax@ccwf.cc.utexas.edu (VaX#n8)
+#						MPEG file
+0	string		\000\000\001\263	video/mpeg
+#
+# The contributor claims:
+#   I couldn't find a real magic number for these, however, this
+#   -appears- to work.  Note that it might catch other files, too,
+#   so BE CAREFUL!
+#
+# Note that title and author appear in the two 20-byte chunks
+# at decimal offsets 2 and 22, respectively, but they are XOR'ed with
+# 255 (hex FF)! DL format SUCKS BIG ROCKS.
+#
+#						DL file version 1 , medium format (160x100, 4 images/screen)
+0	byte		1			video/unknown
+0	byte		2			video/unknown
+# Quicktime video, from Linus Walleij <triad@df.lth.se>
+# from Apple quicktime file format documentation.
+4   string      moov        video/quicktime
+4   string      mdat        video/quicktime
+
+=mime.types
+# This is a comment. I love comments.
+
+# This file controls what Internet media types are sent to the client for
+# given file extension(s).  Sending the correct media type to the client
+# is important so they know how to handle the content of the file.
+# Extra types can either be added here or by using an AddType directive
+# in your config files. For more information about Internet media types,
+# please read RFC 2045, 2046, 2047, 2048, and 2077.  The Internet media type
+# registry is at <http://www.iana.org/assignments/media-types/>.
+
+# MIME type			Extensions
+application/activemessage
+application/andrew-inset	ez
+application/applefile
+application/atom+xml		atom
+application/atomicmail
+application/batch-smtp
+application/beep+xml
+application/cals-1840
+application/cnrp+xml
+application/commonground
+application/cpl+xml
+application/cybercash
+application/dca-rft
+application/dec-dx
+application/dvcs
+application/edi-consent
+application/edifact
+application/edi-x12
+application/eshop
+application/font-tdpfr
+application/http
+application/hyperstudio
+application/iges
+application/index
+application/index.cmd
+application/index.obj
+application/index.response
+application/index.vnd
+application/iotp
+application/ipp
+application/isup
+application/mac-binhex40	hqx
+application/mac-compactpro	cpt
+application/macwriteii
+application/marc
+application/mathematica
+application/mathml+xml		mathml
+application/msword		doc
+application/news-message-id
+application/news-transmission
+application/ocsp-request
+application/ocsp-response
+application/octet-stream	bin dms lha lzh exe class so dll dmg
+application/oda			oda
+application/ogg			ogg
+application/parityfec
+application/pdf			pdf
+application/pgp-encrypted
+application/pgp-keys
+application/pgp-signature
+application/pkcs10
+application/pkcs7-mime
+application/pkcs7-signature
+application/pkix-cert
+application/pkix-crl
+application/pkixcmp
+application/postscript		ai eps ps
+application/prs.alvestrand.titrax-sheet
+application/prs.cww
+application/prs.nprend
+application/prs.plucker
+application/qsig
+application/rdf+xml		rdf
+application/reginfo+xml
+application/remote-printing
+application/riscos
+application/rtf
+application/sdp
+application/set-payment
+application/set-payment-initiation
+application/set-registration
+application/set-registration-initiation
+application/sgml
+application/sgml-open-catalog
+application/sieve
+application/slate
+application/smil		smi smil
+application/srgs		gram
+application/srgs+xml		grxml
+application/timestamp-query
+application/timestamp-reply
+application/tve-trigger
+application/vemmi
+application/vnd.3gpp.pic-bw-large
+application/vnd.3gpp.pic-bw-small
+application/vnd.3gpp.pic-bw-var
+application/vnd.3gpp.sms
+application/vnd.3m.post-it-notes
+application/vnd.accpac.simply.aso
+application/vnd.accpac.simply.imp
+application/vnd.acucobol
+application/vnd.acucorp
+application/vnd.adobe.xfdf
+application/vnd.aether.imp
+application/vnd.amiga.ami
+application/vnd.anser-web-certificate-issue-initiation
+application/vnd.anser-web-funds-transfer-initiation
+application/vnd.audiograph
+application/vnd.blueice.multipass
+application/vnd.bmi
+application/vnd.businessobjects
+application/vnd.canon-cpdl
+application/vnd.canon-lips
+application/vnd.cinderella
+application/vnd.claymore
+application/vnd.commerce-battelle
+application/vnd.commonspace
+application/vnd.contact.cmsg
+application/vnd.cosmocaller
+application/vnd.criticaltools.wbs+xml
+application/vnd.ctc-posml
+application/vnd.cups-postscript
+application/vnd.cups-raster
+application/vnd.cups-raw
+application/vnd.curl
+application/vnd.cybank
+application/vnd.data-vision.rdz
+application/vnd.dna
+application/vnd.dpgraph
+application/vnd.dreamfactory
+application/vnd.dxr
+application/vnd.ecdis-update
+application/vnd.ecowin.chart
+application/vnd.ecowin.filerequest
+application/vnd.ecowin.fileupdate
+application/vnd.ecowin.series
+application/vnd.ecowin.seriesrequest
+application/vnd.ecowin.seriesupdate
+application/vnd.enliven
+application/vnd.epson.esf
+application/vnd.epson.msf
+application/vnd.epson.quickanime
+application/vnd.epson.salt
+application/vnd.epson.ssf
+application/vnd.ericsson.quickcall
+application/vnd.eudora.data
+application/vnd.fdf
+application/vnd.ffsns
+application/vnd.fints
+application/vnd.flographit
+application/vnd.framemaker
+application/vnd.fsc.weblaunch
+application/vnd.fujitsu.oasys
+application/vnd.fujitsu.oasys2
+application/vnd.fujitsu.oasys3
+application/vnd.fujitsu.oasysgp
+application/vnd.fujitsu.oasysprs
+application/vnd.fujixerox.ddd
+application/vnd.fujixerox.docuworks
+application/vnd.fujixerox.docuworks.binder
+application/vnd.fut-misnet
+application/vnd.grafeq
+application/vnd.groove-account
+application/vnd.groove-help
+application/vnd.groove-identity-message
+application/vnd.groove-injector
+application/vnd.groove-tool-message
+application/vnd.groove-tool-template
+application/vnd.groove-vcard
+application/vnd.hbci
+application/vnd.hhe.lesson-player
+application/vnd.hp-hpgl
+application/vnd.hp-hpid
+application/vnd.hp-hps
+application/vnd.hp-pcl
+application/vnd.hp-pclxl
+application/vnd.httphone
+application/vnd.hzn-3d-crossword
+application/vnd.ibm.afplinedata
+application/vnd.ibm.electronic-media
+application/vnd.ibm.minipay
+application/vnd.ibm.modcap
+application/vnd.ibm.rights-management
+application/vnd.ibm.secure-container
+application/vnd.informix-visionary
+application/vnd.intercon.formnet
+application/vnd.intertrust.digibox
+application/vnd.intertrust.nncp
+application/vnd.intu.qbo
+application/vnd.intu.qfx
+application/vnd.irepository.package+xml
+application/vnd.is-xpr
+application/vnd.japannet-directory-service
+application/vnd.japannet-jpnstore-wakeup
+application/vnd.japannet-payment-wakeup
+application/vnd.japannet-registration
+application/vnd.japannet-registration-wakeup
+application/vnd.japannet-setstore-wakeup
+application/vnd.japannet-verification
+application/vnd.japannet-verification-wakeup
+application/vnd.jisp
+application/vnd.kde.karbon
+application/vnd.kde.kchart
+application/vnd.kde.kformula
+application/vnd.kde.kivio
+application/vnd.kde.kontour
+application/vnd.kde.kpresenter
+application/vnd.kde.kspread
+application/vnd.kde.kword
+application/vnd.kenameaapp
+application/vnd.koan
+application/vnd.liberty-request+xml
+application/vnd.llamagraphics.life-balance.desktop
+application/vnd.llamagraphics.life-balance.exchange+xml
+application/vnd.lotus-1-2-3
+application/vnd.lotus-approach
+application/vnd.lotus-freelance
+application/vnd.lotus-notes
+application/vnd.lotus-organizer
+application/vnd.lotus-screencam
+application/vnd.lotus-wordpro
+application/vnd.mcd
+application/vnd.mediastation.cdkey
+application/vnd.meridian-slingshot
+application/vnd.micrografx.flo
+application/vnd.micrografx.igx
+application/vnd.mif		mif
+application/vnd.minisoft-hp3000-save
+application/vnd.mitsubishi.misty-guard.trustweb
+application/vnd.mobius.daf
+application/vnd.mobius.dis
+application/vnd.mobius.mbk
+application/vnd.mobius.mqy
+application/vnd.mobius.msl
+application/vnd.mobius.plc
+application/vnd.mobius.txf
+application/vnd.mophun.application
+application/vnd.mophun.certificate
+application/vnd.motorola.flexsuite
+application/vnd.motorola.flexsuite.adsi
+application/vnd.motorola.flexsuite.fis
+application/vnd.motorola.flexsuite.gotap
+application/vnd.motorola.flexsuite.kmr
+application/vnd.motorola.flexsuite.ttc
+application/vnd.motorola.flexsuite.wem
+application/vnd.mozilla.xul+xml	xul
+application/vnd.ms-artgalry
+application/vnd.ms-asf
+application/vnd.ms-excel	xls
+application/vnd.ms-lrm
+application/vnd.ms-powerpoint	ppt
+application/vnd.ms-project
+application/vnd.ms-tnef
+application/vnd.ms-works
+application/vnd.ms-wpl
+application/vnd.mseq
+application/vnd.msign
+application/vnd.music-niff
+application/vnd.musician
+application/vnd.netfpx
+application/vnd.noblenet-directory
+application/vnd.noblenet-sealer
+application/vnd.noblenet-web
+application/vnd.novadigm.edm
+application/vnd.novadigm.edx
+application/vnd.novadigm.ext
+application/vnd.obn
+application/vnd.osa.netdeploy
+application/vnd.palm
+application/vnd.pg.format
+application/vnd.pg.osasli
+application/vnd.powerbuilder6
+application/vnd.powerbuilder6-s
+application/vnd.powerbuilder7
+application/vnd.powerbuilder7-s
+application/vnd.powerbuilder75
+application/vnd.powerbuilder75-s
+application/vnd.previewsystems.box
+application/vnd.publishare-delta-tree
+application/vnd.pvi.ptid1
+application/vnd.pwg-multiplexed
+application/vnd.pwg-xhtml-print+xml
+application/vnd.quark.quarkxpress
+application/vnd.rapid
+application/vnd.s3sms
+application/vnd.sealed.net
+application/vnd.seemail
+application/vnd.shana.informed.formdata
+application/vnd.shana.informed.formtemplate
+application/vnd.shana.informed.interchange
+application/vnd.shana.informed.package
+application/vnd.smaf
+application/vnd.sss-cod
+application/vnd.sss-dtf
+application/vnd.sss-ntf
+application/vnd.street-stream
+application/vnd.svd
+application/vnd.swiftview-ics
+application/vnd.triscape.mxs
+application/vnd.trueapp
+application/vnd.truedoc
+application/vnd.ufdl
+application/vnd.uplanet.alert
+application/vnd.uplanet.alert-wbxml
+application/vnd.uplanet.bearer-choice
+application/vnd.uplanet.bearer-choice-wbxml
+application/vnd.uplanet.cacheop
+application/vnd.uplanet.cacheop-wbxml
+application/vnd.uplanet.channel
+application/vnd.uplanet.channel-wbxml
+application/vnd.uplanet.list
+application/vnd.uplanet.list-wbxml
+application/vnd.uplanet.listcmd
+application/vnd.uplanet.listcmd-wbxml
+application/vnd.uplanet.signal
+application/vnd.vcx
+application/vnd.vectorworks
+application/vnd.vidsoft.vidconference
+application/vnd.visio
+application/vnd.visionary
+application/vnd.vividence.scriptfile
+application/vnd.vsf
+application/vnd.wap.sic
+application/vnd.wap.slc
+application/vnd.wap.wbxml	wbxml
+application/vnd.wap.wmlc	wmlc
+application/vnd.wap.wmlscriptc	wmlsc
+application/vnd.webturbo
+application/vnd.wrq-hp3000-labelled
+application/vnd.wt.stf
+application/vnd.wv.csp+wbxml
+application/vnd.xara
+application/vnd.xfdl
+application/vnd.yamaha.hv-dic
+application/vnd.yamaha.hv-script
+application/vnd.yamaha.hv-voice
+application/vnd.yellowriver-custom-menu
+application/voicexml+xml	vxml
+application/watcherinfo+xml
+application/whoispp-query
+application/whoispp-response
+application/wita
+application/wordperfect5.1
+application/x-bcpio		bcpio
+application/x-cdlink		vcd
+application/x-chess-pgn		pgn
+application/x-compress
+application/x-cpio		cpio
+application/x-csh		csh
+application/x-director		dcr dir dxr
+application/x-dvi		dvi
+application/x-futuresplash	spl
+application/x-gtar		gtar
+application/x-gzip
+application/x-hdf		hdf
+application/x-javascript	js
+application/x-koan		skp skd skt skm
+application/x-latex		latex
+application/x-netcdf		nc cdf
+application/x-sh		sh
+application/x-shar		shar
+application/x-shockwave-flash	swf
+application/x-stuffit		sit
+application/x-sv4cpio		sv4cpio
+application/x-sv4crc		sv4crc
+application/x-tar		tar
+application/x-tcl		tcl
+application/x-tex		tex
+application/x-texinfo		texinfo texi
+application/x-troff		t tr roff
+application/x-troff-man		man
+application/x-troff-me		me
+application/x-troff-ms		ms
+application/x-ustar		ustar
+application/x-wais-source	src
+application/x400-bp
+application/xhtml+xml		xhtml xht
+application/xslt+xml		xslt
+application/xml			xml xsl
+application/xml-dtd		dtd
+application/xml-external-parsed-entity
+application/zip			zip
+audio/32kadpcm
+audio/amr
+audio/amr-wb
+audio/basic			au snd
+audio/cn
+audio/dat12
+audio/dsr-es201108
+audio/dvi4
+audio/evrc
+audio/evrc0
+audio/g722
+audio/g.722.1
+audio/g723
+audio/g726-16
+audio/g726-24
+audio/g726-32
+audio/g726-40
+audio/g728
+audio/g729
+audio/g729D
+audio/g729E
+audio/gsm
+audio/gsm-efr
+audio/l8
+audio/l16
+audio/l20
+audio/l24
+audio/lpc
+audio/midi			mid midi kar
+audio/mpa
+audio/mpa-robust
+audio/mp4a-latm
+audio/mpeg			mpga mp2 mp3
+audio/parityfec
+audio/pcma
+audio/pcmu
+audio/prs.sid
+audio/qcelp
+audio/red
+audio/smv
+audio/smv0
+audio/telephone-event
+audio/tone
+audio/vdvi
+audio/vnd.3gpp.iufp
+audio/vnd.cisco.nse
+audio/vnd.cns.anp1
+audio/vnd.cns.inf1
+audio/vnd.digital-winds
+audio/vnd.everad.plj
+audio/vnd.lucent.voice
+audio/vnd.nortel.vbk
+audio/vnd.nuera.ecelp4800
+audio/vnd.nuera.ecelp7470
+audio/vnd.nuera.ecelp9600
+audio/vnd.octel.sbc
+audio/vnd.qcelp
+audio/vnd.rhetorex.32kadpcm
+audio/vnd.vmx.cvsd
+audio/x-aiff			aif aiff aifc
+audio/x-alaw-basic
+audio/x-mpegurl			m3u
+audio/x-pn-realaudio		ram ra
+audio/x-pn-realaudio-plugin
+application/vnd.rn-realmedia	rm
+audio/x-wav			wav
+chemical/x-pdb			pdb
+chemical/x-xyz			xyz
+image/bmp			bmp
+image/cgm			cgm
+image/g3fax
+image/gif			gif
+image/ief			ief
+image/jpeg			jpeg jpg jpe
+image/naplps
+image/png			png
+image/prs.btif
+image/prs.pti
+image/svg+xml			svg
+image/t38
+image/tiff			tiff tif
+image/tiff-fx
+image/vnd.cns.inf2
+image/vnd.djvu			djvu djv
+image/vnd.dwg
+image/vnd.dxf
+image/vnd.fastbidsheet
+image/vnd.fpx
+image/vnd.fst
+image/vnd.fujixerox.edmics-mmr
+image/vnd.fujixerox.edmics-rlc
+image/vnd.globalgraphics.pgb
+image/vnd.mix
+image/vnd.ms-modi
+image/vnd.net-fpx
+image/vnd.svf
+image/vnd.wap.wbmp		wbmp
+image/vnd.xiff
+image/x-cmu-raster		ras
+image/x-icon			ico
+image/x-portable-anymap		pnm
+image/x-portable-bitmap		pbm
+image/x-portable-graymap	pgm
+image/x-portable-pixmap		ppm
+image/x-rgb			rgb
+image/x-xbitmap			xbm
+image/x-xpixmap			xpm
+image/x-xwindowdump		xwd
+message/delivery-status
+message/disposition-notification
+message/external-body
+message/http
+message/news
+message/partial
+message/rfc822
+message/s-http
+message/sip
+message/sipfrag
+model/iges			igs iges
+model/mesh			msh mesh silo
+model/vnd.dwf
+model/vnd.flatland.3dml
+model/vnd.gdl
+model/vnd.gs-gdl
+model/vnd.gtw
+model/vnd.mts
+model/vnd.parasolid.transmit.binary
+model/vnd.parasolid.transmit.text
+model/vnd.vtu
+model/vrml			wrl vrml
+multipart/alternative
+multipart/appledouble
+multipart/byteranges
+multipart/digest
+multipart/encrypted
+multipart/form-data
+multipart/header-set
+multipart/mixed
+multipart/parallel
+multipart/related
+multipart/report
+multipart/signed
+multipart/voice-message
+text/calendar			ics ifb
+text/css			css
+text/directory
+text/enriched
+text/html			html htm
+text/parityfec
+text/plain			asc txt
+text/prs.lines.tag
+text/rfc822-headers
+text/richtext			rtx
+text/rtf			rtf
+text/sgml			sgml sgm
+text/t140
+text/tab-separated-values	tsv
+text/uri-list
+text/vnd.abc
+text/vnd.curl
+text/vnd.dmclientscript
+text/vnd.fly
+text/vnd.fmi.flexstor
+text/vnd.in3d.3dml
+text/vnd.in3d.spot
+text/vnd.iptc.nitf
+text/vnd.iptc.newsml
+text/vnd.latex-z
+text/vnd.motorola.reflex
+text/vnd.ms-mediapackage
+text/vnd.net2phone.commcenter.command
+text/vnd.sun.j2me.app-descriptor
+text/vnd.wap.si
+text/vnd.wap.sl
+text/vnd.wap.wml		wml
+text/vnd.wap.wmlscript		wmls
+text/x-setext			etx
+text/xml
+text/xml-external-parsed-entity
+video/bmpeg
+video/bt656
+video/celb
+video/dv
+video/h261
+video/h263
+video/h263-1998
+video/h263-2000
+video/jpeg
+video/mp1s
+video/mp2p
+video/mp2t
+video/mp4v-es
+video/mpv
+video/mpeg			mpeg mpg mpe
+video/nv
+video/parityfec
+video/pointer
+video/quicktime			qt mov
+video/smpte292m
+video/vnd.fvt
+video/vnd.motorola.video
+video/vnd.motorola.videop
+video/vnd.mpegurl		mxu m4u
+video/vnd.nokia.interleaved-multimedia
+video/vnd.objectvideo
+video/vnd.vivo
+video/x-msvideo			avi
+video/x-sgi-movie		movie
+x-conference/x-cooltalk		ice
+=httpd.conf
+# [% warning %]
+# vim:ts=2:sw=2:sts=2:et:ft=apache
+ServerName "[% server_name %]"
+ServerRoot "[% server_root %]"
+DocumentRoot "[% document_root %]"
+PidFile "[% logs_dir %]/httpd.pid"
+LockFile "[% logs_dir %]/httpd.lock"
+
+Listen [% host %]:[% port %]
+
+[% load_modules %]
+
+ServerAdmin "[% server_admin %]"
+
+<Directory />
+  Options FollowSymLinks
+  AllowOverride None
+  Order allow,deny
+  Allow from all
+</Directory>
+
+<FilesMatch "^\.ht">
+  Order allow,deny
+  Deny from all
+  Satisfy All
+</FilesMatch>
+
+ErrorLog "[% error_log %]"
+LogLevel warn
+
+<IfModule mod_mime_magic>
+  MimeMagicFile "[% conf_dir %]/magic"
+</IfModule>
+
+<IfModule log_config_module>
+  LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+  LogFormat "%h %l %u %t \"%r\" %>s %b" common
+  CustomLog "[% access_log %]" combined
+</IfModule>
+
+DefaultType text/plain
+
+<IfModule mime_module>
+  TypesConfig "[% conf_dir %]/mime.types"
+  AddType application/x-compress  .Z
+  AddType application/x-gzip      .gz .tgz
+  [% _php_mime_type %]
+</IfModule>
+
+User [% uid %]
+Group [% gid %]
+
+AddLanguage ca .ca
+AddLanguage cs .cz .cs
+AddLanguage da .dk
+AddLanguage de .de
+AddLanguage el .el
+AddLanguage en .en
+AddLanguage eo .eo
+AddLanguage es .es
+AddLanguage et .et
+AddLanguage fr .fr
+AddLanguage he .he
+AddLanguage hr .hr
+AddLanguage it .it
+AddLanguage ja .ja
+AddLanguage ko .ko
+AddLanguage ltz .ltz
+AddLanguage nl .nl
+AddLanguage nn .nn
+AddLanguage no .no
+AddLanguage pl .po
+AddLanguage pt .pt
+AddLanguage pt-BR .pt-br
+AddLanguage ru .ru
+AddLanguage sv .sv
+AddLanguage zh-CN .zh-cn
+AddLanguage zh-TW .zh-tw
+
+LanguagePriority en ca cs da de el eo es et fr he hr it ja ko ltz nl nn no pl pt pt-BR ru sv zh-CN zh-TW
+
+ForceLanguagePriority Prefer Fallback
+
+AddDefaultCharset UTF-8
+
+BrowserMatch "Mozilla/2" nokeepalive
+BrowserMatch "MSIE 4\.0b2;" nokeepalive downgrade-1.0 force-response-1.0
+BrowserMatch "RealPlayer 4\.0" force-response-1.0
+BrowserMatch "Java/1\.0" force-response-1.0
+BrowserMatch "JDK/1\.0" force-response-1.0
+
+BrowserMatch "Microsoft Data Access Internet Publishing Provider" redirect-carefully
+BrowserMatch "MS FrontPage" redirect-carefully
+BrowserMatch "^WebDrive" redirect-carefully
+BrowserMatch "^WebDAVFS/1.[0123]" redirect-carefully
+BrowserMatch "^gnome-vfs/1.0" redirect-carefully
+BrowserMatch "^XML Spy" redirect-carefully
+BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
+
+<VirtualHost _default_:[% port %]>
+  LogLevel warn
+
+  <Directory "[% document_root %]">
+    Options All
+    Allow from all
+    DirectoryIndex [% index %]
+  </Directory>
+
+  SetEnvIf User-Agent ".*MSIE.*" \
+          nokeepalive ssl-unclean-shutdown \
+          downgrade-1.0 force-response-1.0
+
+</VirtualHost>                                  

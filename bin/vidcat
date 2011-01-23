@@ -1,0 +1,94 @@
+#!/usr/bin/env perl
+
+use 5.010;
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use File::Copy qw( cp );
+
+my @CLEANUP = ();
+END { unlink @CLEANUP }
+
+vidcat( @ARGV );
+
+sub vidcat {
+  my @v = @_;
+  die "Need at least one input and an output\n"
+   unless @v >= 2;
+  my $out = pop @v;
+  if ( @v == 1 ) {
+    cp @v, $out;
+    return;
+  }
+
+  my ( $all_a, $all_v ) = mkfifo( 'a', 'v' );
+
+  my @acmd  = ();
+  my @vcmd  = ();
+  my @afifo = ();
+  my @vfifo = ();
+
+  my $which = 0;
+  for my $v ( @v ) {
+    my ( $fa, $fv ) = mkfifo( 'a', 'v' );
+    push @afifo, $fa;
+    push @vfifo, $fv;
+    push @acmd,
+       "ffmpeg -i "
+     . sq( $v )
+     . " -vn -f u16le -acodec pcm_s16le -ac 2 -ar 44100 - > "
+     . sq( $fa )
+     . " < /dev/null";
+    push @vcmd,
+     $which == 0
+     ? "ffmpeg -i "
+     . sq( $v )
+     . " -an -f yuv4mpegpipe - > "
+     . sq( $fv )
+     . " < /dev/null"
+     : "{ ffmpeg -i "
+     . sq( $v )
+     . " -an -f yuv4mpegpipe - < /dev/null | tail -n +2 > "
+     . sq( $fv ) . " ; }";
+    $which++;
+  }
+  my @cat = (
+    "cat " . join( ' ', @afifo ) . " > " . sq( $all_a ) . "",
+    "cat " . join( ' ', @vfifo ) . " > " . sq( $all_v ) . "",
+    "ffmpeg -f u16le -acodec pcm_s16le -ac 2 -ar 44100" . " -i "
+     . sq( $all_a )
+     . " -f yuv4mpegpipe -i "
+     . sq( $all_v )
+     . " -sameq -y "
+     . sq( $out )
+  );
+  system join ' & ', @acmd, @vcmd, @cat and die "Failed: $?\n";
+}
+
+sub sq {
+  my $str = shift;
+  $str =~ s/([\"\$])/\\$1/g;
+  return qq{"$str"};
+}
+
+sub mkfifo {
+  my @r = ();
+  for my $ext ( @_ ) {
+    my $name = temp_name( $ext );
+    push @r, $name;
+    system mkfifo => $name and die "Can't mkfifo $name: $?\n";
+  }
+  return @r;
+}
+
+sub temp_name {
+  my $ext = shift;
+  state $next = 1;
+  my $name = sprintf 'vidcat%05d.%s', $next++, $ext;
+  push @CLEANUP, $name;
+  return $name;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
