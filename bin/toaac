@@ -7,6 +7,12 @@ use warnings;
 
 use File::Find;
 
+use constant (
+  SAMPLE_RATE => 44100,
+  BIT_RATE    => '256k',
+  EXTENSION   => 'm4a',
+);
+
 @ARGV = '.' unless @ARGV;
 
 find {
@@ -20,16 +26,17 @@ find {
 
 sub toaac {
   my $raw = shift;
-  ( my $m4a = $raw ) =~ s/\.(\w+)$/.m4a/;
+  my $ext = EXTENSION;
+  ( my $m4a = $raw ) =~ s/\.(\w+)$/.$ext/;
   if ( -f $m4a ) {
-    say "Skipping $raw, m4a file already exists";
+    say "Skipping $raw, $ext file already exists";
     return;
   }
-  my $tmp = "$m4a.tmp.m4a";
+  my $tmp = "$m4a.tmp.$ext";
   my @cmd = (
-    'ffmpeg',  '-y',      '-i',       $raw,
-    '-acodec', 'libfaac', '-ab',      '256k',
-    '-ar',     '44100',   '-threads', '0',
+    'ffmpeg',  '-y',        '-i',       $raw,
+    '-acodec', 'libfaac',   '-ab',      BIT_RATE,
+    '-ar',     SAMPLE_RATE, '-threads', '0',
     $tmp
   );
   say join ' ', @cmd;

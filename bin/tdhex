@@ -17,7 +17,7 @@ sub hdump {
 
   for my $index ( $log->indexes ) {
     my ( $length_orig, $length_incl, $drops, $secs, $msecs )
-      = $log->header( $index );
+     = $log->header( $index );
     my $data = $log->data( $index );
     print "=== $index ===\n";
     print hexdump( data => $data, space_as_space => 1 );
