@@ -70,10 +70,7 @@ EOF
 
 # Find a free server number by looking at .X*-lock files in /tmp.
 find_free_servernum() {
-    # Sadly, the "local" keyword is not POSIX.  Leave the next line commented in
-    # the hope Debian Policy eventually changes to allow it in /bin/sh scripts
-    # anyway.
-    #local i
+    local i
 
     i=$SERVERNUM
     while [ -f /tmp/.X$i-lock ]; do
