@@ -7,11 +7,11 @@ use warnings;
 
 use File::Find;
 
-use constant (
+use constant {
   SAMPLE_RATE => 44100,
   BIT_RATE    => '256k',
   EXTENSION   => 'm4a',
-);
+};
 
 @ARGV = '.' unless @ARGV;
 
