@@ -18,7 +18,7 @@ use constant (
 find {
   no_chdir => 1,
   wanted   => sub {
-    return unless /\.(?:flac|wav)$/i;
+    return unless /\.(?:flac|wav|wma)$/i;
     toaac( $_ );
   },
  },
