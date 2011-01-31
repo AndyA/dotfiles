@@ -48,10 +48,11 @@ sub toaac {
     '-acodec', 'libfaac',   '-ab',      BIT_RATE,
     '-ar',     SAMPLE_RATE, '-threads', '0',
     $tmp
-   ];
+   ],
+   '2>', \( my $ffmpeg_err ), '|';
 
   unless ( run @pipe ) {
-    say "Conversion failed: $?";
+    say "Conversion failed: $?\nffmpeg output:\n$ffmpeg_err";
     return;
   }
   unless ( rename $tmp, $m4a ) {
