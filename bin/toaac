@@ -51,6 +51,8 @@ sub toaac {
    ],
    '2>', \( my $ffmpeg_err ), '|';
 
+  say "Converting $raw to $m4a";
+
   unless ( run @pipe ) {
     say "Conversion failed: $?\nffmpeg output:\n$ffmpeg_err";
     return;
