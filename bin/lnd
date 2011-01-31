@@ -1,0 +1,84 @@
+#!/usr/bin/env perl
+
+use perl5i::2;
+
+use File::Path qw( make_path );
+use File::Basename qw( dirname );
+use File::Spec;
+use Getopt::Long;
+
+my %Opt = (
+  verbose  => 0,
+  relative => 0,
+  symbolic => 0,
+);
+
+GetOptions(
+  'verbose'    => \$Opt{verbose},
+  'R|relative' => \$Opt{relative},
+  'symbolic'   => \$Opt{symbolic},
+) or usage( 1 );
+
+usage( 2 ) if @ARGV < 2;
+my $dest = pop @ARGV;
+my @src  = @ARGV;
+
+lnd( $_, $dest ) for @src;
+
+sub lnd {
+  my ( $src, $dst ) = @_;
+  $src = File::Spec->rel2abs( $src );
+  if ( -f $src ) {
+    mklink( $src, $dst );
+    return;
+  }
+  lndeep( $src, $dst );
+}
+
+sub lndeep {
+  my ( $src, $dst, $obj ) = @_;
+  my ( $so, $do )
+   = map { defined $obj ? File::Spec->catfile( $_, $obj ) : $_ }
+   ( $src, $dst );
+
+  print "$obj\n" if $Opt{verbose};
+
+  if ( -d $so ) {
+    opendir my ( $dh ), $so;
+    for my $oo ( readdir $dh ) {
+      lndeep( $src, $dst,
+        File::Spec->catfile( grep defined, $obj, $oo ) )
+       unless $oo =~ /^\.\.?$/;
+    }
+  }
+  else {
+    mklink( $so, $do );
+  }
+}
+
+sub mklink {
+  my ( $src, $dst ) = @_;
+  my $dd = dirname $dst;
+  make_path( $dd );
+  if ( $Opt{symbolic} ) {
+    $src = File::Spec->abs2rel( $src, $dd ) if $Opt{relative};
+    symlink $src, $dst;
+  }
+  else {
+    link $src, $dst;
+  }
+}
+
+sub usage {
+  my $rc = shift;
+  print "Usage:\n", "  lnd [options] source... dest\n\n",
+   "Options:\n",
+   "  -v, --verbose    Verbose output\n",
+   "  -s, --symbolic   Create symlinks\n",
+   "  -R, --relative   Make relative links (default is absolute)\n\n";
+
+  exit $rc if defined $rc;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+

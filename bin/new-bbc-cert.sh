@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 STORE=~/.keystore
 DROP=~/Desktop/andy.p12
