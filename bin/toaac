@@ -6,6 +6,7 @@ use strict;
 use warnings;
 
 use File::Find;
+use IPC::Run qw( run );
 
 use constant {
   SAMPLE_RATE => 44100,
@@ -18,7 +19,7 @@ use constant {
 find {
   no_chdir => 1,
   wanted   => sub {
-    return unless /\.(?:flac|wav|wma)$/i;
+    return unless /\.(?:flac|wav|wma)(?:\.gz)?$/i;
     toaac( $_ );
   },
  },
@@ -32,15 +33,24 @@ sub toaac {
     say "Skipping $raw, $ext file already exists";
     return;
   }
-  my $tmp = "$m4a.tmp.$ext";
-  my @cmd = (
-    'ffmpeg',  '-y',        '-i',       $raw,
+  my $tmp  = "$m4a.tmp.$ext";
+  my @pipe = ();
+  my $ff   = $raw;
+
+  if ( $raw =~ /\.gz$/i ) {
+    push @pipe, [ 'gzip', '-cd', $raw ], '|';
+    $ff = '-';
+  }
+
+  push @pipe,
+   [
+    'ffmpeg',  '-y',        '-i',       $ff,
     '-acodec', 'libfaac',   '-ab',      BIT_RATE,
     '-ar',     SAMPLE_RATE, '-threads', '0',
     $tmp
-  );
-  say join ' ', @cmd;
-  if ( system @cmd ) {
+   ];
+
+  unless ( run @pipe ) {
     say "Conversion failed: $?";
     return;
   }
