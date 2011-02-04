@@ -45,6 +45,7 @@
 .dosemu
 .dropbox
 .dropbox-dist
+.dvdcss
 .dzil
 .eclipse
 .eclipse_keyring
@@ -135,6 +136,7 @@
 .scala_history
 .screen-profiles
 .sieve
+.smb
 .smoke-tapx
 .smoke-work
 .smokestack-stash.yml
