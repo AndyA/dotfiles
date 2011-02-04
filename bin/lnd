@@ -44,12 +44,15 @@ sub lndeep {
   print "$obj\n" if $Opt{verbose};
 
   if ( -d $so ) {
-    opendir my ( $dh ), $so;
-    for my $oo ( readdir $dh ) {
-      lndeep( $src, $dst,
-        File::Spec->catfile( grep defined, $obj, $oo ) )
-       unless $oo =~ /^\.\.?$/;
-    }
+    eval {
+      opendir my ( $dh ), $so;
+      for my $oo ( readdir $dh ) {
+        lndeep( $src, $dst,
+          File::Spec->catfile( grep defined, $obj, $oo ) )
+         unless $oo =~ /^\.\.?$/;
+      }
+    };
+    warn "Failed to process $so: $@\n" if $@;
   }
   else {
     mklink( $so, $do );
@@ -58,15 +61,18 @@ sub lndeep {
 
 sub mklink {
   my ( $src, $dst ) = @_;
-  my $dd = dirname $dst;
-  make_path( $dd );
-  if ( $Opt{symbolic} ) {
-    $src = File::Spec->abs2rel( $src, $dd ) if $Opt{relative};
-    symlink $src, $dst;
-  }
-  else {
-    link $src, $dst;
-  }
+  eval {
+    my $dd = dirname $dst;
+    make_path( $dd );
+    if ( $Opt{symbolic} ) {
+      $src = File::Spec->abs2rel( $src, $dd ) if $Opt{relative};
+      symlink $src, $dst;
+    }
+    else {
+      link $src, $dst;
+    }
+  };
+  warn "Failed to link $src to $dst: $@\n" if $@;
 }
 
 sub usage {
