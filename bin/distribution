@@ -1,0 +1,28 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use List::Util qw( max );
+
+use constant SLOTS => 40;
+use constant WIDTH => 80;
+
+chomp( my @dp = <> );
+my @ds = sort { $a <=> $b } @dp;
+my ( $min, $max ) = ( @ds[ 0, -1 ] );
+my $slot_size = ( $max - $min ) / SLOTS;
+my @dist      = ( 0 ) x SLOTS;
+for my $dp ( @ds ) {
+  $dist[ int( ( $dp - $min ) / $slot_size ) ]++;
+}
+my $dmax  = max( @dist );
+my $scale = WIDTH / $dmax;
+my $slot  = $min;
+for my $d ( @dist ) {
+  printf "%9.3f : %s\n", $slot, ( '#' x ( $d * $scale ) );
+  $slot += $slot_size;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
