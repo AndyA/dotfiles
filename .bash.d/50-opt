@@ -1,1 +1,2 @@
 [ -d /opt/local/bin ] && PATH=/opt/local/bin:$PATH
+[ -d /opt/local/man ] && MANPATH=/opt/local/man:$MANPATH
