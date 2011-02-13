@@ -1,0 +1,53 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use File::Basename qw( fileparse );
+use File::Spec;
+use Getopt::Long;
+
+my %Opt = ( verbose => 0 );
+
+GetOptions( 'verbose' => \$Opt{verbose}, ) or usage( 1 );
+
+unspace( $_ ) for @ARGV;
+
+sub unspace {
+  my $name = shift;
+  my ( $base, $dir ) = fileparse( $name );
+  my $fill = '_';
+  $fill = $1 if $base =~ /([-])/;
+  ( my $uns = $base ) =~ s/\s+/$fill/g;
+  if ( $uns ne $base ) {
+    my $uname = $dir . $uns;
+    if ( -e $uname ) {
+      print STDERR "$uname already exists, skipping\n";
+    }
+    else {
+      mention( "$name -> $uname" );
+      rename $name, $uname
+       or die "Can't rename $name as $uname: $!\n";
+    }
+    $name = $uname;
+  }
+  if ( -d $name ) {
+    opendir my $dh, $name or die "Can't read $name: $!\n";
+    my @f = map { File::Spec->catfile( $name, $_ ) }
+     grep { !/^\./ } readdir $dh;
+    unspace( $_ ) for @f;
+  }
+}
+
+sub usage {
+  my $rc = shift;
+  print STDERR "Usage: unspace dir...\n";
+  exit $rc if defined $rc;
+}
+
+sub mention(@) {
+  print join( ' ', @_ ), "\n" if $Opt{verbose};
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
