@@ -17,24 +17,25 @@ set cpo&vim
 hi link abnfComment           Comment
 hi link abnfLiteral           String
 hi link abnfCaseLiteral       String
+hi link abnfHexLiteral        Number
+hi link abnfDecLiteral        Number
+hi link abnfBinLiteral        Number
 hi link abnfIdentifier        Identifier
-
-"hi link podmanSubSectTitle String
-"hi link podmanSectTitle	Statement
-"hi link podmanText      Normal
-"hi link podmanExample   Comment
-
-" POD commands
-"syn match podmanSectTitle    "^[A-Z][A-Z -]\+"
-"syn match podmanSubSectTitle "^  [^ ].*$"
-"syn match podmanText         "^    [^ ].\+$"
-"syn match podmanExample      "^      .\+"
+hi link abnfOperator          Operator
 
 syn match abnfComment         ";.*"
 syn match abnfLiteral         "'[^']*'"
 syn match abnfCaseLiteral     @"[^"]*"@
-"syn match abnfIdentifier      "[a-zA-Z]\+(-[a-zA-Z])*"
 syn match abnfIdentifier      "[a-zA-Z]\+\(-[a-zA-Z]\+\)*"
+
+syn match abnfHexLiteral      "%x[0-9A-Fa-f]\+"
+syn match abnfHexLiteral      "%x[0-9A-Fa-f]\+-[0-9A-Fa-f]\+"
+syn match abnfDecLiteral      "%d[0-9]\+"
+syn match abnfDecLiteral      "%d[0-9]\+-[0-9]\+"
+syn match abnfBinLiteral      "%d[0-1]\+"
+syn match abnfBinLiteral      "%d[0-1]\+-[0-1]\+"
+
+syn match abnfOperator        "/"
 
 let b:current_syntax = "mxml"
 if main_syntax == 'mxml'
