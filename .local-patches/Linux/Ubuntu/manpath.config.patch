@@ -1,0 +1,28 @@
+--- manpath.config.20110215-204649.bak	2011-02-15 20:46:49.272190654 +0000
++++ manpath.config	2011-02-15 20:50:52.659690942 +0000
+@@ -39,6 +39,12 @@
+ MANPATH_MAP	/usr/games		/usr/share/man
+ MANPATH_MAP	/opt/bin		/opt/man
+ MANPATH_MAP	/opt/sbin		/opt/man
++
++MANPATH_MAP     /opt/local/bin          /opt/local/man
++MANPATH_MAP     /opt/local/bin          /opt/local/share/man
++MANPATH_MAP     /alt/local/bin          /alt/local/man
++MANPATH_MAP     /alt/local/bin          /alt/local/share/man
++
+ #---------------------------------------------------------
+ # For a manpath element to be treated as a system manpath (as most of those
+ # above should normally be), it must be mentioned below. Each line may have
+@@ -69,6 +75,12 @@
+ MANDB_MAP	/usr/local/share/man	/var/cache/man/local
+ MANDB_MAP	/usr/X11R6/man		/var/cache/man/X11R6
+ MANDB_MAP	/opt/man		/var/cache/man/opt
++
++MANDB_MAP       /opt/local/man          /var/cache/man/opt-local
++MANDB_MAP       /opt/local/share/man    /var/cache/man/opt-local-share
++MANDB_MAP       /alt/local/man          /var/cache/man/alt-local
++MANDB_MAP       /alt/local/share/man    /var/cache/man/alt-local-share
++
+ #
+ #---------------------------------------------------------
+ # Program definitions.  These are commented out by default as the value
