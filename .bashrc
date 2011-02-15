@@ -28,6 +28,8 @@ function source_dir {
   fi
 }
 
+MANPATH=$(manpath)
+
 # Per platform config
 source_dir "$HOME/.bash.d/$RCUNAME"
 # Per host config
@@ -35,9 +37,9 @@ source_dir "$HOME/.bash.d/$HOSTNAME"
 # Global topical config
 source_dir "$HOME/.bash.d"
 
-PATH=`$HOME/bin/path_append $PATH`
-#MANPATH=`$HOME/bin/path_append $MANPATH`
-#export PATH MANPATH
+PATH=$($HOME/bin/path_append $PATH)
+MANPATH=$($HOME/bin/path_append $MANPATH)
+export PATH MANPATH
 
 [ -f ~/.aliases ] && source ~/.aliases
 
