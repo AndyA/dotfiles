@@ -28,6 +28,7 @@ function source_dir {
   fi
 }
 
+unset MANPATH
 MANPATH=$(manpath)
 
 # Per platform config
@@ -39,7 +40,8 @@ source_dir "$HOME/.bash.d"
 
 PATH=$($HOME/bin/path_append $PATH)
 export PATH
-#MANPATH=$($HOME/bin/path_append $MANPATH)
+MANPATH=$($HOME/bin/path_append $MANPATH)
+export MANPATH
 
 [ -f ~/.aliases ] && source ~/.aliases
 
