@@ -10,6 +10,7 @@ augroup filetypedetect
   au! BufRead,BufNewFile *.schema setfiletype sql
   au! BufRead,BufNewFile *.as     setfiletype actionscript
   au! BufRead,BufNewFile *.mxml   setfiletype mxml
+  au! BufRead,BufNewFile *.abnf   setfiletype abnf
 augroup END
 
 :let b:tt2_syn_tags = '\[% %] <!-- -->' 

@@ -9,6 +9,7 @@ setlocal formatoptions=croql
 setlocal keywordprg=man\ -S\ 3
 setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
+setlocal tags=./tags,tags,~/.vim/tags
 
 function! s:tidy()
   let l:loc = g:get_location()

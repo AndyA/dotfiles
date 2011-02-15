@@ -24,7 +24,7 @@ hi Preproc      guibg=#000000 guifg=#00B098 gui=NONE
 hi Type         guibg=#000000 guifg=#40D040 gui=NONE
 
 " Secondary colors
-hi Comment      guibg=#000000 guifg=#006699 gui=NONE
+hi Comment      guibg=#000000 guifg=#00FF00 gui=NONE
 hi Visual       guibg=#005900 guifg=#40C940 gui=NONE
 hi VisualNOS    guibg=#005900 guifg=#40C940 gui=NONE
 hi Search       guibg=#707000 guifg=#FFFF00 gui=NONE
