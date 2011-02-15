@@ -1,2 +1,2 @@
 [ -d /alt/local/bin ] && PATH=/alt/local/bin:$PATH
-[ -d /alt/local/man ] && MANPATH=/alt/local/man:$MANPATH
+#[ -d /alt/local/man ] && MANPATH=/alt/local/man:$MANPATH
