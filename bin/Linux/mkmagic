@@ -1,0 +1,151 @@
+#!/usr/bin/env perl
+
+use 5.010;
+
+use strict;
+use warnings;
+
+use File::Find;
+use File::Path qw( make_path );
+use File::Spec;
+use Getopt::Long;
+use POSIX qw( strftime );
+
+use constant SHADOW => glob '~/.shadow';
+
+my %Options = ( event => 0, );
+
+my @WATCH = qw(
+ IN_CREATE IN_MOVE
+);
+
+GetOptions( 'event' => \$Options{event}, ) or die;
+
+if ( defined( my $incrontab = $ENV{NEW_INCRONTAB} ) ) {
+  my $dest = shift // die "Usage: mkmagic <file>\n";
+  rename $incrontab, $dest or die "Can't write $dest: $!\n";
+  # No kidding: incrontab decides not to update the table if the
+  # timestamp hasn't changed. We could explicitly set it - but to what?
+  # Either a time in the past or the future - neither of which is really
+  # satisfactory.
+  sleep 1;
+  qx( touch $dest );
+}
+elsif ( $Options{event} ) {
+  my $obj = shift;
+  if ( -d $obj ) {
+    my @tab = read_incrontab();
+    find {
+      no_chdir => 1,
+      wanted   => sub {
+        return unless -d;
+        my $dir    = $_;
+        my $shadow = shadow_dir( $dir );
+        make_path( $shadow );
+        watch_dir( \@tab, $dir );
+       }
+    }, $obj;
+    write_incrontab( @tab );
+  }
+  else {
+    my $shadow = join '.', shadow_file( $obj ),
+     strftime( "%Y%m%d-%H%M%S", localtime );
+    link $obj, $shadow or die "Can't link $obj to $shadow: $!\n";
+  }
+}
+else {
+  my @tab = read_incrontab();
+
+  DIR: for my $dir ( @ARGV ) {
+    if ( -d $dir ) {
+      warn "$dir already exists\n";
+      next DIR;
+    }
+
+    my $shadow = shadow_dir( $dir );
+    if ( -d $shadow ) {
+      warn "$shadow already exists\n";
+      next DIR;
+    }
+
+    make_path( $dir );
+    make_path( $shadow );
+    watch_dir( \@tab, $dir );
+  }
+
+  write_incrontab( @tab );
+}
+
+sub watch_dir {
+  my ( $tab, $dir ) = @_;
+  add_watch( $tab, $dir, join( ',', @WATCH ), "$0 --event \$@/\$#" );
+}
+
+sub shadow_file {
+  my $file = shift;
+  return File::Spec->catfile( SHADOW, File::Spec->rel2abs( $file ) );
+}
+
+sub shadow_dir {
+  my $dir = shift;
+  return File::Spec->catdir( SHADOW, File::Spec->rel2abs( $dir ) );
+}
+
+sub rm_watch {
+  my ( $tab, $dir ) = @_;
+  $dir = esc_path( $dir );
+  @$tab = ( grep !/^\Q$dir\E\s/, @$tab );
+}
+
+sub add_watch {
+  my ( $tab, $dir, $mask, $cmd ) = @_;
+  $dir = esc_path( $dir );
+  $mask =~ s/\s+//g;
+  my $line = "$dir $mask $cmd";
+  for ( @$tab ) {
+    if ( /^\Q$dir\E\s/ ) {
+      $_ = $line;
+      return;
+    }
+  }
+  push @$tab, $line;
+}
+
+sub esc_path {
+  my $path = File::Spec->rel2abs( shift );
+  $path =~ s/([ \\])/\\$1/g;
+  return $path;
+}
+
+sub parse_line {
+  my $line = shift;
+  my @part = ();
+  while ( $line =~ /((?:\\.|\S)+)\s*/g ) {
+    ( my $part = $1 ) =~ s/\\(.)/$1/g;
+    push @part, $part;
+  }
+  return @part[ 0, 1 ], join ' ', @part[ 2 .. $#part ];
+}
+
+sub read_incrontab {
+  chomp( my @tab = qx( incrontab -l ) );
+  return @tab;
+}
+
+sub write_incrontab {
+  my @tab     = @_;
+  my $tmpfile = "/tmp/incrontab.$$";
+  {
+    open my $fh, '>', $tmpfile or die "Can't write $tmpfile: $!\n";
+    for my $line ( @tab ) {
+      my ( $dir, $flags, $cmd ) = parse_line( $line );
+      print $fh "$line\n" if -d $dir;
+    }
+  }
+  local $ENV{EDITOR}        = $0;
+  local $ENV{NEW_INCRONTAB} = $tmpfile;
+  qx( incrontab -e );
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
