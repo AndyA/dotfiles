@@ -1,0 +1,18 @@
+#!/bin/bash
+
+NAME="$1" || exit
+BDIR="$HOME/Dropbox/hosts/$(hostname -s)/backup"
+DEST="$BDIR/$NAME"
+TMP="/tmp/backup-$NAME-$$"
+mkdir -p $(dirname $DEST)
+cat > $TMP
+if [ ! -e $DEST ] || diff $TMP $DEST > /dev/null; then
+  [ -e $DEST ] && $HOME/bin/rotate -n 20 --diff $DEST
+  mv $TMP $DEST
+else
+  rm -f $TMP
+fi
+
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
