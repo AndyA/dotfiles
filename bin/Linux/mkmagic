@@ -13,13 +13,19 @@ use POSIX qw( strftime );
 
 use constant SHADOW => glob '~/.shadow';
 
-my %Options = ( event => 0, );
+my %Options = (
+  event => 0,
+  clean => 0,
+);
 
 my @WATCH = qw(
  IN_CREATE IN_MOVE
 );
 
-GetOptions( 'event' => \$Options{event}, ) or die;
+GetOptions(
+  'event' => \$Options{event},
+  'clean' => \$Options{clean},
+) or die;
 
 if ( defined( my $incrontab = $ENV{NEW_INCRONTAB} ) ) {
   my $dest = shift // die "Usage: mkmagic <file>\n";
@@ -54,6 +60,9 @@ elsif ( $Options{event} ) {
   else {
     link_file( $obj );
   }
+}
+elsif ( $Options{clean} ) {
+  write_incrontab( read_incrontab() );
 }
 else {
   my @tab = read_incrontab();
