@@ -38,19 +38,21 @@ elsif ( $Options{event} ) {
     find {
       no_chdir => 1,
       wanted   => sub {
-        return unless -d;
-        my $dir    = $_;
-        my $shadow = shadow_dir( $dir );
-        make_path( $shadow );
-        watch_dir( \@tab, $dir );
-       }
+        my $obj = $_;
+        if ( -d $obj ) {
+          my $shadow = shadow_dir( $obj );
+          make_path( $shadow );
+          watch_dir( \@tab, $obj );
+        }
+        else {
+          link_file( $obj );
+        }
+      },
     }, $obj;
     write_incrontab( @tab );
   }
   else {
-    my $shadow = join '.', shadow_file( $obj ),
-     strftime( "%Y%m%d-%H%M%S", localtime );
-    link $obj, $shadow or die "Can't link $obj to $shadow: $!\n";
+    link_file( $obj );
   }
 }
 else {
@@ -74,6 +76,13 @@ else {
   }
 
   write_incrontab( @tab );
+}
+
+sub link_file {
+  my $file = shift;
+  my $shadow = join '.', shadow_file( $file ),
+   strftime( "%Y%m%d-%H%M%S", localtime );
+  link $file, $shadow or die "Can't link $file to $shadow: $!\n";
 }
 
 sub watch_dir {
