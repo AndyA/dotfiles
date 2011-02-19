@@ -8,6 +8,7 @@ use warnings;
 use File::Find;
 use File::Path qw( make_path );
 use File::Spec;
+use File::Which qw( which );
 use Getopt::Long;
 use POSIX qw( strftime );
 
@@ -21,6 +22,9 @@ my %Options = (
 my @WATCH = qw(
  IN_CREATE IN_MOVE
 );
+
+die "Can't find inchrontab on path. Can't continue.\n"
+ unless which 'inchrontab';
 
 GetOptions(
   'event' => \$Options{event},
