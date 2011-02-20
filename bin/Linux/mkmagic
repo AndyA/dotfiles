@@ -23,8 +23,8 @@ my @WATCH = qw(
  IN_CREATE IN_MOVE
 );
 
-die "Can't find inchrontab on path. Can't continue.\n"
- unless which 'inchrontab';
+die "Can't find incrontab on path. Can't continue.\n"
+ unless which 'incrontab';
 
 GetOptions(
   'event' => \$Options{event},
