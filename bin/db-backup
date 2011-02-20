@@ -1,16 +1,17 @@
 #!/bin/bash
 
+set -x
 NAME="$1" || exit
 BDIR="$HOME/Dropbox/hosts/$(hostname -s)/backup"
 DEST="$BDIR/$NAME"
 TMP="/tmp/backup-$NAME-$$"
 mkdir -p $(dirname $DEST)
 cat > $TMP
-if [ ! -e $DEST ] || diff $TMP $DEST > /dev/null; then
+if [ -e $DEST ] && diff $TMP $DEST > /dev/null; then
+  rm -f $TMP
+else
   [ -e $DEST ] && $HOME/bin/rotate -n 20 --diff $DEST
   mv $TMP $DEST
-else
-  rm -f $TMP
 fi
 
 
