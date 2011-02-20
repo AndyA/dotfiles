@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -x
 NAME="$1" || exit
 BDIR="$HOME/Dropbox/hosts/$(hostname -s)/backup"
 DEST="$BDIR/$NAME"
