@@ -1,0 +1,46 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use XML::LibXML;
+use XML::LibXML::XPathContext;
+
+for my $url ( @ARGV ) {
+  walk_tree(
+    $url,
+    sub {
+      my $dir = shift;
+      print "$dir\n";
+    }
+  );
+}
+
+sub walk_tree {
+  my ( $url, $cb ) = @_;
+  for my $dir ( info( $url ) ) {
+    $cb->( $dir );
+    walk_tree( $dir, $cb );
+  }
+}
+
+sub info {
+  my $url = shift;
+  my @cmd = ( 'svn', 'info', '--depth', 'immediates', '--xml', $url );
+  open my $ch, '-|', @cmd or die "Command failed: $!\n";
+  my $xml = do { local $/; <$ch> };
+  close $ch or die "Command failed: exit $?\n";
+  return parse_info( $url, $xml );
+}
+
+sub parse_info {
+  my ( $url, $xml ) = @_;
+  my $doc = XML::LibXML->new->parse_string( $xml );
+  my $xpc = XML::LibXML::XPathContext->new( $doc );
+
+  my @ents = $xpc->findnodes( q(/info/entry[@kind='dir']/url) );
+  return sort grep { $_ ne $url } map { $_->textContent } @ents;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
