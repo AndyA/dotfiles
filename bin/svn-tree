@@ -3,10 +3,16 @@
 use strict;
 use warnings;
 
+use Getopt::Long;
 use XML::LibXML;
 use XML::LibXML::XPathContext;
 
+my %Opt = ( depth => undef );
+
+GetOptions( 'depth:i' => \$Opt{depth}, ) or die;
+
 for my $url ( @ARGV ) {
+  $url =~ s{/$}{};
   walk_tree(
     $url,
     sub {
@@ -18,13 +24,24 @@ for my $url ( @ARGV ) {
 
 sub walk_tree {
   my ( $url, $cb ) = @_;
-  for my $dir ( info( $url ) ) {
+  my @q = ( [ $url, 0 ] );
+  DIR:
+  while ( my $info = shift @q ) {
+    my ( $dir, $depth ) = @$info;
     $cb->( $dir );
-    walk_tree( $dir, $cb );
+    next DIR if defined $Opt{depth} && $depth >= $Opt{depth};
+    push @q, map { [ $_, $depth + 1 ] } safe_subdirs( $dir );
   }
 }
 
-sub info {
+sub safe_subdirs {
+  my @s = eval { subdirs( @_ ) };
+  return @s unless $@;
+  warn $@;
+  return;
+}
+
+sub subdirs {
   my $url = shift;
   my @cmd = ( 'svn', 'info', '--depth', 'immediates', '--xml', $url );
   open my $ch, '-|', @cmd or die "Command failed: $!\n";
