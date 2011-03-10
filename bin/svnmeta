@@ -1,0 +1,102 @@
+#!/usr/bin/env perl
+
+use latest;
+
+use Data::Dumper;
+use File::Basename qw( dirname );
+use File::Path;
+use File::Spec;
+use File::chdir;
+use Getopt::Long;
+
+use constant CTLDIR => '.svnmeta';
+use constant CONFIG => File::Spec->catfile( CTLDIR, 'config' );
+
+our %Opt = ( quiet => 0 );
+
+GetOptions( 'Q|quiet' => \$Opt{quiet} ) or die;
+
+my $verb = shift;
+defined $verb or die "usage: svnmeta <verb> <options>\n";
+
+die CONFIG, " doesn't exist, can't continue\n" unless -e CONFIG;
+our $Config = read_config( CONFIG );
+
+if ( $verb =~ /^up(?:date)?$/ ) {
+  update();
+}
+else {
+  die "Unknown action: $verb\n";
+}
+
+sub mention(@) {
+  print join( '', @_ ), "\n" unless $Opt{quiet};
+}
+
+sub svn(@) {
+  my @arg = @_;
+  my $cb = sub { };
+  $cb = pop @arg if @arg && 'CODE' eq ref $arg[-1];
+  open my $h, '-|', 'svn', @arg or die "Can't run svn: $!\n";
+  while ( <$h> ) {
+    chomp;
+    mention( $_ );
+    $cb->( $_ );
+  }
+  close $h or die "svn failed: $?\n";
+}
+
+sub update {
+  for my $root ( @{ $Config->{t}{TRACK} || [] } ) {
+    if ( -d $root ) {
+      mention "Update $root";
+      svn update => $root;
+    }
+    else {
+      mention "Checkout $root";
+      make_path( dirname( $root ) );
+      svn checkout => repo_url( $root ), $root;
+    }
+  }
+}
+
+sub repo_url {
+  my $name = shift;
+  my $base = $Config->{v}{repo};
+  die "No repo defined in ", CONFIG unless defined $base;
+  $base =~ s{/$}{};
+  return join '/', $base, $name;
+}
+
+sub read_config {
+  my $name    = shift;
+  my %vars    = ();
+  my %by_type = ();
+  open my $fh, '<', $name or die "Can't read $name: $!\n";
+  while ( <$fh> ) {
+    chomp;
+    next if /^\s*$/;
+    next if /^#/;
+    my $line = $_;
+    if ( $line =~ /^(\w+)\s*=\s*(.*)/ ) {
+      $vars{$1} = $2;
+    }
+    elsif ( $line =~ /^(HOLD|TRACK)\s+(.+)$/ ) {
+      $by_type{$1}{$2}++;
+    }
+  }
+
+  my $config = { v => \%vars, t => {} };
+  for my $t ( keys %by_type ) {
+    $config->{t}{$t} = [ uniq( sort keys %{ $by_type{$t} } ) ];
+  }
+  return $config;
+}
+
+sub uniq {
+  my %seen = ();
+  return grep { !$seen{$_}++ } @_;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
