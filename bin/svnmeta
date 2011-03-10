@@ -3,14 +3,16 @@
 use latest;
 
 use Data::Dumper;
-use File::Basename qw( dirname );
+use File::Basename qw( basename dirname );
 use File::Path qw( make_path );
 use File::Spec;
-use File::chdir;
 use Getopt::Long;
 
-use constant CTLDIR => '.svnmeta';
-use constant CONFIG => File::Spec->catfile( CTLDIR, 'config' );
+our $CtlDir  = find_up( '.svnmeta' );
+our $BaseDir = dirname( $CtlDir );
+die "Can't find .svnmeta control directory\n" unless defined $CtlDir;
+chdir $BaseDir or die "Can't chdir to $BaseDir: $!\n";
+our $ConfigFile = File::Spec->catfile( $CtlDir, 'config' );
 
 our %Opt = ( quiet => 0 );
 
@@ -19,8 +21,9 @@ GetOptions( 'Q|quiet' => \$Opt{quiet} ) or die;
 my $verb = shift;
 defined $verb or die "usage: svnmeta <verb> <options>\n";
 
-die CONFIG, " doesn't exist, can't continue\n" unless -e CONFIG;
-our $Config = read_config( CONFIG );
+die $ConfigFile, " doesn't exist, can't continue\n"
+ unless -e $ConfigFile;
+our $Config = read_config( $ConfigFile );
 
 if ( $verb =~ /^up(?:date)?$/ ) {
   update();
@@ -63,7 +66,7 @@ sub update {
 sub repo_url {
   my $name = shift;
   my $base = $Config->{v}{repo};
-  die "No repo defined in ", CONFIG unless defined $base;
+  die "No repo defined in ", $ConfigFile unless defined $base;
   $base =~ s{/$}{};
   return join '/', $base, $name;
 }
@@ -99,6 +102,14 @@ sub read_config {
 sub uniq {
   my %seen = ();
   return grep { !$seen{$_}++ } @_;
+}
+
+sub find_up {
+  my $name = File::Spec->rel2abs( shift );
+  return $name if -e $name;
+  my ( $dir, $base ) = ( dirname( $name ), basename( $name ) );
+  return if $dir eq File::Spec->rootdir;
+  return find_up( File::Spec->catdir( dirname( $dir ), $base ) );
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
