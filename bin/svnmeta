@@ -4,7 +4,7 @@ use latest;
 
 use Data::Dumper;
 use File::Basename qw( dirname );
-use File::Path;
+use File::Path qw( make_path );
 use File::Spec;
 use File::chdir;
 use Getopt::Long;
@@ -83,6 +83,9 @@ sub read_config {
     }
     elsif ( $line =~ /^(HOLD|TRACK)\s+(.+)$/ ) {
       $by_type{$1}{$2}++;
+    }
+    else {
+      die "Bad syntax in $name";
     }
   }
 
