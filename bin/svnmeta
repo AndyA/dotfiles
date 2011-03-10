@@ -14,9 +14,15 @@ die "Can't find .svnmeta control directory\n" unless defined $CtlDir;
 chdir $BaseDir or die "Can't chdir to $BaseDir: $!\n";
 our $ConfigFile = File::Spec->catfile( $CtlDir, 'config' );
 
-our %Opt = ( quiet => 0 );
+our %Opt = (
+  quiet => 0,
+  all   => 0,
+);
 
-GetOptions( 'Q|quiet' => \$Opt{quiet} ) or die;
+GetOptions(
+  'Q|quiet' => \$Opt{quiet},
+  'A|all'   => \$Opt{all},
+) or die;
 
 my $verb = shift;
 defined $verb or die "usage: svnmeta <verb> <options>\n";
@@ -27,6 +33,9 @@ our $Config = read_config( $ConfigFile );
 
 if ( $verb =~ /^up(?:date)?$/ ) {
   update();
+}
+elsif ( $verb =~ /^st(?:atus)?$/ ) {
+  status();
 }
 else {
   die "Unknown action: $verb\n";
@@ -49,11 +58,19 @@ sub svn(@) {
   close $h or die "svn failed: $?\n";
 }
 
+sub is_svn($) {
+  my $d = shift;
+  return -d $d && -d File::Spec->catdir( $d, '.svn' );
+}
+
 sub update {
-  for my $root ( @{ $Config->{t}{TRACK} || [] } ) {
-    if ( -d $root ) {
+  for my $root ( get_roots() ) {
+    if ( is_svn $root ) {
       mention "Update $root";
       svn update => $root;
+    }
+    elsif ( -d $root ) {
+      warn "$root exists but is not an svn repository\n";
     }
     else {
       mention "Checkout $root";
@@ -61,6 +78,24 @@ sub update {
       svn checkout => repo_url( $root ), $root;
     }
   }
+}
+
+sub status {
+  for my $root ( get_roots() ) {
+    if ( is_svn $root ) {
+      svn status => $root;
+    }
+  }
+}
+
+sub get_roots {
+  my @types = $Opt{all} ? keys %{ $Config->{t} } : 'TRACK';
+  return for_types( @types );
+}
+
+sub for_types {
+  my @types = @_;
+  return sort map { @{ $Config->{t}{$_} || [] } } @types;
 }
 
 sub repo_url {
