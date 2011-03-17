@@ -38,7 +38,7 @@ sudo apt-get install build-essential subversion git-core checkinstall yasm texi2
 cd $BUILDDIR
 git clone git://git.videolan.org/x264.git
 cd x264
-./configure
+./configure --enable-shared
 make
 sudo checkinstall --pkgname=x264 --pkgversion "2:0.`grep X264_BUILD x264.h -m1 | cut -d' ' -f3`.`git rev-list HEAD | wc -l`+git`git rev-list HEAD -n 1 | head -c 7`" --backup=no --default
 
@@ -46,21 +46,21 @@ cd $BUILDDIR
 wget http://downloads.sourceforge.net/project/lame/lame/$LAMEVERSION/lame-$LAMEVERSION.tar.gz
 tar xzvf lame-$LAMEVERSION.tar.gz
 cd lame-$LAMEVERSION
-./configure --enable-nasm --disable-shared
+./configure --enable-nasm --enable-shared
 make
 sudo checkinstall --pkgname=lame-ffmpeg --pkgversion=$LAMEVERSION --backup=no --default --deldoc=yes
 
 cd $BUILDDIR
 git clone git://review.webmproject.org/libvpx.git
 cd libvpx
-./configure
+./configure --enable-shared
 make
 sudo checkinstall --pkgname=libvpx --pkgversion="`date +%Y%m%d%H%M`-git" --backup=no --default --deldoc=yes
 
 cd $BUILDDIR
 svn checkout svn://svn.ffmpeg.org/ffmpeg/trunk ffmpeg
 cd ffmpeg
-./configure --enable-gpl --enable-version3 --enable-nonfree --enable-postproc --enable-pthreads --enable-libfaac --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab --enable-libmp3lame --enable-libvpx
+./configure --enable-shared --enable-gpl --enable-version3 --enable-nonfree --enable-postproc --enable-pthreads --enable-libfaac --enable-libmp3lame --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab --enable-libmp3lame --enable-libvpx
 make
 sudo checkinstall --pkgname=ffmpeg --pkgversion "4:SVN-r`svn info | grep vision | awk '{ print $NF }'`" --backup=no --default
 
