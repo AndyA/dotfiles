@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# Look for ffmpeg ignoring $PATH
-for p in /usr/local/bin /opt/local/bin /alt/local/bin /usr/bin; do
-  FFMPEG=$p/ffmpeg
-  [ -x $FFMPEG ] && break
-done
+FFMPEG=$(which ffmpeg)
 
 [ -z $BITRATE   ] && BITRATE=1500000
 [ -z $FRAMERATE ] && FRAMERATE=25
