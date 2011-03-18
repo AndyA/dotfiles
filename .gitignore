@@ -151,6 +151,7 @@
 .ssh-agent
 .sudo_as_admin_successful
 .svn
+.synergy.conf
 .testdriverc
 .tgdb
 .themes
