@@ -30,12 +30,12 @@ for INFILE in "$@"; do
   $FFMPEG -y -i "$INFILE" \
     -an \
     -pass 1 -vcodec libx264 -vpre fast_firstpass -vpre $PROFILE \
-    -b $BITRATE -r $FRAMERATE \
+    -b $BITRATE -r $FRAMERATE -deinterlace \
     -threads 0 "$OUTFILE" && \
   $FFMPEG -y -i "$INFILE" \
     -acodec libfaac -ab 192k \
     -pass 2 -vcodec libx264 -vpre slow -vpre $PROFILE \
-    -b $BITRATE -r $FRAMERATE \
+    -b $BITRATE -r $FRAMERATE -deinterlace \
     -threads 0 "$OUTFILE"
   set +x
 done
