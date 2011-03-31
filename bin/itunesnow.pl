@@ -67,6 +67,7 @@ sub osascript {
   my $script = shift;
   my @cmd = ( osascript => '-e', $script );
   open my $ch, '-|', @cmd or die "Can't run script: $!";
+  binmode $ch, ':utf8';
   chomp( my @ret = <$ch> );
   close $ch or die "Can't run script: $?";
   return @ret;
