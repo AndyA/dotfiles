@@ -10,7 +10,7 @@ use Path::Class;
 use Storable qw( freeze );
 use Sys::Hostname;
 
-use constant MAX_HISTORY => 100;
+use constant MAX_HISTORY => 25;
 use constant FIELDS      => qw( name album artist );
 
 exit 0 unless is_running( 'iTunes' );
