@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Fcntl qw( F_GETFL F_SETFL O_NONBLOCK SEEK_CUR );
+use Fcntl qw( SEEK_CUR );
 
 use constant WAIT  => 30;
 use constant CHUNK => 8192;
@@ -11,10 +11,6 @@ use constant CHUNK => 8192;
 while ( my $file = shift ) {
   my $last_read = time;
   open my $fh, '<', $file or die "Can't read $file: $!\n";
-
-  fcntl( $fh, F_GETFL, my $flags ) or die "Couldn't get flags: $!\n";
-  fcntl( $fh, F_SETFL, $flags | O_NONBLOCK )
-   or die "Couldn't set flags: $!\n";
 
   TRY: while ( time - $last_read < WAIT ) {
     my $got = sysread $fh, my $buf, CHUNK;
