@@ -46,6 +46,12 @@ sub scan_repo {
   return $repo_map;
 }
 
+sub do_cmd(@) {
+  my @cmd = @_;
+  mention( '  ', join ' ', @cmd );
+  system @cmd;
+}
+
 sub checkout {
   my ( $repo, $dir, $repo_map ) = @_;
   for my $repo_path ( sort keys %$repo_map ) {
@@ -54,17 +60,8 @@ sub checkout {
     make_path $git_dir;
     local $CWD = $git_dir;
     mention( "  cd $git_dir" );
-    {
-      my @cmd
-       = ( git => 'svn', 'init', '--stdlayout', $repo_path, '.' );
-      mention( '  ', join ' ', @cmd );
-      system @cmd and die "git svn init failed: $?\n";
-    }
-    {
-      my @cmd = ( git => 'svn', 'fetch' );
-      mention( '  ', join ' ', @cmd );
-      system @cmd and die "git svn fetch failed: $?\n";
-    }
+    do_cmd( git => 'svn', 'init', '--stdlayout', $repo_path, '.' );
+    do_cmd( git => 'svn', 'fetch' );
   }
 }
 
@@ -90,6 +87,7 @@ sub usage {
   print <<EOT;
 Usage: auto-git-svn <repo-url> [<dir>]
 EOT
+  exit 1;
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
