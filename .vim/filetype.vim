@@ -11,6 +11,7 @@ augroup filetypedetect
   au! BufRead,BufNewFile *.as     setfiletype actionscript
   au! BufRead,BufNewFile *.mxml   setfiletype mxml
   au! BufRead,BufNewFile *.abnf   setfiletype abnf
+  au! BufRead,BufNewFile *.json   setfiletype json
 augroup END
 
 :let b:tt2_syn_tags = '\[% %] <!-- -->' 
