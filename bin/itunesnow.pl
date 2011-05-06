@@ -10,16 +10,15 @@ use Path::Class;
 use Storable qw( freeze );
 use Sys::Hostname;
 
-use constant DB => glob '~/Dropbox/hosts/' . hostname . '/itunes.json';
-use constant MAX_HISTORY => 100;
+use constant MAX_HISTORY => 25;
 use constant FIELDS      => qw( name album artist );
 
 exit 0 unless is_running( 'iTunes' );
 
-make_path( file( DB )->dir );
-
-my $data = -f DB ? load( DB ) : [];
-
+my $db_dir = glob '~/Dropbox/hosts/' . get_hostname();
+my $db = File::Spec->catfile( $db_dir, 'itunes.json' );
+make_path( $db_dir );
+my $data = -f $db ? load( $db ) : [];
 my $track = eval { current_track() };
 
 if ( my $err = $@ ) {
@@ -30,7 +29,7 @@ if ( my $err = $@ ) {
 unless ( @$data && same_track( $track, $data->[0] ) ) {
   unshift @$data, $track;
   splice @$data, MAX_HISTORY if @$data > MAX_HISTORY;
-  save( DB, $data );
+  save( $db, $data );
 }
 
 sub same_track {
@@ -68,6 +67,7 @@ sub osascript {
   my $script = shift;
   my @cmd = ( osascript => '-e', $script );
   open my $ch, '-|', @cmd or die "Can't run script: $!";
+  binmode $ch, ':utf8';
   chomp( my @ret = <$ch> );
   close $ch or die "Can't run script: $?";
   return @ret;
@@ -81,6 +81,11 @@ sub is_running {
     );
   };
   return @ret && $ret[0] eq 'true';
+}
+
+sub get_hostname {
+  ( my $hn = hostname ) =~ s/\..*//;
+  return $hn;
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl

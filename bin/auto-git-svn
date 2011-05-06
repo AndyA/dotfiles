@@ -1,0 +1,94 @@
+#!/usr/bin/env perl
+
+use perl5i::2;
+
+use Data::Dumper;
+use File::Basename qw( basename );
+use File::Path qw( make_path );
+use File::Spec;
+use File::chdir;
+use Getopt::Long;
+
+my %Opt = ( verbose => 0 );
+
+GetOptions( 'v|verbose' => \$Opt{verbose} ) and @ARGV or usage();
+
+( my $repo = shift @ARGV ) =~ s@/$@@;
+my $dir = @ARGV ? shift @ARGV : basename( $repo );
+auto_git_svn( $repo, $dir );
+
+sub mention(@) { print join( '', @_ ), "\n" if $Opt{verbose} }
+
+sub auto_git_svn {
+  my ( $repo, $dir ) = @_;
+  mention( "Creating git svn checkouts for $repo below $dir" );
+  mention( "Scanning $repo; this may take some time" );
+  my $repo_map = scan_repo( $repo );
+  checkout( $repo, $dir, $repo_map );
+}
+
+sub scan_repo {
+  my $repo     = shift;
+  my $repo_map = {};
+  svn_ls(
+    $repo,
+    sub {
+      my $ent = shift;
+      if ( $ent =~ m{^(.+)/(trunk|tags|branches)/$} ) {
+        my ( $path, $type ) = ( $1, $2 );
+        $repo_map->{$path}{$type}++;
+        mention( "Found $type at $path" );
+        return;
+      }
+      return 1;
+    }
+  );
+  return $repo_map;
+}
+
+sub do_cmd(@) {
+  my @cmd = @_;
+  mention( '  ', join ' ', @cmd );
+  system @cmd;
+}
+
+sub checkout {
+  my ( $repo, $dir, $repo_map ) = @_;
+  for my $repo_path ( sort keys %$repo_map ) {
+    ( my $path = $repo_path ) =~ s{^\Q$repo}{};
+    my $git_dir = File::Spec->catdir( $dir, $path );
+    make_path $git_dir;
+    local $CWD = $git_dir;
+    mention( "  cd $git_dir" );
+    do_cmd( git => 'svn', 'init', '--stdlayout', $repo_path, '.' );
+    do_cmd( git => 'svn', 'fetch' );
+  }
+}
+
+sub svn_ls {
+  my ( $repo, $cb ) = @_;
+  my @queue = ( $repo );
+  while ( my $path = shift @queue ) {
+    mention( "Scanning $path" );
+    my @cmd = ( svn => 'ls', $path );
+    open my $ch, '-|', @cmd or die "Can't svn ls $repo: $!\n";
+    while ( <$ch> ) {
+      chomp;
+      my $ent = join '/', $path, $_;
+      if ( $cb->( $ent ) && $ent =~ m{^(.+?)/$} ) {
+        push @queue, $1;
+      }
+    }
+    close $ch or die "Can't svn ls $repo: $?\n";
+  }
+}
+
+sub usage {
+  print <<EOT;
+Usage: auto-git-svn <repo-url> [<dir>]
+EOT
+  exit 1;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
