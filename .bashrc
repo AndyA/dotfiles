@@ -16,7 +16,7 @@ if [ -n "$PS1" ]; then
   bind 'set match-hidden-files off' 
 
   export HISTFILESIZE=10000
-  export HISTCONTROL=ignoredups
+  export HISTCONTROL=erasedups
 fi
 
 function source_dir {
