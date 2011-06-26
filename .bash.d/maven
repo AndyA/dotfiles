@@ -27,6 +27,11 @@ _mvn() {
 } &&
 complete -F _mvn mvn
 
+if [ -d "/usr/local/maven" ]; then
+  export M2_HOME="/usr/local/maven"
+  PATH="$M2_HOME/bin:$PATH"
+fi
+
 export MAVEN_OPTS="-Xmx2048m -Xms512m \
   -XX:PermSize=256m -XX:MaxPermSize=256m \
   $PLATFORM_JAVA_OPTS"
