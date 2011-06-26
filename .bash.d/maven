@@ -29,8 +29,4 @@ complete -F _mvn mvn
 
 export MAVEN_OPTS="-Xmx2048m -Xms512m \
   -XX:PermSize=256m -XX:MaxPermSize=256m \
-  -Djavax.net.ssl.trustStore=$HOME/.keystore/jssecacerts.jks \
-  -Djavax.net.ssl.trustStorePassword=changeit  \
-  -Djavax.net.ssl.keyStore=$HOME/.keystore/andy.p12 \
-  -Djavax.net.ssl.keyStoreType=pkcs12 \
-  -Djavax.net.ssl.keyStorePassword=changeit"
+  $PLATFORM_JAVA_OPTS"
