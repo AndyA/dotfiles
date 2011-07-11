@@ -71,6 +71,14 @@ if has('mac')
   nmap <leader>v :call setreg("\"",system("pbpaste"))<CR>p
 endif
 
+" Adjust incremental search to centre result
+nnoremap n nzz
+nnoremap N Nzz
+nnoremap * *zz
+nnoremap # #zz
+nnoremap g* g*zz
+nnoremap g# g#zz
+
 noremap <silent> <f3> <esc>:previous<cr>
 noremap <silent> <f4> <esc>:next<cr>
 
