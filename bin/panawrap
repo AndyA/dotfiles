@@ -10,13 +10,14 @@ find {
   wanted => sub {
     return unless /\.MTS$/i;
     my $mts  = $_;
-    my $name = basename $mts, '.mts', '.MTS';
+    my $name = basename lc( $mts ), '.mts';
     my $mov  = "$name.mov";
     print "$mts -> $mov\n";
     my @cmd = (
-      'ffmpeg',
+      'ffmbc',
       -i      => $mts,
-      -acodec => 'copy',
+      -acodec => 'libfaac',
+      -ab     => '256k',
       -vcodec => 'copy',
       -r      => 50,
       $mov
