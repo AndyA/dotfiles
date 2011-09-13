@@ -2,8 +2,7 @@
 export EDITOR=vim
 export PAGER=less
 export RCUNAME=`uname`
-export LC_CTYPE="en_GB.UTF-8"
-export LANG=$LC_CTYPE
+export LC_CTYPE=$LANG
 
 umask 0022
 
