@@ -42,12 +42,6 @@ sub handle_dir {
   opendir my $dh, $dir or die "Can't read $dir: $!\n";
   my @f = grep /^[^.]/, readdir $dh;
 
-  my $dirent = sub {
-    my $n = shift;
-    my $obj = File::Spec->catfile( $dir, $n );
-    return $obj unless -d $obj || $obj =~ m{\.mkd$}i;
-  };
-
   print $self->page(
     $dir,
     sub {

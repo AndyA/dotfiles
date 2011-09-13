@@ -16,8 +16,8 @@ find {
     my @cmd = (
       'ffmbc',
       -i      => $mts,
-      -acodec => 'libfaac',
-      -ab     => '256k',
+      -acodec => 'pcm_s16le',
+      -ar     => 48000,
       -vcodec => 'copy',
       -r      => 50,
       $mov
