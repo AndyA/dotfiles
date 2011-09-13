@@ -1,0 +1,113 @@
+#!/usr/bin/env perl
+
+package MarkdownServer;
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use File::Spec;
+use HTML::Tiny;
+use Text::Markdown;
+
+use base qw( HTTP::Server::Simple::CGI );
+
+sub new {
+  my ( $class, $port, $root ) = @_;
+  my $self = $class->SUPER::new( $port );
+  $self->{root} = File::Spec->rel2abs( $root );
+  return $self;
+}
+
+sub page {
+  my ( $self, $title, $cb ) = @_;
+
+  my $h = HTML::Tiny->new;
+  return $h->html(
+    [
+      $h->head( $h->title( $h->entity_encode( $title ) ) ),
+      $h->body( [ $cb->( $h ) ] )
+    ]
+  );
+}
+
+sub handle_dir {
+  my ( $self, $cgi, $path ) = @_;
+
+  my $dir
+   = $path eq ''
+   ? $self->{root}
+   : File::Spec->catdir( $self->{root}, $path );
+
+  opendir my $dh, $dir or die "Can't read $dir: $!\n";
+  my @f = grep /^[^.]/, readdir $dh;
+
+  my $dirent = sub {
+    my $n = shift;
+    my $obj = File::Spec->catfile( $dir, $n );
+    return $obj unless -d $obj || $obj =~ m{\.mkd$}i;
+  };
+
+  print $self->page(
+    $dir,
+    sub {
+      my $h = shift;
+      my @l = ();
+      push @l, $h->a( { href => '..' }, '..' ) unless $path eq '';
+      for my $f ( @f ) {
+        my $ent = $h->entity_encode( $f );
+        if ( $f =~ m{\.mkd$}i ) {
+          push @l, $h->a( { href => $f }, $ent );
+          next;
+        }
+        my $obj = File::Spec->catdir( $path, $f );
+        if ( -d $obj ) {
+          push @l, $h->a( { href => "$f/" }, $ent );
+          next;
+        }
+        push @l, $ent;
+      }
+      return ( $h->h1( $h->entity_encode( $dir ) ),
+        $h->ul( [ $h->li( @l ) ] ) );
+    }
+  );
+}
+
+sub handle_file {
+  my ( $self, $cgi, $path ) = @_;
+  my $file = File::Spec->catfile( $self->{root}, $path );
+  print $self->page(
+    $file,
+    sub {
+      my $h   = shift;
+      my $mkd = do {
+        local $/;
+        open my $mh, '<', $file or die "Can't read $file: $!\n";
+        <$mh>;
+      };
+      return Text::Markdown->new->markdown( $mkd );
+    }
+  );
+}
+
+sub handle_request {
+  my ( $self, $cgi ) = @_;
+  print "HTTP/1.0 200 OK\r\n", "Content-type: text/html\r\n\r\n";
+  ( my $path = $cgi->path_info ) =~ s{^/}{};
+  if ( $path eq '' || $path =~ m{/$} ) {
+    $self->handle_dir( $cgi, $path );
+  }
+  else {
+    $self->handle_file( $cgi, $path );
+  }
+}
+
+package main;
+
+my $root = @ARGV ? $ARGV[0] : '.';
+
+my $server = MarkdownServer->new( 9032, $root );
+$server->run;
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
