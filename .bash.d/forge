@@ -1,0 +1,7 @@
+# Forge related stuff
+PLATFORM_JAVA_OPTS="\
+  -Djavax.net.ssl.trustStore=$HOME/.keystore/jssecacerts.jks \
+  -Djavax.net.ssl.trustStorePassword=changeit \
+  -Djavax.net.ssl.keyStore=$HOME/.keystore/andy.p12 \
+  -Djavax.net.ssl.keyStorePassword=changeit \
+  -Djavax.net.ssl.keyStoreType=PKCS12"

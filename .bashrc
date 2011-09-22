@@ -2,6 +2,7 @@
 export EDITOR=vim
 export PAGER=less
 export RCUNAME=`uname`
+export LC_CTYPE=$LANG
 
 umask 0022
 
@@ -16,7 +17,7 @@ if [ -n "$PS1" ]; then
   bind 'set match-hidden-files off' 
 
   export HISTFILESIZE=10000
-  export HISTCONTROL=ignoredups
+  export HISTCONTROL=erasedups
 fi
 
 function source_dir {
@@ -40,4 +41,4 @@ export PATH
 
 [ -f ~/.aliases ] && source ~/.aliases
 
-# vim:ts=2:sw=2:sts=2:et:ft=sh
+# vim:ts=2:sw=2:sts=2:et:ft=bash

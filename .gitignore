@@ -17,6 +17,7 @@
 .arista
 .bash_history
 .bash_logout
+.bash_profile
 .bazaar
 .bcast
 .beebem
@@ -99,6 +100,7 @@
 .mailtail
 .mailtailrc
 .mission-control
+.mozconfig
 .mozilla
 .mozilla-thunderbird
 .mplayer
@@ -137,6 +139,7 @@
 .rnd
 .scala_history
 .screen-profiles
+.shcache
 .sieve
 .smb
 .smoke-tapx
@@ -195,7 +198,9 @@ Sites
 Templates
 Ubuntu One
 Videos
+VirtualBox VMs
 Works
 dwhelper
+perl5
 svn-prop.tmp
 workspace
