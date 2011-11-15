@@ -4,15 +4,19 @@ dropbox="$HOME/Dropbox/hosts/run"
 me=$(hostname -s)
 uname=$(uname)
 
+set -x
 for d in "$dropbox/global" "$dropbox/$me" "$dropbox/$uname"; do
   if [ -d "$d" ]; then
-    find $d \( -name '*.out' -o -name '*.err' -prune \) -o -type f -print | while read ex; do
+    find $d -type f -name \*.gpg -print | while read gpg; do
+      ex=${gpg/%.gpg/}
       out="$ex.$me.out"
       err="$ex.$me.err"
-      [ -e $out ] || [ -e $err ] || {
-        chmod +x $ex
-        $ex > $out 2> $err
-      }
+      if [ ! \( -e $ex -o -e $out -o -e $err \) ]; then
+        if gpg --out $ex --decrypt $gpg 2>&1 | grep 'andy@hexten.net' > /dev/null; then
+          chmod +x $ex
+          $ex > $out 2> $err
+        fi
+      fi
     done
   fi
 done
