@@ -5,19 +5,18 @@ me=$(hostname -s)
 uname=$(uname)
 
 for d in "$dropbox/global" "$dropbox/$me" "$dropbox/$uname"; do
-  if [ -d "$d" ]; then
-    find $d -type f -name \*.gpg -print | while read gpg; do
-      ex="$gpg.$me"
-      out="$ex.out"
-      err="$ex.err"
-      if [ ! \( -e $ex -o -e $out -o -e $err \) ]; then
-        if gpg --out $ex --decrypt $gpg 2>&1 | grep 'andy@hexten.net' > /dev/null; then
-          chmod +x $ex
-          $ex > $out 2> $err
-        fi
+  mkdir -p "$d"
+  find $d -type f -name \*.gpg -print | while read gpg; do
+    ex="$gpg.$me"
+    out="$ex.out"
+    err="$ex.err"
+    if [ ! \( -e $ex -o -e $out -o -e $err \) ]; then
+      if gpg --out $ex --decrypt $gpg 2>&1 | grep 'andy@hexten.net' > /dev/null; then
+        chmod +x $ex
+        $ex > $out 2> $err
       fi
-    done
-  fi
+    fi
+  done
 done
 
 
