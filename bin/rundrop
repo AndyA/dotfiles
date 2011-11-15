@@ -2,8 +2,9 @@
 
 dropbox="$HOME/Dropbox/hosts/run"
 me=$(hostname -s)
+uname=$(uname)
 
-for d in "$dropbox/global" "$dropbox/$me"; do
+for d in "$dropbox/global" "$dropbox/$me" "$dropbox/$uname"; do
   if [ -d "$d" ]; then
     find $d -type f \( -name '*.out' -o -name '*.err' -prune \) -o -print | while read ex; do
       out="$ex.$me.out"
