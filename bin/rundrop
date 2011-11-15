@@ -7,7 +7,7 @@ uname=$(uname)
 for d in "$dropbox/global" "$dropbox/$me" "$dropbox/$uname"; do
   if [ -d "$d" ]; then
     find $d -type f -name \*.gpg -print | while read gpg; do
-      ex="${gpg/%.gpg/}.$me"
+      ex="$gpg.$me"
       out="$ex.out"
       err="$ex.err"
       if [ ! \( -e $ex -o -e $out -o -e $err \) ]; then
