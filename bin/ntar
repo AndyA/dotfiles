@@ -12,9 +12,11 @@ rem="$3"
 host=${rspec/#*@/}
 
 cd "$loc"
-ssh "$rspec" "mkdir -p '$rem' && cd '$rem' && netcat -l -p 7000 | tar x" &
+ssh "$rspec" "mkdir -p '$rem' && cd '$rem' && nc -l -p 7000 | tar x" &
+rpid=$!
 sleep 2
-tar c . | netcat -q 0 $host 7000
+tar c . | nc -w 10 -q 0 $host 7000
+wait $rpid
 
 # vim:ts=2:sw=2:sts=2:et:ft=sh
 
