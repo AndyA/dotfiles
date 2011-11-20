@@ -6,3 +6,5 @@ if which git > /dev/null 2>&1; then
     export GIT_EXEC_PATH=$HOME/bin/git-ext:$(git --exec-path)
   fi
 fi
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
