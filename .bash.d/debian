@@ -1,0 +1,2 @@
+export DEBEMAIL="andy@hexten.net"
+export DEBFULLNAME="Andy Armstrong"
