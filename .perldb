@@ -25,6 +25,7 @@ BEGIN {
 
 sub afterinit {
   $trace |= 4;    # Enable watchfunction
+  $deep = 1000;   # Recursion depth
   $_->afterinit( @_ ) for @handlers;
 }
 
