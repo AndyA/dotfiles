@@ -1,0 +1,14 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Apache::Admin::Config;
+
+my $conf = Apache::Admin::Config->new( \*STDIN, -indent => 2 )
+ or die $Apache::Admin::Config::ERROR;
+
+print $conf->dump_reformat;
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
