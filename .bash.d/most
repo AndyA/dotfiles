@@ -1,1 +1,1 @@
-which most >/dev/null && export PAGER=most
+which most >/dev/null && export MANPAGER=most
