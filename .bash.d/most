@@ -1,1 +1,4 @@
-which most >/dev/null && export MANPAGER=most
+if which most >/dev/null; then
+  export MANPAGER=most
+  export PERLDOC_PAGER=most
+fi
