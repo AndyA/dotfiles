@@ -1,0 +1,35 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Memoize;
+
+memoize qw( get_uid group_members perms );
+
+print group_members( 20 );
+
+sub get_uid {
+}
+
+sub group_members {
+  my $gid = shift;
+  my @g   = getgrgid( $gid );
+  print Dumper( \@g );
+}
+
+sub perms {
+  my $obj = shift;
+
+  my @st = stat $obj;
+  unless ( @st ) {
+    warn "Can't stat $obj: $!\n";
+    return;
+  }
+
+  my ( $mode, $uid, $gid ) = @st[ 2, 4, 5 ];
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
