@@ -1,0 +1,117 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Getopt::Long;
+use Path::Class;
+
+GetOptions() or syntax();
+@ARGV or syntax();
+my ( $pattern, @objs ) = @ARGV;
+bingrep( compile( $pattern ), @objs ? @objs : \*STDIN );
+
+sub syntax { die scalar usage(), "\n" }
+sub help { print join "\n", usage(), '' }
+
+sub usage {
+  return ( 'bingrep <bytes> <files>...' );
+}
+
+sub term {
+  my $t = shift;
+  return '.' unless defined $t && length $t;
+  return '\x' . $t if $t =~ /^[0-9a-f]+$/i;
+  die "Unknown term '$t'\n";
+}
+
+sub compile {
+  my $re = join '', map { term( $_ ) } map { split /\s*,\s*|\s+/ } @_;
+  return qr{$re};
+}
+
+sub bingrep {
+  my ( $re, @objs ) = @_;
+
+  for my $obj ( @objs ) {
+    if ( ref $obj ) {
+      search( $re, 'STDIN', $obj );
+      next;
+    }
+
+    if ( -d $obj ) {
+      bingrep( $re, dir( $obj )->children );
+      next;
+    }
+
+    search( $re, $obj, file( $obj )->openr );
+  }
+}
+
+sub hexdump {
+  my ( $pos, $data, $stride ) = @_;
+  $stride ||= 32;
+  my @r = ();
+  while ( length $data ) {
+    my @ln = map ord, split //, substr $data, 0, $stride;
+    $data = length $data > $stride ? substr $data, $stride : '';
+    push @r, sprintf '%016x  %s  %s', $pos,
+     join( ' ',
+      map { defined $ln[$_] ? sprintf '%02x', $ln[$_] : '  ' }
+       0 .. $stride - 1 ),
+     join(
+      '',
+      map {
+           defined $_
+         ? $_ >= 0x20 && $_ < 0x7F
+           ? chr( $_ )
+           : '.'
+         : ' '
+       } map { $ln[$_] } 0 .. $stride - 1
+     );
+    $pos += $stride;
+  }
+  return join "\n", @r, '';
+}
+
+sub search {
+  my ( $re, $name, $fh ) = @_;
+
+  my $buffer = '';
+  my $pos    = 0;
+  my $hwm    = 0;
+  my $chunk  = 65536;
+  my $rot    = 1024;
+  my $show   = 32;
+  my $fudge  = 0;
+
+  while ( 1 ) {
+    #    print "pos=$pos, hwm=$hwm, buf=", length $buffer;
+    my $got = sysread $fh, $buffer, $chunk, length $buffer;
+    #    print ", got=$got\n";
+    unless ( defined $got ) {
+      warn "I/O error on $name: $!\n";
+      return;
+    }
+    last if $got == 0;
+    while ( $buffer =~ /($re)/g ) {
+      my $hit = $1;
+      my $ofs = pos( $buffer ) - length $hit;
+      my $loc = $pos + $ofs - $fudge;
+      #      print "ofs=$ofs, loc=$loc\n";
+      if ( $loc > $hwm
+        && ( $got < $chunk || $ofs < length( $buffer ) - $show ) ) {
+        print hexdump( $loc, substr $buffer, $ofs, $show );
+        $hwm = $loc;
+      }
+    }
+    last if $got < $chunk;
+    $buffer = substr $buffer, length( $buffer ) - $rot;
+    $pos += $got;
+    $fudge = $rot;
+  }
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
