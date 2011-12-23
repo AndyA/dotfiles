@@ -27,7 +27,7 @@ for my $obj ( map { to_abs( $_ ) } @ARGV ) {
   printf "%-30s : %s\n", $obj, fmt_perms( $p );
 }
 
-sub is_everyone {
+sub is_world {
   my @ul = @_;
   return
    join( ' ', sort { $a <=> $b } @ul ) eq
@@ -45,11 +45,7 @@ sub fmt_perms {
   for my $perm ( 'r', 'w', 'x' ) {
     my @uid = @{ $p->{$perm} || [] };
     my $who
-     = @uid
-     ? is_everyone( @uid )
-       ? 'WORLD'
-       : fmt_users( @uid )
-     : 'NOBODY';
+     = @uid ? is_world( @uid ) ? 'WORLD' : fmt_users( @uid ) : '';
     push @r, "$perm=[ $who ]";
   }
   return join ' ', @r;
