@@ -17,12 +17,13 @@ memoize $_ for qw(
  group_members
  perms
  world
+ passwd
 );
 
 GetOptions( 'n' => \my $Numeric ) or die;
 
 for my $obj ( map { to_abs( $_ ) } @ARGV ) {
-  my $p = effective( $obj );
+  my $p = perms( $obj );
   printf "%-30s : %s\n", $obj, fmt_perms( $p );
 }
 
@@ -34,9 +35,8 @@ sub is_everyone {
 }
 
 sub fmt_users {
-  my @u = shift;
-  return join ' ', @u if $Numeric;
-  return join ' ', sort map { get_uname( $_ ) } @u;
+  return join ' ', @_ if $Numeric;
+  return join ' ', sort map { get_uname( $_ ) } @_;
 }
 
 sub fmt_perms {
@@ -61,15 +61,25 @@ sub get_uid   { scalar getpwnam( shift ) }
 sub group_members {
   my $gid = shift;
   my $mem = ( getgrgid( $gid ) )[3];
-  return map { get_uid( $_ ) } split /\s+/, $mem;
+  my %u   = map { $_ => 1 } map { get_uid( $_ ) } split /\s+/, $mem;
+  for my $ent ( passwd() ) {
+    if ( $ent->[3] == $gid ) {
+      $u{ $ent->[2] }++;
+    }
+  }
+  return sort { $a <=> $b } map { $_ + 0 } keys %u;
 }
 
 sub world {
+  sort { $a <=> $b } map { $_->[2] } passwd();
+}
+
+sub passwd {
   my @u = ();
   while ( my @ent = getpwent ) {
-    push @u, $ent[2];
+    push @u, [@ent];
   }
-  return sort { $a <=> $b } @u;
+  return @u;
 }
 
 sub perms {
