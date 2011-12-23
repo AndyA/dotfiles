@@ -5,7 +5,9 @@ use warnings;
 
 use Data::Dumper;
 use Getopt::Long;
+use List::Util qw( min max );
 use Path::Class;
+use Set::IntSpan::Fast;
 use Term::ANSIColor;
 
 my $Show     = 32;
@@ -28,11 +30,63 @@ sub usage {
   return ( 'bingrep <bytes> <files>...' );
 }
 
+sub permute(&$@) {
+  my ( $cb, $t, @r ) = @_;
+  unless ( $t =~ /^(.*)x(.*)$/ ) {
+    $cb->( $t );
+    return;
+  }
+  my ( $pre, $post ) = ( $1, $2 );
+  &permute( $cb, $pre . $_ . $post, @r ) for @r;
+}
+
+sub expand {
+  my ( $t, @r ) = @_;
+  my $set = Set::IntSpan::Fast->new;
+  die unless $t =~ /^(0[bx]?)(.+)$/i;
+  my ( $head, $tail ) = ( $1, $2 );
+  permute {
+    my $t = $head . shift;
+    my $v = eval $t;
+    die "$t: $@" if $@;
+    $set->add( $v );
+  }
+  $tail, @r;
+  return $set->as_array;
+}
+
+sub trout {
+  my $t = shift;
+  return ( 0 .. 255 ) unless defined $t && length $t;
+  if ( $t =~ /^(.+)-(.+)$/ ) {
+    my ( $lo, $hi ) = ( $1, $2 );
+    return ( min( trout( $lo ) ) .. max( trout( $hi ) ) );
+  }
+  if ( $t =~ /^0b[01x]+$/i ) {
+    return expand( $t, '0' .. '1' );
+  }
+  if ( $t =~ /^0x[0-9a-fx]+$/i ) {
+    return expand( $t, '0' .. '9', 'a' .. 'f' );
+  }
+  if ( $t =~ /^0[0-7x]+$/i ) {
+    return expand( $t, '0' .. '7' );
+  }
+  return;
+}
+
 sub term {
   my $t = shift;
-  return '(.)' unless defined $t && length $t;
-  return '\x' . $t if $t =~ /^[0-9a-f]+$/i;
-  die "Unknown term '$t'\n";
+  if ( my @r = trout( $t ) ) {
+    return sprintf '\\x%02x', $r[0] if @r == 1;
+
+    my $iter = Set::IntSpan::Fast->new( @r )->iterate_runs( 0, 255 );
+    my @set = ();
+    while ( my ( $from, $to ) = $iter->() ) {
+      push @set, sprintf '\\x%02x-\\x%02x', $from, $to;
+    }
+    return '([' . join( '', @set ), '])';
+  }
+  return quotemeta( $t );
 }
 
 sub compile {
@@ -72,7 +126,7 @@ sub hd {
    ? sub { $_[0] }
    : sub { colored( $_[0], $co[ $_[1] >> 8 ] ) };
   my @b = map ord, split //, $data;
-  while ( $data =~ /$re/g ) {
+  while ( $data =~ /$re/sg ) {
     for my $i ( 0 .. $#+ ) {
       for my $j ( $-[$i] .. $+[$i] - 1 ) {
         $b[$j] |= $i == 0 ? $j == $-[$i] ? 0x400 : 0x100 : 0x200;
@@ -120,9 +174,13 @@ sub search {
   my $fudge  = 0;
   while ( 1 ) {
     my $got = sysread $fh, $buffer, $chunk, length $buffer;
-    unless ( defined $got ) { warn "I/O error on $name: $!\n"; return; }
+    unless ( defined $got ) {
+      warn " I / O error on $name
+   : $! \n ";
+      return;
+    }
     last if $got == 0;
-    while ( $buffer =~ /($re)/g ) {
+    while ( $buffer =~ /($re)/sg ) {
       my $hit = $1;
       my $ofs = pos( $buffer ) - length( $hit ) - $Prefix;
       my $loc = $pos + $ofs - $fudge;
