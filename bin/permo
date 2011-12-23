@@ -4,23 +4,66 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use Path::Class;
 use Memoize;
+use Scalar::Util qw( blessed );
 
-memoize qw( get_uid group_members perms );
+memoize $_ for qw(
+ get_uname
+ get_uid
+ group_members
+ perms
+ world
+ effective
+);
 
-print group_members( 20 );
-
-sub get_uid {
+for my $obj ( @ARGV ) {
+  my $p = effective( $obj );
+  print "Permissions for $obj:\n";
+  show_perms( $p );
 }
+
+sub is_everyone {
+  my @ul = @_;
+  return
+   join( ' ', sort { $a <=> $b } @ul ) eq
+   join( ' ', sort { $a <=> $b } world() );
+}
+
+sub show_perms {
+  my $p = shift;
+  for my $perm ( 'r', 'w', 'x' ) {
+    my @uid = @{ $p->{$perm} || [] };
+    my $who
+     = @uid
+     ? is_everyone( @uid )
+       ? 'WORLD'
+       : join( ' ', map { get_uname( $_ ) } @uid )
+     : 'NOBODY';
+    print "  $perm : $who\n";
+  }
+}
+
+sub get_uname { scalar getpwuid( shift ) }
+sub get_uid   { scalar getpwnam( shift ) }
 
 sub group_members {
   my $gid = shift;
-  my @g   = getgrgid( $gid );
-  print Dumper( \@g );
+  my $mem = ( getgrgid( $gid ) )[3];
+  return map { get_uid( $_ ) } split /\s+/, $mem;
+}
+
+sub world {
+  my @u = ();
+  while ( my @ent = getpwent ) {
+    push @u, $ent[2];
+  }
+  return sort { $a <=> $b } @u;
 }
 
 sub perms {
-  my $obj = shift;
+  my $obj  = shift;
+  my $filt = shift;
 
   my @st = stat $obj;
   unless ( @st ) {
@@ -28,7 +71,47 @@ sub perms {
     return;
   }
 
+  my %can = ();
+
+  my $i_can = sub {
+    my ( $mode, $uid ) = @_;
+    return if $filt && !$filt->{$uid};
+    $can{r}{$uid}++  if $mode & 4;
+    $can{w}{$uid}++  if $mode & 2;
+    $can{x}{$uid}++  if $mode & 1;
+    $can{rx}{$uid}++ if ( $mode & 5 ) == 5;
+  };
+
   my ( $mode, $uid, $gid ) = @st[ 2, 4, 5 ];
+  $i_can->( ( $mode >> 6 ) & 7, $uid );
+  $i_can->( ( $mode >> 3 ) & 7, $_ ) for group_members( $gid );
+  $i_can->( ( $mode >> 0 ) & 7, $_ ) for world();
+
+  $_ = [ sort { $a <=> $b } map { $_ + 0 } keys %$_ ] for values %can;
+
+  return \%can;
+}
+
+sub to_abs {
+  my $obj = shift;
+  return $obj
+   if blessed $obj
+     && $obj->can( 'is_absolute' )
+     && $obj->is_absolute;
+  return ( -d $obj ? dir( $obj ) : file( $obj ) )->absolute;
+}
+
+sub effective {
+  my $obj  = to_abs( shift );
+  my $filt = shift;
+
+  my $parent = $obj->parent;
+  unless ( "$obj" eq "$parent" ) {
+    my $dp = effective( $parent, $filt );
+    $filt = { %{ $filt || {} }, map { $_ => 1 } @{ $dp->{rx} } };
+  }
+
+  return perms( $obj, $filt );
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
