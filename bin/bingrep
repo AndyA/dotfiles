@@ -6,8 +6,17 @@ use warnings;
 use Data::Dumper;
 use Getopt::Long;
 use Path::Class;
+use Term::ANSIColor;
 
-GetOptions() or syntax();
+my $Show     = 32;
+my $Prefix   = 0;
+my $NoColour = !-t STDOUT;
+
+GetOptions(
+  'show:i'   => \$Show,
+  'prefix:i' => \$Prefix,
+  'nocolor'  => \$NoColour,
+) or syntax();
 @ARGV or syntax();
 my ( $pattern, @objs ) = @ARGV;
 bingrep( compile( $pattern ), @objs ? @objs : \*STDIN );
@@ -21,7 +30,7 @@ sub usage {
 
 sub term {
   my $t = shift;
-  return '.' unless defined $t && length $t;
+  return '(.)' unless defined $t && length $t;
   return '\x' . $t if $t =~ /^[0-9a-f]+$/i;
   die "Unknown term '$t'\n";
 }
@@ -49,27 +58,53 @@ sub bingrep {
   }
 }
 
-sub hexdump {
-  my ( $pos, $data, $stride ) = @_;
+sub is_print { $_[0] >= 0x20 && $_[0] < 0x7F }
+
+sub hd {
+  my ( $pos, $data, $stride, $re ) = @_;
   $stride ||= 32;
+  my @co = (
+    'white',        'yellow',        'cyan',        'cyan',
+    'bright_white', 'bright_yellow', 'bright_cyan', 'bright_yellow',
+  );
+  my $color
+   = $NoColour
+   ? sub { $_[0] }
+   : sub { colored( $_[0], $co[ $_[1] >> 8 ] ) };
+  my @b = map ord, split //, $data;
+  while ( $data =~ /$re/g ) {
+    for my $i ( 0 .. $#+ ) {
+      for my $j ( $-[$i] .. $+[$i] - 1 ) {
+        $b[$j] |= $i == 0 ? $j == $-[$i] ? 0x400 : 0x100 : 0x200;
+      }
+    }
+  }
   my @r = ();
-  while ( length $data ) {
-    my @ln = map ord, split //, substr $data, 0, $stride;
-    $data = length $data > $stride ? substr $data, $stride : '';
-    push @r, sprintf '%016x  %s  %s', $pos,
-     join( ' ',
-      map { defined $ln[$_] ? sprintf '%02x', $ln[$_] : '  ' }
-       0 .. $stride - 1 ),
-     join(
-      '',
-      map {
-           defined $_
-         ? $_ >= 0x20 && $_ < 0x7F
-           ? chr( $_ )
-           : '.'
-         : ' '
-       } map { $ln[$_] } 0 .. $stride - 1
-     );
+  while ( @b ) {
+    my @ln = splice @b, 0, $stride;
+    my @bb = map { $ln[$_] } 0 .. $stride - 1;
+    push @r, join(
+      ' | ',
+      $color->( sprintf( '%016x', $pos ), 0 ),
+      join(
+        ' ',
+        map {
+          defined $_
+           ? $color->( sprintf( '%02x', $_ & 0xFF ), $_ )
+           : '  '
+         } @bb
+      ),
+      join(
+        '',
+        map {
+          defined $_
+           ? $color->(
+            is_print( $_ & 0xFF ) ? chr( $_ & 0xFF ) : '.', $_
+           )
+           : ' '
+         } @bb
+      )
+    );
     $pos += $stride;
   }
   return join "\n", @r, '';
@@ -77,32 +112,23 @@ sub hexdump {
 
 sub search {
   my ( $re, $name, $fh ) = @_;
-
   my $buffer = '';
   my $pos    = 0;
   my $hwm    = 0;
   my $chunk  = 65536;
   my $rot    = 1024;
-  my $show   = 32;
   my $fudge  = 0;
-
   while ( 1 ) {
-    #    print "pos=$pos, hwm=$hwm, buf=", length $buffer;
     my $got = sysread $fh, $buffer, $chunk, length $buffer;
-    #    print ", got=$got\n";
-    unless ( defined $got ) {
-      warn "I/O error on $name: $!\n";
-      return;
-    }
+    unless ( defined $got ) { warn "I/O error on $name: $!\n"; return; }
     last if $got == 0;
     while ( $buffer =~ /($re)/g ) {
       my $hit = $1;
-      my $ofs = pos( $buffer ) - length $hit;
+      my $ofs = pos( $buffer ) - length( $hit ) - $Prefix;
       my $loc = $pos + $ofs - $fudge;
-      #      print "ofs=$ofs, loc=$loc\n";
       if ( $loc > $hwm
-        && ( $got < $chunk || $ofs < length( $buffer ) - $show ) ) {
-        print hexdump( $loc, substr $buffer, $ofs, $show );
+        && ( $got < $chunk || $ofs < length( $buffer ) - $Show ) ) {
+        print hd( $loc, substr( $buffer, $ofs, $Show ), $Show, $re );
         $hwm = $loc;
       }
     }
