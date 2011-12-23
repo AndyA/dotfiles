@@ -23,7 +23,7 @@ memoize $_ for qw(
 GetOptions( 'n' => \my $Numeric ) or die;
 
 for my $obj ( map { to_abs( $_ ) } @ARGV ) {
-  my $p = perms( $obj );
+  my $p = effective( $obj );
   printf "%-30s : %s\n", $obj, fmt_perms( $p );
 }
 
