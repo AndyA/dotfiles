@@ -23,8 +23,7 @@ GetOptions( 'n' => \my $Numeric ) or die;
 
 for my $obj ( map { to_abs( $_ ) } @ARGV ) {
   my $p = effective( $obj );
-  print "Permissions for $obj\n";
-  show_perms( $p );
+  printf "%-30s : %s\n", $obj, fmt_perms( $p );
 }
 
 sub is_everyone {
@@ -40,8 +39,9 @@ sub fmt_users {
   return join ' ', sort map { get_uname( $_ ) } @u;
 }
 
-sub show_perms {
+sub fmt_perms {
   my $p = shift;
+  my @r = ();
   for my $perm ( 'r', 'w', 'x' ) {
     my @uid = @{ $p->{$perm} || [] };
     my $who
@@ -50,8 +50,9 @@ sub show_perms {
        ? 'WORLD'
        : fmt_users( @uid )
      : 'NOBODY';
-    print "  $perm : $who\n";
+    push @r, "$perm=[ $who ]";
   }
+  return join ' ', @r;
 }
 
 sub get_uname { scalar getpwuid( shift ) }
