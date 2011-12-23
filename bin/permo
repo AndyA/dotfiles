@@ -4,22 +4,26 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use Getopt::Long;
 use Path::Class;
 use Memoize;
 use Scalar::Util qw( blessed );
 
 memoize $_ for qw(
- get_uname
+ effective
+ fmt_users
  get_uid
+ get_uname
  group_members
  perms
  world
- effective
 );
 
-for my $obj ( @ARGV ) {
+GetOptions( 'n' => \my $Numeric ) or die;
+
+for my $obj ( map { to_abs( $_ ) } @ARGV ) {
   my $p = effective( $obj );
-  print "Permissions for $obj:\n";
+  print "Permissions for $obj\n";
   show_perms( $p );
 }
 
@@ -30,6 +34,12 @@ sub is_everyone {
    join( ' ', sort { $a <=> $b } world() );
 }
 
+sub fmt_users {
+  my @u = shift;
+  return join ' ', @u if $Numeric;
+  return join ' ', sort map { get_uname( $_ ) } @u;
+}
+
 sub show_perms {
   my $p = shift;
   for my $perm ( 'r', 'w', 'x' ) {
@@ -38,7 +48,7 @@ sub show_perms {
      = @uid
      ? is_everyone( @uid )
        ? 'WORLD'
-       : join( ' ', map { get_uname( $_ ) } @uid )
+       : fmt_users( @uid )
      : 'NOBODY';
     print "  $perm : $who\n";
   }
