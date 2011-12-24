@@ -4,7 +4,7 @@ export PAGER=less
 export RCUNAME=`uname`
 export LC_CTYPE=$LANG
 
-umask 0022
+umask 0027
 
 if [ -n "$PS1" ]; then
   # Directory shortcuts
