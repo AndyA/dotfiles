@@ -96,7 +96,6 @@ sub perms {
     $can{r}{$uid}++  if $mode & 4;
     $can{w}{$uid}++  if $mode & 2;
     $can{x}{$uid}++  if $mode & 1;
-    $can{rx}{$uid}++ if ( $mode & 5 ) == 5;
   };
 
   my ( $mode, $uid, $gid ) = @st[ 2, 4, 5 ];
@@ -125,7 +124,7 @@ sub effective {
   my $parent = $obj->parent;
   unless ( "$obj" eq "$parent" ) {
     my $dp = effective( $parent, $filt );
-    $filt = { %{ $filt || {} }, map { $_ => 1 } @{ $dp->{rx} } };
+    $filt = { %{ $filt || {} }, map { $_ => 1 } @{ $dp->{x} } };
   }
 
   return perms( $obj, $filt );
