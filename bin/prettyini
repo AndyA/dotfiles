@@ -12,7 +12,7 @@ my $kl = 0;
 for ( @lines ) {
   next if /$skip/;
   $kl = max( $kl, length $1 )
-   if /^(\S+)\s*[=:]/;
+   if /^([^:=\s]+)\s*[=:]/;
 }
 
 my $fmt = "%-${kl}s = %s";
