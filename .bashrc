@@ -4,8 +4,6 @@ export PAGER=less
 export RCUNAME=`uname`
 export LC_CTYPE=$LANG
 
-umask 0022
-
 if [ -n "$PS1" ]; then
   # Directory shortcuts
   shopt -s cdable_vars
