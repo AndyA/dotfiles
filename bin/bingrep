@@ -1,0 +1,201 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Getopt::Long;
+use List::Util qw( min max );
+use Path::Class;
+use Set::IntSpan::Fast;
+use Term::ANSIColor;
+
+my $Show     = 32;
+my $Prefix   = 0;
+my $NoColour = !-t STDOUT;
+
+GetOptions(
+  'show:i'   => \$Show,
+  'prefix:i' => \$Prefix,
+  'nocolor'  => \$NoColour,
+) or syntax();
+@ARGV or syntax();
+my ( $pattern, @objs ) = @ARGV;
+bingrep( compile( $pattern ), @objs ? @objs : \*STDIN );
+
+sub syntax { die scalar usage(), "\n" }
+sub help { print join "\n", usage(), '' }
+
+sub usage {
+  return ( 'bingrep <bytes> <files>...' );
+}
+
+sub permute(&$@) {
+  my ( $cb, $t, @r ) = @_;
+  unless ( $t =~ /^(.*)x(.*)$/ ) {
+    $cb->( $t );
+    return;
+  }
+  my ( $pre, $post ) = ( $1, $2 );
+  &permute( $cb, $pre . $_ . $post, @r ) for @r;
+}
+
+sub expand {
+  my ( $t, @r ) = @_;
+  my $set = Set::IntSpan::Fast->new;
+  die unless $t =~ /^(0[bx]?)(.+)$/i;
+  my ( $head, $tail ) = ( $1, $2 );
+  permute {
+    my $t = $head . shift;
+    my $v = eval $t;
+    die "$t: $@" if $@;
+    $set->add( $v );
+  }
+  $tail, @r;
+  return $set->as_array;
+}
+
+sub trout {
+  my $t = shift;
+  return ( 0 .. 255 ) unless defined $t && length $t;
+  if ( $t =~ /^(.+)-(.+)$/ ) {
+    my ( $lo, $hi ) = ( $1, $2 );
+    return ( min( trout( $lo ) ) .. max( trout( $hi ) ) );
+  }
+  if ( $t =~ /^0b[01x]+$/i ) {
+    return expand( $t, '0' .. '1' );
+  }
+  if ( $t =~ /^0x[0-9a-fx]+$/i ) {
+    return expand( $t, '0' .. '9', 'a' .. 'f' );
+  }
+  if ( $t =~ /^0[0-7x]+$/i ) {
+    return expand( $t, '0' .. '7' );
+  }
+  return;
+}
+
+sub term {
+  my $t = shift;
+  if ( my @r = trout( $t ) ) {
+    return sprintf '\\x%02x', $r[0] if @r == 1;
+
+    my $iter = Set::IntSpan::Fast->new( @r )->iterate_runs( 0, 255 );
+    my @set = ();
+    while ( my ( $from, $to ) = $iter->() ) {
+      push @set, sprintf '\\x%02x-\\x%02x', $from, $to;
+    }
+    return '([' . join( '', @set ), '])';
+  }
+  return quotemeta( $t );
+}
+
+sub compile {
+  my $re = join '', map { term( $_ ) } map { split /\s*,\s*|\s+/ } @_;
+  return qr{$re};
+}
+
+sub bingrep {
+  my ( $re, @objs ) = @_;
+
+  for my $obj ( @objs ) {
+    if ( ref $obj ) {
+      search( $re, 'STDIN', $obj );
+      next;
+    }
+
+    if ( -d $obj ) {
+      bingrep( $re, dir( $obj )->children );
+      next;
+    }
+
+    search( $re, $obj, file( $obj )->openr );
+  }
+}
+
+sub is_print { $_[0] >= 0x20 && $_[0] < 0x7F }
+
+sub hd {
+  my ( $pos, $data, $stride, $re ) = @_;
+  $stride ||= 32;
+  my @co = (
+    'white',        'yellow',        'cyan',        'cyan',
+    'bright_white', 'bright_yellow', 'bright_cyan', 'bright_yellow',
+  );
+  my $color
+   = $NoColour
+   ? sub { $_[0] }
+   : sub { colored( $_[0], $co[ $_[1] >> 8 ] ) };
+  my @b = map ord, split //, $data;
+  while ( $data =~ /$re/sg ) {
+    for my $i ( 0 .. $#+ ) {
+      for my $j ( $-[$i] .. $+[$i] - 1 ) {
+        $b[$j] |= $i == 0 ? $j == $-[$i] ? 0x400 : 0x100 : 0x200;
+      }
+    }
+  }
+  my @r = ();
+  while ( @b ) {
+    my @ln = splice @b, 0, $stride;
+    my @bb = map { $ln[$_] } 0 .. $stride - 1;
+    push @r, join(
+      ' | ',
+      $color->( sprintf( '%016x', $pos ), 0 ),
+      join(
+        ' ',
+        map {
+          defined $_
+           ? $color->( sprintf( '%02x', $_ & 0xFF ), $_ )
+           : '  '
+         } @bb
+      ),
+      join(
+        '',
+        map {
+          defined $_
+           ? $color->(
+            is_print( $_ & 0xFF ) ? chr( $_ & 0xFF ) : '.', $_
+           )
+           : ' '
+         } @bb
+      )
+    );
+    $pos += $stride;
+  }
+  return join "\n", @r, '';
+}
+
+sub search {
+  my ( $re, $name, $fh ) = @_;
+  my $buffer = '';
+  my $pos    = 0;
+  my $hwm    = 0;
+  my $chunk  = 65536;
+  my $rot    = 1024;
+  my $fudge  = 0;
+  while ( 1 ) {
+    my $got = sysread $fh, $buffer, $chunk, length $buffer;
+    unless ( defined $got ) {
+      warn " I / O error on $name
+   : $! \n ";
+      return;
+    }
+    last if $got == 0;
+    while ( $buffer =~ /($re)/sg ) {
+      my $hit = $1;
+      my $ofs = pos( $buffer ) - length( $hit ) - $Prefix;
+      my $loc = $pos + $ofs - $fudge;
+      if ( $loc > $hwm
+        && ( $got < $chunk || $ofs < length( $buffer ) - $Show ) ) {
+        print hd( $loc, substr( $buffer, $ofs, $Show ), $Show, $re );
+        $hwm = $loc;
+      }
+    }
+    last if $got < $chunk;
+    $buffer = substr $buffer, length( $buffer ) - $rot;
+    $pos += $got;
+    $fudge = $rot;
+  }
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+

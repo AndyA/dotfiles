@@ -1,0 +1,134 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Getopt::Long;
+use Path::Class;
+use Memoize;
+use Scalar::Util qw( blessed );
+
+memoize $_ for qw(
+ effective
+ fmt_users
+ get_uid
+ get_uname
+ group_members
+ perms
+ world
+ passwd
+);
+
+GetOptions( 'n' => \my $Numeric ) or die;
+
+for my $obj ( map { to_abs( $_ ) } @ARGV ) {
+  my $p = effective( $obj );
+  printf "%-30s : %s\n", $obj, fmt_perms( $p );
+}
+
+sub is_world {
+  my @ul = @_;
+  return
+   join( ' ', sort { $a <=> $b } @ul ) eq
+   join( ' ', sort { $a <=> $b } world() );
+}
+
+sub fmt_users {
+  return join ' ', @_ if $Numeric;
+  return join ' ', sort map { get_uname( $_ ) } @_;
+}
+
+sub fmt_perms {
+  my $p = shift;
+  my @r = ();
+  for my $perm ( 'r', 'w', 'x' ) {
+    my @uid = @{ $p->{$perm} || [] };
+    my $who
+     = @uid ? is_world( @uid ) ? 'WORLD' : fmt_users( @uid ) : '';
+    push @r, "$perm=[ $who ]";
+  }
+  return join ' ', @r;
+}
+
+sub get_uname { scalar getpwuid( shift ) }
+sub get_uid   { scalar getpwnam( shift ) }
+
+sub group_members {
+  my $gid = shift;
+  my $mem = ( getgrgid( $gid ) )[3];
+  my %u   = map { $_ => 1 } map { get_uid( $_ ) } split /\s+/, $mem;
+  for my $ent ( passwd() ) {
+    if ( $ent->[3] == $gid ) {
+      $u{ $ent->[2] }++;
+    }
+  }
+  return sort { $a <=> $b } map { $_ + 0 } keys %u;
+}
+
+sub world {
+  sort { $a <=> $b } map { $_->[2] } passwd();
+}
+
+sub passwd {
+  my @u = ();
+  while ( my @ent = getpwent ) {
+    push @u, [@ent];
+  }
+  return @u;
+}
+
+sub perms {
+  my $obj  = shift;
+  my $filt = shift;
+
+  my @st = stat $obj;
+  unless ( @st ) {
+    warn "Can't stat $obj: $!\n";
+    return;
+  }
+
+  my %can = ();
+
+  my $i_can = sub {
+    my ( $mode, $uid ) = @_;
+    return if $filt && !$filt->{$uid};
+    $can{r}{$uid}++  if $mode & 4;
+    $can{w}{$uid}++  if $mode & 2;
+    $can{x}{$uid}++  if $mode & 1;
+  };
+
+  my ( $mode, $uid, $gid ) = @st[ 2, 4, 5 ];
+  $i_can->( ( $mode >> 6 ) & 7, $uid );
+  $i_can->( ( $mode >> 3 ) & 7, $_ ) for group_members( $gid );
+  $i_can->( ( $mode >> 0 ) & 7, $_ ) for world();
+
+  $_ = [ sort { $a <=> $b } map { $_ + 0 } keys %$_ ] for values %can;
+
+  return \%can;
+}
+
+sub to_abs {
+  my $obj = shift;
+  return $obj
+   if blessed $obj
+     && $obj->can( 'is_absolute' )
+     && $obj->is_absolute;
+  return ( -d $obj ? dir( $obj ) : file( $obj ) )->absolute;
+}
+
+sub effective {
+  my $obj  = to_abs( shift );
+  my $filt = shift;
+
+  my $parent = $obj->parent;
+  unless ( "$obj" eq "$parent" ) {
+    my $dp = effective( $parent, $filt );
+    $filt = { %{ $filt || {} }, map { $_ => 1 } @{ $dp->{x} } };
+  }
+
+  return perms( $obj, $filt );
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+

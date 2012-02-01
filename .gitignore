@@ -51,6 +51,7 @@
 .dzil
 .eclipse
 .eclipse_keyring
+.emacs
 .esd_auth
 .evolution
 .filezilla
