@@ -1,1 +1,2 @@
-[ -d /alt/local/bin ] && PATH=/alt/local/bin:$PATH
+[ -d /alt/local/sbin ] && PATH=/alt/local/sbin:$PATH
+[ -d /alt/local/bin ]  && PATH=/alt/local/bin:$PATH
