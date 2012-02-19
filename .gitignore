@@ -144,6 +144,7 @@
 .shcache
 .sieve
 .smb
+.smbcredentials
 .smoke-tapx
 .smoke-work
 .smokestack-stash.yml
