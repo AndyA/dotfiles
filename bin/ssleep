@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Time::HiRes qw( sleep time );
+
+my $Q = shift || 1;
+my $O = shift || 0;
+
+my $now  = time;
+my $next = int( $now / $Q ) * $Q + $O;
+$next += $Q if $next <= $now;
+sleep $next - $now;
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
