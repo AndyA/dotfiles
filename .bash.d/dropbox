@@ -1,6 +1,6 @@
 if [ -d ~/Dropbox ]; then
-  alias pbput="pbpaste > ~/Dropbox/dotfiles/clipboard"
-  alias pbget="cat ~/Dropbox/dotfiles/clipboard | pbcopy"
+  alias pbput="pbpaste > ~/Dropbox/Temp/clipboard"
+  alias pbget="cat ~/Dropbox/Temp/clipboard | pbcopy"
   for d in ~/Dropbox/bin ~/Dropbox/bin/$RCUNAME; do
     [ -d $d ] && PATH=$d:$PATH
   done
