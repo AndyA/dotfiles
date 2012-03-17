@@ -57,7 +57,8 @@ sub filter_set {
      if defined $digest;
   }
   while ( my ( $dig, $set ) = each %by_digest ) {
-    $cb->( $dig, @$set ) if @$set > 1;
+    eval { $cb->( $dig, @$set ) if @$set > 1 };
+    warn $@ if $@;
   }
 }
 
@@ -68,6 +69,7 @@ sub finddups {
 
   my $ff = File::Find::Rule->new;
   $ff->ignore_vcs unless $opt{vcs};
+  $ff->size( ">=64ki" );
 
   my @statfields = $opt{strict} ? ( 2, 4, 5, 7 ) : ( 7 );
   my %seen_inode = ();
@@ -101,7 +103,7 @@ sub finddups {
       my $obj = shift;
       mention "Checking $obj";
       my @st = lstat $obj;
-      return if $seen_inode{ $st[1] }++;
+      return if $seen_inode{ join '-', @st[ 0, 1 ] }++;
       return join ' ', @st[@statfields];
     },
     sub {
@@ -129,16 +131,19 @@ sub make_links {
     my @fst   = lstat $first;
     for my $obj ( @$set ) {
       my @ost = lstat $obj;
-      next if $ost[1] == $fst[1];
+      next if $ost[0] == $fst[0] && $ost[1] == $fst[1];
       my $tmp = "$obj.$suf";
       while ( -e $tmp ) {
         $suf++;
         $tmp = "$obj.$suf";
       }
       mention "Linking $first to $obj";
-      link $first, $tmp or die "Can't link $first to $tmp: $!\n";
-      rename $tmp, $obj or die "Can't rename $tmp to $obj: $!\n";
-      $saved += $ost[7];
+      eval {
+        link $first, $tmp or die "Can't link $first to $tmp: $!\n";
+        rename $tmp, $obj or die "Can't rename $tmp to $obj: $!\n";
+        $saved += $ost[7];
+      };
+      warn $@ if $@;
     }
   }
   mention "Saved $saved bytes";
