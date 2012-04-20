@@ -3,15 +3,15 @@
 use strict;
 use warnings;
 
+use B;
+use Devel::Symdump;
 use File::Find;
 use File::Path;
-use File::Which;
 use File::Spec;
+use File::Which;
 use Getopt::Long;
 use HTML::Tiny;
 use URI::file;
-use Devel::Symdump;
-use B;
 
 my %options = (
   show_help     => 0,
