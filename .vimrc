@@ -101,6 +101,7 @@ noremap <silent> <leader>l <esc><C-w>l<C-w>_
 map <leader>V :spl ~/.vimrc<CR><C-W>_
 map <silent> <leader>W :source ~/.vimrc<CR>:filetype detect<CR>
       \ :exe ":echo 'vimrc reloaded'"<CR>
+map <leader>sp ms(V)k:sort u's
 
 imap <silent> <C-D><C-D> <C-R>=strftime("%Y/%m/%d")<CR>
 imap <silent> <C-T><C-T> <C-R>=strftime("%H:%M:%S")<CR>
