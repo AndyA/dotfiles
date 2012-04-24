@@ -4,7 +4,7 @@ PATH=/alt/local/bin:$PATH
 
 stamp=$(date '+%Y%m%d-%H%M%S')
 
-repo=git://github.com/AndyA/Test-Harness.git
+repo=git://github.com/Perl-Toolchain-Gang/Test-Harness.git
 
 work=~/.smoke-work
 logdir=$work/log
