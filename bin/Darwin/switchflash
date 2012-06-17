@@ -1,0 +1,272 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use File::Find;
+use File::chdir;
+use Mac::PropertyList qw( parse_plist_file );
+use Getopt::Long;
+use Path::Class;
+
+use constant FLASH_VERSIONS => glob '~/.flashplayer-versions';
+
+use constant BASE => 'dmg';
+
+my @MANIFEST = (
+  '/private/var/db/receipts/com.adobe.pkg.FlashPlayer.bom',
+  '/private/var/db/receipts/com.adobe.pkg.FlashPlayer.plist',
+  '/Library/Internet Plug-Ins/Flash Player.plugin',
+  '/Library/PreferencePanes/Flash Player.prefPane',
+);
+
+sub do_cmd(@);
+sub run_cmd(@);
+sub thing(@);
+sub with_cmd(@);
+sub mention(@);
+
+GetOptions() or die;
+die "switchflash dmg|pkg|dir|name\n" unless @ARGV == 1;
+switchflash( $ARGV[0] );
+
+sub mention(@) {
+  print join( '', @_ ), "\n";
+}
+
+sub switchflash {
+  my $obj = shift;
+  if ( $obj eq 'none' ) {
+    uninstall_flash();
+    return;
+  }
+  if ( -d $obj ) {
+    if ( $obj =~ /\.pkg/ ) {
+      switch_pkg( $obj );
+      return;
+    }
+    switch_dir( $obj );
+    return;
+  }
+
+  if ( -f $obj && $obj =~ /\.dmg$/ ) {
+    switch_dmg( $obj );
+    return;
+  }
+
+  my $try = dir( FLASH_VERSIONS, $obj );
+  if ( -d $try ) {
+    switch_dir( $try );
+    return;
+  }
+  die "Don't know how to switch to $obj\n";
+}
+
+sub stash_dir { dir( FLASH_VERSIONS, shift->description ) }
+
+sub switch_dmg {
+  my $dmg   = shift;
+  my $mount = dir( "$dmg.mount" );
+  if ( -d "$mount" ) {
+    run_cmd hdiutil => detach => "$mount";
+    $mount->rmtree;
+  }
+  $mount->mkpath;
+  do_cmd hdiutil => attach => -nobrowse => -mountpoint => "$mount",
+   "$dmg";
+  eval {
+    my @pkg = ();
+    find {
+      no_chdir => 1,
+      wanted   => sub {
+        return unless /\.pkg$/;
+        push @pkg, $_;
+      },
+     },
+     "$mount";
+    die "No packages found on $dmg\n" unless @pkg;
+    die "Multiple packages found on $dmg\n" if @pkg > 1;
+    switch_pkg( $pkg[0] );
+  };
+  my $err = $@;
+  run_cmd hdiutil => detach => "$mount";
+  $mount->rmtree;
+  die $err if $err;
+}
+
+sub switch_pkg {
+  my $pkg = shift;
+  my $info = bless { pkg => $pkg }, 'pkginfo';
+  $info->infer;
+  my $desc = $info->description;
+  uninstall_flash();
+  mention "Installing $desc";
+  do_cmd installer => -pkg => $info->{pkg}, -target => '/';
+  stash_flash( $info );
+}
+
+sub switch_dir {
+  my $dir = shift;
+  my %wrk = ();
+  for my $obj ( @MANIFEST ) {
+    my $src = thing $dir, file( $obj )->relative( '/' );
+    if ( $src ) {
+      my $dst = file( $obj )->parent;
+      $wrk{$src} = $dst;
+    }
+  }
+  unless ( keys %wrk ) {
+    mention "Warning: no suitable files found in $dir\n";
+  }
+  uninstall_flash();
+  while ( my ( $src, $dst ) = each %wrk ) {
+    copy( $src, $dst );
+  }
+}
+
+sub stash_flash {
+  my $info = shift;
+  my $dir  = stash_dir( $info );
+  return if -d "$dir";
+  for my $obj ( @MANIFEST ) {
+    if ( -e $obj ) {
+      my $src = thing $obj;
+      my $dst = dir( $dir, $src->relative( '/' )->parent );
+      copy( $src, $dst );
+    }
+  }
+}
+
+sub copy {
+  my ( $src, $dst ) = @_;
+  $dst->mkpath;
+  do_cmd rsync => -a => "$src", "$dst";
+}
+
+sub uninstall_flash {
+  mention "Uninstalling previous Flash Player";
+  for my $obj ( @MANIFEST ) {
+    if ( -f $obj ) {
+      file( $obj )->remove;
+    }
+    elsif ( -d $obj ) {
+      dir( $obj )->rmtree;
+    }
+  }
+}
+
+sub pkginfo::description {
+  my $self = shift;
+  my @part = ( 'flashplugin', $self->{version} );
+  push @part, $self->{bits} . 'bit' if defined $self->{bits};
+  push @part, 'debug' if $self->{debug};
+  return join '-', @part;
+}
+
+sub pkginfo::infer {
+  my $self = shift;
+  my $pkg  = $self->{pkg};
+
+  $self->{bits} = $1 if $pkg =~ /_(\d+)bit_/;
+
+  $self->{debug} = 0;
+  $self->{debug} = 1 if $pkg =~ /debug/i;
+
+  my $plist = file( $pkg, 'Contents/Info.plist' );
+  my $pl = parse_plist_file( "$plist" );
+  $self->{version} = guess_version( $pl );
+  $self;
+}
+
+sub guess_version {
+  my $pl = shift;
+  my $sv = $pl->{CFBundleShortVersionString}->value;
+  if ( my $info = $pl->{CFBundleGetInfoString} ) {
+    my $iv = $info->value;
+    $sv = $1 if $iv =~ /\b(\Q$sv\E(?:\.\d+)+)\b/;
+  }
+  return $sv;
+}
+
+sub index_all {
+  my $dir = shift;
+  my %got = ();
+  find {
+    no_chdir => 1,
+    wanted   => sub {
+      return unless /\.pkg$/;
+      my $info = bless { pkg => $_ }, 'pkginfo';
+      $info->infer;
+      my $desc = $info->description;
+      if ( $got{$desc} ) {
+        print STDERR "Already got a package for $desc:\n",
+         "  $got{$desc}{pkg}\n",
+         "  $info->{pkg}\n";
+        return;
+      }
+      $got{$desc} = $info;
+    },
+   },
+   $dir;
+  return \%got;
+}
+
+sub cmp_version {
+  my ( $a, $b ) = @_;
+  my @va = split /\./, $a;
+  my @vb = split /\./, $b;
+  while ( @va && @vb ) {
+    my $cmp = shift( @va ) <=> shift( @vb );
+    return $cmp if $cmp;
+  }
+  return @va <=> @vb;
+}
+
+sub thing(@) {
+  my $ft = file( @_ );
+  return $ft if -f "$ft";
+  my $dt = dir( @_ );
+  return $dt if -d "$dt";
+  return;
+}
+
+sub parents {
+  my @paths = @_;
+  my $pmap  = {};
+  for my $path ( @paths ) {
+    my $thing = file $path;
+    my $pd    = $thing->parent;
+    push @{ $pmap->{$pd} }, $thing->relative( $pd )->stringify;
+  }
+  return $pmap;
+}
+
+sub do_cmd(@) {
+  my @cmd = @_;
+  my $cmd = join ' ', @cmd;
+  my $rc  = run_cmd @cmd;
+  die "$cmd failed: $rc\n" if $rc;
+}
+
+sub run_cmd(@) {
+  my @cmd = @_;
+  my $cmd = join ' ', @cmd;
+  print "$cmd\n";
+  system @cmd;
+}
+
+sub with_cmd(@) {
+  my @cmd = @_;
+  my $cmd = join ' ', @cmd;
+  my $cb  = pop @cmd;
+  open my $fh, '-|', @cmd or die "Can't run $cmd: $!\n";
+  while ( <$fh> ) {
+    chomp( my $ln = $_ );
+    $cb->( $ln );
+  }
+  close $fh or die "Command $cmd failed: $?\n";
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+

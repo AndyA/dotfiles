@@ -13,7 +13,7 @@ setlocal tags=./tags,tags,~/.vim/tags
 
 function! s:tidy()
   let l:loc = g:get_location()
-  exec ':%!indent'
+  exec ':%!astyle'
   call g:set_location(l:loc)
 endfunction
 

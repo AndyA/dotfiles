@@ -1,7 +1,7 @@
 #!/bin/bash
 
 STORE=~/.keystore
-DROP=~/Desktop/andy.p12
+DROP=~/Dropbox/Temp/armsta04.p12
 PKCS12=$STORE/andy.p12
 CRT=$STORE/andy.crt
 KEY=$STORE/andy.key
