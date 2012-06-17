@@ -15,6 +15,7 @@
 .apache-test
 .appcfg_nag
 .aptitude
+.arduino.mk
 .arista
 .bash_history
 .bash_logout
