@@ -56,6 +56,7 @@
 .esd_auth
 .evolution
 .filezilla
+.flashplayer-versions
 .fluxbox
 .fontconfig
 .freevo
@@ -156,6 +157,7 @@
 .srl
 .ssh
 .ssh-agent
+.sshterm/
 .sudo_as_admin_successful
 .svn
 .synergy.conf
