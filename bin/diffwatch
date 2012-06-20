@@ -6,6 +6,7 @@ poll=1
 
 function _shutdown() {
   rm -f "$this" "$last"
+  exit
 }
 
 cmd="$*"
