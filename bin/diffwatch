@@ -10,19 +10,18 @@ function _shutdown() {
 }
 
 cmd="$*"
+touch "$last"
 trap _shutdown SIGINT
 while true; do
   eval $cmd > "$this"
-  if [ -e "$last" ]; then
-    banner=$( date '+%Y-%m-%d %H:%M:%S' )
-    diff "$last" "$this" | while read ln; do
-      if [ "$banner" ]; then
-        echo "$banner"
-        banner=''
-      fi
-      echo "  $ln"
-    done
-  fi
+  banner=$( date '+%Y-%m-%d %H:%M:%S' )
+  diff "$last" "$this" | while read ln; do
+    if [ "$banner" ]; then
+      echo "$banner"
+      banner=''
+    fi
+    echo "  $ln"
+  done
   mv "$this" "$last"
   sleep $poll
 done
