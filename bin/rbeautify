@@ -186,11 +186,11 @@ module RBeautify
    def RBeautify.beautify_file(path)
       error = false
       if(path == '-') # stdin source
-         source = STDIN.read
+         source = STDIN.readlines
          dest,error = beautify_string(source,"stdin")
          print dest
       else # named file source
-         source = File.read(path)
+         source = File.readlines(path)
          dest,error = beautify_string(source,path)
          if(source != dest)
             # make a backup copy
