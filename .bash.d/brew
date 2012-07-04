@@ -1,0 +1,4 @@
+celler=/usr/local/Cellar
+for bin in "ruby/1.9.3-p194/bin"; do
+  [ -d "$celler/$bin" ] && PATH="$celler/$bin:$PATH"
+done
