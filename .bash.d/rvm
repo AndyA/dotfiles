@@ -1,3 +1,1 @@
-for bin in ~/.rvm/bin; do
-  [ -d "$bin" ] && PATH="$bin:$PATH"
-done
+[ $UID -ne 0 ] && [ -s "$HOME/.rvm/scripts/rvm" ] && . "$HOME/.rvm/scripts/rvm"
