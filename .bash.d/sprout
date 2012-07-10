@@ -1,0 +1,3 @@
+for bin in ~/Library/Sprouts/1.1/cache/flex4/4.6.0.23201/bin; do
+  [ -d "$bin" ] && PATH="$bin:$PATH"
+done

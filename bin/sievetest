@@ -9,7 +9,7 @@ use LWP::UserAgent;
 use HTML::Parser;
 
 use constant SIEVETEST =>
- 'http://www.fastmail.fm/docs/sieve/sievetest.php';
+ 'https://www.fastmail.fm/docs/sieve/sievetest.php';
 
 GetOptions() or die "Stopping\n";
 

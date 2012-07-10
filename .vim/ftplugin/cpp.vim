@@ -4,7 +4,7 @@ so $VIMRUNTIME/ftplugin/cpp.vim
 
 function! s:tidy()
   let l:loc = g:get_location()
-  exec ':%!astyle'
+"  exec ':%!indent'
   call g:set_location(l:loc)
 endfunction
 
