@@ -1,0 +1,13 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use URI::Escape;
+
+use constant SEARCH => 'http://www.google.co.uk/search?q=%s';
+
+exec 'athome', 'open', sprintf SEARCH, uri_escape( join ' ', @ARGV );
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
