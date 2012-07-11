@@ -10,6 +10,7 @@ setlocal cindent
 setlocal comments=:#
 setlocal cinkeys-=0#
 setlocal iskeyword+=:
+setlocal makeprg=rake
  
 if executable('ack')
   setlocal grepprg=ack\ --type=ruby

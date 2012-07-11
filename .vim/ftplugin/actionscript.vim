@@ -37,6 +37,7 @@ setlocal formatoptions=croql
 setlocal keywordprg=man\ -S\ 3
 setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
+setlocal makeprg=rake
 
 if executable('ack')
   setlocal grepprg=ack\ --type=actionscript
