@@ -1,0 +1,15 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use JSON;
+
+print JSON->new->pretty->encode(
+  JSON->new->decode(
+    do { local $/; <> }
+  )
+);
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+

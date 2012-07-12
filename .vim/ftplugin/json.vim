@@ -17,7 +17,7 @@ endif
 function! s:tidy()
   if executable('jsindent')
     let l:loc = g:get_location()
-    exec ':%!json2pl | pl2json'
+    exec ':%!jsontidy'
     call g:set_location(l:loc)
   endif
 endfunction
