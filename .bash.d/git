@@ -1,7 +1,7 @@
 # Augment git exec path
 if which git > /dev/null 2>&1; then
-  alias gpull='git pull origin master'
-  alias gpush='git push origin master'
+  alias gpull='git pull'
+  alias gpush='git push'
   if [ -d $HOME/bin/git-ext ]; then
     export GIT_EXEC_PATH=$HOME/bin/git-ext:$(git --exec-path)
   fi
