@@ -1,3 +1,6 @@
-for scr in "/opt/local/etc/bash_completion" "$( brew --prefix )/etc/bash_completion"; do
+config=("/opt/local/etc/bash_completion")
+which brew >/dev/null 2>&1 && config=("${config[@]}" "$( brew --prefix )/etc/bash_completion")
+
+for scr in ${config[@]}; do
   [ -f "$scr" ] && . "$scr"
 done
