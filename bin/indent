@@ -1,7 +1,4 @@
 #!/bin/sh
 
-if [ -x /opt/local/bin/gnuindent ] ; then
-    /opt/local/bin/gnuindent $*
-else
-    /usr/bin/indent $*
-fi
+INDENT=$( which gindent || which gnuindent || echo "/usr/bin/indent" )
+exec $INDENT "$@"
