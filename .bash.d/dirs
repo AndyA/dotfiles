@@ -1,2 +1,0 @@
-# Directories we can cd to
-[ -d ~/Works/Perl/TAPx-Parser/tapx/trunk ] && export TH=~/Works/Perl/TAPx-Parser/tapx/trunk

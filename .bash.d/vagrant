@@ -1,1 +1,0 @@
-[ -d "/opt/vagrant/bin" ] && PATH="/opt/vagrant/bin:$PATH"
