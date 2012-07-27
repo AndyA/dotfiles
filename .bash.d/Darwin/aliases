@@ -1,2 +1,0 @@
-# Darwin specific aliases
-[ -e /Applications/Vim.app ] && alias gvim="/Applications/Vim.app/Contents/MacOS/Vim -g"
