@@ -6,6 +6,7 @@
 /.ICEauthority
 /.Skype
 /.Trash
+/.VirtualBox/
 /.WorkBench
 /.Xauthority
 /.Xcode
@@ -46,6 +47,7 @@
 /.ddd
 /.dmrc
 /.dosemu
+/.dotcloud/
 /.dropbox
 /.dropbox-dist
 /.dvdcss
@@ -76,9 +78,11 @@
 /.gnome2_private
 /.gnupg
 /.google
+/.gphoto/
 /.gstreamer-0.10
 /.gtk-bookmarks
 /.gvfs
+/.hcwd
 /.hotssh
 /.htoprc
 /.icons
@@ -118,6 +122,7 @@
 /.org.eclipse.epp.usagedata.recording.userId
 /.padre
 /.pause
+/.pearrc
 /.perl
 /.perldb_history
 /.pgpass
@@ -141,7 +146,9 @@
 /.remote_test
 /.ri
 /.rnd
+/.rvm/
 /.scala_history
+/.scratchbox2/
 /.screen-profiles
 /.shcache
 /.sieve
@@ -152,6 +159,7 @@
 /.smokestack-stash.yml
 /.spamassassin
 /.splunk
+/.sprouts/
 /.sqlite_history
 /.squidview
 /.srl
@@ -170,6 +178,7 @@
 /.titi
 /.tsclient
 /.twitter
+/.uml/
 /.update-manager-core
 /.update-notifier
 /.usb-creator.log
