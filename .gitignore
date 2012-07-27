@@ -52,6 +52,7 @@
 /.dropbox-dist
 /.dvdcss
 /.dzil
+/.eaglerc
 /.eclipse
 /.eclipse_keyring
 /.emacs
@@ -86,6 +87,7 @@
 /.hotssh
 /.htoprc
 /.icons
+/.inkscape-etc/
 /.install4j
 /.ion3
 /.irb_history
@@ -115,6 +117,7 @@
 /.mysql_history
 /.nautilus
 /.notifo
+/.npm/
 /.nvidia-settings-rc
 /.openoffice.org
 /.openshot
@@ -157,6 +160,7 @@
 /.smoke-tapx
 /.smoke-work
 /.smokestack-stash.yml
+/.sonjzeen
 /.spamassassin
 /.splunk
 /.sprouts/
@@ -216,6 +220,7 @@
 /VirtualBox VMs
 /Works
 /dwhelper
+/mm.cfg
 /perl5
 /svn-prop.tmp
 /workspace
