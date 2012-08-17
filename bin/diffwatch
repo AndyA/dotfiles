@@ -15,7 +15,7 @@ trap _shutdown SIGINT
 while true; do
   eval $cmd > "$this"
   banner=$( date '+%Y-%m-%d %H:%M:%S' )
-  diff "$last" "$this" | while read ln; do
+  diff -u "$last" "$this" | while read ln; do
     if [ "$banner" ]; then
       echo "$banner"
       banner=''
