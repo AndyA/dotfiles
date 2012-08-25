@@ -127,6 +127,7 @@
 /.pause
 /.pearrc
 /.perl
+/.perlbrew
 /.perldb_history
 /.pgpass
 /.pind
