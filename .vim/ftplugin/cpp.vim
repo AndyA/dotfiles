@@ -19,9 +19,9 @@ if executable('astyle')
     exec ':%!astyle'
     call g:set_location(l:loc)
   endfunction
+  noremap <buffer> <f2> :call <SID>tidy()<CR>
 endif
 
-noremap <buffer> <f2> :call <SID>tidy()<CR>
 
 if executable('ack')
   setlocal grepprg=ack\ --type=cpp
