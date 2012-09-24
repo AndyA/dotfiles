@@ -34,6 +34,9 @@ set nofsync
 set swapsync=
 set backupskip=/tmp/*,/private/tmp/*" 
 
+set wildmode=longest:full
+set wildmenu
+
 set laststatus=2
 set statusline=%f%4(%m%)%r%h%w\ format:\ %{&ff}\ type:\ %y\ %4l/%L(%3p%%),\ %3v
 

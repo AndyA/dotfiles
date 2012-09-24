@@ -11,13 +11,14 @@ setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
 setlocal tags=./tags,tags,~/.vim/tags
 
-function! s:tidy()
-  let l:loc = g:get_location()
-  exec ':%!indent'
-  call g:set_location(l:loc)
-endfunction
-
-noremap <buffer> <f2> :call <SID>tidy()<CR>
+if executable('astyle')
+  function! s:tidy()
+    let l:loc = g:get_location()
+    exec ':%!astyle'
+    call g:set_location(l:loc)
+  endfunction
+  noremap <buffer> <f2> :call <SID>tidy()<CR>
+endif
 
 if executable('ack')
   setlocal grepprg=ack\ --type=cc
