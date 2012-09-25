@@ -1,5 +1,8 @@
 " ~/.vimrc
 
+scriptencoding utf-8
+set encoding=utf-8
+
 " Abbreviations
 ia #e andy@hexten.net
 ia Therese Thérèse
