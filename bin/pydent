@@ -15,6 +15,17 @@ LINE: while ( <> ) {
   1 while $ln =~ s/\t/' ' x (TAB - ($-[0] % TAB))/e;
   $ln =~ /^(\s*)(.*)/;
   my ( $ts, $tx ) = ( length $1, $2 );
+  if ( $tx =~ /^#/ ) {
+    if ( $ts == 0 ) {
+      print "$tx\n";
+      next LINE;
+    }
+    my $ind = scalar( @s ) - 1;
+    $ind-- if $ts < $s[-1];
+    $ind++ if $ts > $s[-1];
+    print $pad x $ind, "$tx\n";
+    next LINE;
+  }
   unless ( length $tx ) {
     print "\n";
     next LINE;
