@@ -1,0 +1,32 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use constant INDENT => 2;
+use constant TAB    => 8;
+
+my @s   = ( 0 );
+my $pad = ' ' x INDENT;
+
+LINE: while ( <> ) {
+  chomp( my $ln = $_ );
+  $ln =~ s/\s+$//;
+  1 while $ln =~ s/\t/' ' x (TAB - ($-[0] % TAB))/e;
+  $ln =~ /^(\s*)(.*)/;
+  my ( $ts, $tx ) = ( length $1, $2 );
+  unless ( length $tx ) {
+    print "\n";
+    next LINE;
+  }
+  if ( $ts > $s[-1] ) {
+    push @s, $ts;
+  }
+  else {
+    pop @s while $s[-1] > $ts;
+    print "# Bad indent !!!\n" if $s[-1] < $ts;
+  }
+  print $pad x ( scalar( @s ) - 1 ), "$tx\n";
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
