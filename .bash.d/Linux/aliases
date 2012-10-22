@@ -1,3 +1,3 @@
 alias pbcopy="xclip -sel clip"
 alias pbpaste="xclip -o -sel clip"
-
+alias aptup="sudo apt-get update && sudo apt-get upgrade -y"
