@@ -3,10 +3,10 @@
 use strict;
 use warnings;
 
-use JSON;
+use JSON::PP;
 
-print JSON->new->pretty->encode(
-  JSON->new->decode(
+print JSON::PP->new->pretty->canonical->encode(
+  JSON::PP->new->relaxed->allow_barekey->allow_singlequote->decode(
     do { local $/; <> }
   )
 );
