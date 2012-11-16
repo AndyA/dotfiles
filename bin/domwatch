@@ -13,8 +13,8 @@ while sleep 5; do
     [ -f "$df" ] && mv "$df" "$prev"
     whois "$dom" | grep -v '^>>> Last update' > "$df"
     diff "$prev" "$df" > /dev/null 2>&1 || {
-      echo "To: andy@hexten.net"
-      echo "From: andy@hexten.net"
+      echo "To: $email"
+      echo "From: $email"
       echo "Subject: $dom changed"
       echo
       cat "$df"
