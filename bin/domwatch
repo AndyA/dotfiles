@@ -12,7 +12,7 @@ while sleep 5; do
     touch "$prev"
     [ -f "$df" ] && mv "$df" "$prev"
     whois "$dom" | grep -v '^>>> Last update' > "$df"
-    diff "$prev" "$dom" > /dev/null 2>&1 || {
+    diff "$prev" "$df" > /dev/null 2>&1 || {
       echo "To: andy@hexten.net"
       echo "From: andy@hexten.net"
       echo "Subject: $dom changed"
