@@ -7,7 +7,7 @@ mkdir -p "$tmp"
 
 while sleep 5; do
   for dom in "$@"; do
-    df="$tmp/dom"
+    df="$tmp/$dom"
     prev="$df.prev"
     touch "$prev"
     [ -f "$df" ] && mv "$df" "$prev"
