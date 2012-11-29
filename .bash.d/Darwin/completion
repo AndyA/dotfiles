@@ -1,6 +1,11 @@
-config=("/opt/local/etc/bash_completion")
+config=()
+for bc in /opt/local/etc/bash_completion; do
+  [ -f "$bc" ] && config=("${config[@]}" "$bc")
+done
 which brew >/dev/null 2>&1 && config=("${config[@]}" "$( brew --prefix )/etc/bash_completion")
 
 for scr in ${config[@]}; do
   [ -f "$scr" ] && . "$scr"
 done
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
