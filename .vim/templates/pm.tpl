@@ -1,7 +1,6 @@
 package Foo;
 
-use strict;
-use warnings;
+use Moose;
 
 =head1 NAME
 
