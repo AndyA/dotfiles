@@ -1,0 +1,2 @@
+[ -d /opt/vc/bin ] && PATH=/opt/vc/bin:$PATH
+[ -d /opt/vc/sbin ] && PATH=/opt/vc/sbin:$PATH
