@@ -6,17 +6,7 @@ function die {
 }
 
 ccache="$( which ccache )" 
-if [ -z "$ccache" ]; then
-  which brew && brew install ccache
-  which apt-get && sudo apt-get install ccache
-  ccache="$( which ccache )" 
-  [ "$ccache" ] || die "No ccache"
-fi
-
-if link="$( readlink "$ccache" )"; then
-  real="$( dirname "$ccache" )"/"$( readlink "$ccache" )"
-  ccache="$real"
-fi
+[ "$ccache" ] || die "Please install ccache and try again"
 
 echo "Using $ccache"
 
