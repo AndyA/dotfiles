@@ -15,8 +15,11 @@ PATH=$( perl -e 'print join ":", grep !m{^/usr/local/bin}, split ":", $ENV{PATH}
 skip=""
 for cc in {c++,g++,gcc,cc}{,-{2..5}{,.{0..9}}} clang; do
   targ="/usr/local/bin/$cc"
+  if [ -L "$targ" ] && readlink "$targ" | grep ccache >/dev/null 2>&1; then
+    echo "Removing $targ"
+    rm -f "$targ"
+  fi
   if which "$cc" >/dev/null 2>&1; then
-    [ -e "$targ" ] && rm -f "$targ"
     echo "Linking $targ -> $ccache"
     ln -s "$ccache" "$targ"
   else
