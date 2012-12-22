@@ -28,8 +28,8 @@ for cc in c++ c++-3.3 c++-4.0 c++-4.2 c++3 cc \
   targ="/usr/local/bin/$cc"
   [ -e "$targ" ] && rm -f "$targ"
   if which "$cc" >/dev/null 2>&1; then
-    echo "Linking $targ -> $real"
-    ln -s "$real" "$targ"
+    echo "Linking $targ -> $ccache"
+    ln -s "$ccache" "$targ"
   else
     echo "No $cc, skipped"
   fi
