@@ -19,11 +19,15 @@ for cc in {c++,g++,gcc,cc}{,-{2..5}{,.{0..9}}} clang; do
     echo "Removing $targ"
     rm -f "$targ"
   fi
-  if which "$cc" >/dev/null 2>&1; then
-    echo "Linking $targ -> $ccache"
-    ln -s "$ccache" "$targ"
+  if [ -e "$targ" ]; then
+    echo "$targ is not a link"
   else
-    skip="$skip $cc"
+    if which "$cc" >/dev/null 2>&1; then
+      echo "Linking $targ -> $ccache"
+      ln -s "$ccache" "$targ"
+    else
+      skip="$skip $cc"
+    fi
   fi
 done
 if [ "$skip" ]; then
