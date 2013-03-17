@@ -155,6 +155,7 @@
 /.rnd
 /.rsync-filter
 /.rvm/
+/.s3cfg
 /.sc_history
 /.scala_history
 /.scratchbox2/
@@ -211,6 +212,7 @@
 /.znc
 /.zshrc
 /Applications
+/Box Documents/
 /Desktop
 /Documents
 /Downloads
