@@ -137,10 +137,10 @@ if &t_Co > 255
     hi Debug           ctermfg=181   cterm=bold
     hi Define          ctermfg=223   cterm=bold
     hi Delimiter       ctermfg=245  
-    hi DiffAdd         ctermfg=66    ctermbg=237     cterm=bold
+    hi DiffAdd         ctermfg=66    ctermbg=0     cterm=bold
     hi DiffChange      ctermbg=236  
     hi DiffDelete      ctermfg=236   ctermbg=238    
-    hi DiffText        ctermfg=217   ctermbg=237     cterm=bold
+    hi DiffText        ctermfg=217   ctermbg=0     cterm=bold
     hi Directory       ctermfg=188   cterm=bold
     hi ErrorMsg        ctermfg=115   ctermbg=236     cterm=bold
     hi Exception       ctermfg=249   cterm=bold
@@ -168,42 +168,42 @@ if &t_Co > 255
     hi SpecialComment  ctermfg=108   cterm=bold
     hi Special         ctermfg=181  
     hi SpecialKey      ctermfg=151  
-    hi Statement       ctermfg=187   ctermbg=234     cterm=none
+    hi Statement       ctermfg=187   ctermbg=0     cterm=none
     hi StatusLine      ctermfg=236   ctermbg=186    
     hi StatusLineNC    ctermfg=235   ctermbg=108    
     hi StorageClass    ctermfg=249   cterm=bold
     hi String          ctermfg=174  
     hi Structure       ctermfg=229   cterm=bold
     hi Tag             ctermfg=181   cterm=bold
-    hi Title           ctermfg=7     ctermbg=234     cterm=bold
-    hi Todo            ctermfg=108   ctermbg=234     cterm=bold
+    hi Title           ctermfg=7     ctermbg=0     cterm=bold
+    hi Todo            ctermfg=108   ctermbg=0     cterm=bold
     hi Typedef         ctermfg=253   cterm=bold
     hi Type            ctermfg=187   cterm=bold
-    hi Underlined      ctermfg=188   ctermbg=234     cterm=bold
+    hi Underlined      ctermfg=188   ctermbg=0     cterm=bold
     hi VertSplit       ctermfg=236   ctermbg=65 
     hi VisualNOS       ctermfg=236   ctermbg=210     cterm=bold
     hi WarningMsg      ctermfg=15    ctermbg=236     cterm=bold
     hi WildMenu        ctermbg=236   ctermfg=194     cterm=bold
     if exists("g:zenburn_high_Contrast")
-        hi Normal ctermfg=188 ctermbg=234
+        hi Normal ctermfg=188 ctermbg=0
     else
-        hi Normal ctermfg=188 ctermbg=237
+        hi Normal ctermfg=188 ctermbg=0
         hi Cursor          ctermbg=109
-        hi diffadd         ctermbg=237
+        hi diffadd         ctermbg=0
         hi diffdelete      ctermbg=238
-        hi difftext        ctermbg=237
-        hi errormsg        ctermbg=237
+        hi difftext        ctermbg=0
+        hi errormsg        ctermbg=0
         hi foldcolumn      ctermbg=238
         hi folded          ctermbg=238
         hi incsearch       ctermbg=228
         hi linenr          ctermbg=238  
         hi search          ctermbg=238
-        hi statement       ctermbg=237
+        hi statement       ctermbg=0
         hi statusline      ctermbg=144
         hi statuslinenc    ctermbg=108
-        hi title           ctermbg=237
-        hi todo            ctermbg=237
-        hi underlined      ctermbg=237
+        hi title           ctermbg=0
+        hi todo            ctermbg=0
+        hi underlined      ctermbg=0
         hi vertsplit       ctermbg=65 
         hi visualnos       ctermbg=210
         hi warningmsg      ctermbg=236
