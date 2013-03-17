@@ -27,6 +27,8 @@ function source_dir {
   fi
 }
 
+[ -f ~/.bash_local ] && source ~/.bash_local
+
 # Per platform config
 source_dir "$HOME/.bash.d/$RCUNAME"
 # Per host config
