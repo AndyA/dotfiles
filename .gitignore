@@ -117,6 +117,7 @@
 /.mplayer
 /.mysql_history
 /.nautilus
+/.node-gyp/
 /.notifo
 /.npm/
 /.nvidia-settings-rc
@@ -227,6 +228,7 @@
 /dwhelper
 /gitosis-admin
 /mm.cfg
+/node_modules/
 /perl5
 /svn-prop.tmp
 /workspace
