@@ -6,9 +6,10 @@ PKCS12=$STORE/andy.p12
 CRT=$STORE/andy.crt
 KEY=$STORE/andy.key
 
+mkdir -p $STORE
+
 STUNNEL_CFG=/etc/stunnel
 [ -d /usr/local/etc/stunnel ] && STUNNEL_CFG=/usr/local/etc/stunnel
-[ -d /alt/local/etc/stunnel ] && STUNNEL_CFG=/alt/local/etc/stunnel
 
 cp $DROP $PKCS12
 openssl pkcs12 -in $PKCS12 -out $KEY -nodes -clcerts -nocerts
