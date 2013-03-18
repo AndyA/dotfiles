@@ -11,7 +11,7 @@ if [[ "$prog" -nt "$bin" ]]; then
   gcc -Wall -o "$bin" "$tmp"
   rc=$?
   rm -f "$tmp"
-  [[ $rc == 0 ]] || exit
+  [[ $rc == 0 ]] || exit $rc
 fi
 exec "$bin" "$@"
 
