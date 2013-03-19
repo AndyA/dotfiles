@@ -46,6 +46,7 @@
 /.cvsps
 /.dbsave
 /.dbus
+/.dbus-keyrings
 /.ddd
 /.dmrc
 /.dosemu

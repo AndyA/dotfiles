@@ -1,4 +1,9 @@
 # .bashrc
+
+if [[ $- != *i* ]]; then
+  return
+fi
+
 export EDITOR=vim
 export PAGER=less
 export RCUNAME=`uname`
