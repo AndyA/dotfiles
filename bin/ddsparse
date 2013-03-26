@@ -5,19 +5,41 @@ use warnings;
 
 use Set::IntSpan::Fast::XS;
 
-use constant MERGE => 128;
+use constant MERGE   => 128;
+use constant BS      => 1024 * 1024;
+use constant REBLOCK => 1;
 
 my $in  = shift;
 my $out = shift;
 defined $out or die "ddsparse <in> <out>\n";
 dupe2( $in, $out );
 
+sub reblock {
+  my ( $set, $ibs, $obs ) = @_;
+  my $oset = Set::IntSpan::Fast::XS->new;
+  my $iter = $set->iterate_runs;
+  while ( my ( $from, $to ) = $iter->() ) {
+    $oset->add_range( int( $from * $ibs / $obs ),
+      int( ( $to * $ibs + $obs - 1 ) / $obs ) );
+  }
+  return $oset;
+}
+
 sub dupe2 {
   my ( $in, $out ) = @_;
   my ( $used, $bsize, $bcount ) = get_used($in);
-  #  print "Block size: $bsize\n";
-  #  print "Block count: $bcount\n";
-  #  print "Used: ", $used->as_string, "\n";
+
+  if (REBLOCK) {
+    dd_list( $in, $out, reblock( $used, $bsize, BS ), BS, 1 );
+  }
+  else {
+    dd_list( $in, $out, $used, $bsize, MERGE );
+  }
+  make_empty( $out, $bsize, $bcount );
+}
+
+sub dd_list {
+  my ( $in, $out, $used, $bsize, $merge ) = @_;
 
   my $iter    = $used->iterate_runs;
   my @pending = ();
@@ -31,7 +53,7 @@ sub dupe2 {
 
   while ( my ( $from, $to ) = $iter->() ) {
     # Coallesce adjacent runs
-    if ( @pending && $pending[-1][1] + MERGE >= $from ) {
+    if ( @pending && $pending[-1][1] + $merge >= $from ) {
       $pending[-1][1] = $to;
     }
     else {
@@ -42,8 +64,6 @@ sub dupe2 {
   }
 
   $flush->();
-
-  make_empty( $out, $bsize, $bcount );
 }
 
 sub copy_block {
