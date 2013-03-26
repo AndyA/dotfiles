@@ -15,9 +15,9 @@ dupe2( $in, $out );
 sub dupe2 {
   my ( $in, $out ) = @_;
   my ( $used, $bsize, $bcount ) = get_used($in);
-  print "Block size: $bsize\n";
-  print "Block count: $bcount\n";
-  print "Used: ", $used->as_string, "\n";
+  #  print "Block size: $bsize\n";
+  #  print "Block count: $bcount\n";
+  #  print "Used: ", $used->as_string, "\n";
 
   my $iter    = $used->iterate_runs;
   my @pending = ();
