@@ -7,7 +7,7 @@ use File::Basename;
 
 die "syntax: h <name> <ext>\n" unless @ARGV == 2;
 my ( $name, $ext ) = @ARGV;
-( my $guard = '__' . uc $name ) =~ s/\./_/g;
+( my $guard = uc $name . '_' ) =~ s/\./_/g;
 
 print <<EOT;
 /* $name */
