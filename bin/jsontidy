@@ -5,6 +5,7 @@ use warnings;
 
 use JSON::PP;
 
+STDOUT->binmode(':utf8');
 print JSON::PP->new->pretty->canonical->encode(
   JSON::PP->new->relaxed->allow_barekey->allow_singlequote->decode(
     do { local $/; <> }
