@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Digest::SHA1;
+use Digest::SHA;
 use File::Path qw( rmtree );
 use Getopt::Long;
 
@@ -38,7 +38,7 @@ sub same_file {
 sub file_digest {
   my $f = shift;
   open my $fh, '<', $f or die "Can't read $f: $!\n";
-  return Digest::SHA1->new->addfile( $fh )->hexdigest;
+  return Digest::SHA->new->addfile( $fh )->hexdigest;
 }
 
 sub rotate_file {
