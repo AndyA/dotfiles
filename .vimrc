@@ -47,7 +47,7 @@ set formatprg=perl\ -MText::Autoformat\ -e'autoformat'
 set formatoptions=qro
 
 if executable('ack')
-  set grepprg=ack\ -a
+  set grepprg=ack
 endif
 
 syntax on
