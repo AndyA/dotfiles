@@ -23,7 +23,7 @@ my %CONFIG = (
 
 my @dumpopts = qw(
   --add-drop-table
-  --extended-insert=FALSE
+  --extended-insert=TRUE
   --complete-insert=TRUE
   --routines
   --hex-blob
