@@ -7,26 +7,42 @@ use Term::ANSIColor;
 
 my $visible_space = 0;
 my $show_help     = 0;
-my $color;
+my $show_chart    = 0;
+my $colour;
 
 GetOptions(
-  'V'       => \$visible_space,
-  'visible' => \$visible_space,
-  'help'    => \$show_help,
-  'color:s' => \$color,
+  'V'        => \$visible_space,
+  'visible'  => \$visible_space,
+  'help'     => \$show_help,
+  'chart'    => \$show_chart,
+  'colour:s' => \$colour,          # The US version of BBC Basic
+  'color:s'  => \$colour,          # supported both spellings.
 ) or syntax();
 
-if ( $show_help ) {
+if ($show_help) {
   show_help();
   exit 0;
 }
 
-print color $color if defined $color;
-while ( <> ) {
-  chomp;
-  print "\n", bigness( $_, $visible_space );
+print color $colour if defined $colour;
+
+if ($show_chart) {
+  my @chars = map chr, 32 .. 126;
+  my $stride = 16;
+  print "\n";
+  while ( my @row = splice @chars, 0, $stride ) {
+    print bigness( join '', @row );
+  }
+  print "\n";
 }
-print color 'reset' if defined $color;
+else {
+  while (<>) {
+    chomp;
+    print "\n", bigness( $_, $visible_space );
+  }
+}
+
+print color 'reset' if defined $colour;
 
 sub bigness {
   my $str           = shift;
@@ -84,12 +100,12 @@ sub bigness {
   my @chars = unpack( 'C*', $str );
   my @out = ();
   for my $row ( 0 .. 7 ) {
-    for my $char ( @chars ) {
+    for my $char (@chars) {
       next if $char < 32 || $char > 126;
-      my $size = scalar( @cdef );
-      my $byte = hex( substr( $cdef[ $char - 32 ], $row * 2, 2 ) );
+      my $size = scalar(@cdef);
+      my $byte = hex( substr( $cdef[$char - 32], $row * 2, 2 ) );
       my $bits = sprintf( '%08b', $byte );
-      if ( $visible_space ) {
+      if ($visible_space) {
         $bits =~ tr/01/_#/;
         push @out, "$bits|";
       }
