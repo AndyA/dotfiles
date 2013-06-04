@@ -14,15 +14,22 @@ GetOptions(
   'sparse'    => \$sparse
 ) or die;
 
-my @cols = ( $zero ? 0 : 1 ) .. ( $width - ( $zero ? 1 : 0 ) );
+my $lo = $zero ? 0 : 1;
+my $hi = $width - ($zero ? 1 : 0);
+
+my $depth = length "$hi";
+
+my @cols = map {sprintf "%${depth}d",$_} ($lo..$hi);
 if ( $sparse ) {
-  my @pad = map { '.' } @cols;
+  my $dot = sprintf "%${depth}s", '.';
+  my @pad = map { $dot } @cols;
   for my $i ( 0 .. $#pad ) {
     $pad[$i] = $cols[$i] unless $cols[$i] % 5;
   }
   $pad[$_] = $cols[$_] for -1, 0;
   @cols = @pad;
 }
+s/( +)(\d)/('|' x length $1) . $2/eg for @cols;
 for my $i ( 0 .. length( $cols[-1] ) - 1 ) {
   print
    join( '', map { $i < length $_ ? substr( $_, $i, 1 ) : ' ' } @cols ),
