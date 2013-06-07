@@ -13,6 +13,7 @@ setlocal cinoptions=:0
 setlocal foldmethod=syntax
 if has('conceal')
   setlocal conceallevel=2
+endif
 
 if executable('ack')
   setlocal grepprg=ack\ --type=js
