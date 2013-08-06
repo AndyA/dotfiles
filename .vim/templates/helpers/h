@@ -15,6 +15,13 @@ print <<EOT;
 #ifndef $guard
 #define $guard
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
