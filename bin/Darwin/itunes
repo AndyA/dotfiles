@@ -76,10 +76,6 @@ while [ $# -gt 0 ]; do
             if [ $2 = "down" ]; then
                 newvol=$(( vol-10 ));
             fi
-
-            if [ $2 -gt 0 ]; then
-                newvol=$2;
-            fi
             osascript -e "tell application \"iTunes\" to set sound volume to $newvol";
             break ;;
 
