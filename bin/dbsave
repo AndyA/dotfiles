@@ -18,7 +18,8 @@ my %CONFIG = (
   MYSQLEXTRA => '',
   DIR        => '.',
   INCLUDE    => [],
-  EXCLUDE    => []
+  EXCLUDE    => [],
+  SAVEOPT    => []
 );
 
 my @dumpopts = qw(
@@ -49,7 +50,11 @@ if ( $me eq 'dbsave' ) {
   mkpath( $dir, 0, 0777 );
 
   # Simple mode
-  dbsave( cfg('INCLUDE') || [], cfg('EXCLUDE') || [] );
+  dbsave(
+    cfg('INCLUDE') || [],
+    cfg('EXCLUDE') || [],
+    cfg('SAVEOPT') || []
+  );
 
   # Got rules?
   my $rules = cfg('RULES');
@@ -57,19 +62,24 @@ if ( $me eq 'dbsave' ) {
   if ( defined($rules) ) {
     for my $sfx ( sort keys %{$rules} ) {
       my $rule = $rules->{$sfx};
-      dbsave( $rule->{INCLUDE} || [], $rule->{EXCLUDE} || [], $sfx );
+      dbsave(
+        $rule->{INCLUDE} || [],
+        $rule->{EXCLUDE} || [],
+        $rule->{SAVEOPT} || [], $sfx
+      );
     }
   }
 }
 elsif ( $me eq 'dbload' ) {
-  dbload( cfg('INCLUDE') );
+  dbload( cfg('INCLUDE') ) unless cfg('NOLOAD');
 
   my $rules = cfg('RULES');
 
   if ( defined($rules) ) {
     for my $sfx ( sort keys %{$rules} ) {
       my $rule = $rules->{$sfx};
-      dbload( $rule->{INCLUDE} || [], $sfx );
+      dbload( $rule->{INCLUDE} || [], $sfx )
+       unless $rule->{NOLOAD};
     }
   }
 
@@ -108,14 +118,15 @@ sub load {
 }
 
 sub save {
-  my ( $file, $db, @tab ) = @_;
+  my ( $file, $db, $opts, @tab ) = @_;
 
   my $tab = join( ' ', sort @tab );
 
   if ($tab) {
     my $out = "$dir/$file.sql";
     print "Saving $db ($tab) as $out\n";
-    my $cmd = mysql_cmd( 'MYSQLDUMP', @dumpopts, $db, $tab );
+    my $cmd
+     = mysql_cmd( 'MYSQLDUMP', @dumpopts, @{ $opts || [] }, $db, $tab );
     open I, "$cmd|" or die "Can't exec $cmd ($!)\n";
     open O, ">$out" or die "Can't write $out ($!)\n";
     print O "CREATE DATABASE /*!32312 IF NOT EXISTS*/ `$db`;\n";
@@ -129,7 +140,7 @@ sub save {
 }
 
 sub dbsave {
-  my ( $inc_list, $exc_list, $name ) = @_;
+  my ( $inc_list, $exc_list, $opts, $name ) = @_;
 
   my $inc = expand_wildcards( @{$inc_list} );
   my $exc = expand_wildcards( @{$exc_list} );
@@ -143,7 +154,7 @@ sub dbsave {
   for my $db ( sort keys %$inc ) {
     my $file = $db;
     $file = "$file-$name" if defined $name;
-    save( $file, $db, sort keys %{ $inc->{$db} } );
+    save( $file, $db, $opts, sort keys %{ $inc->{$db} } );
   }
 }
 
