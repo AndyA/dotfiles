@@ -154,6 +154,7 @@
 /.remote_test
 /.ri
 /.rnd
+/.rpmdb
 /.rsync-filter
 /.rvm/
 /.s3cfg
