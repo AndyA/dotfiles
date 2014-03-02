@@ -3,11 +3,11 @@
 use strict;
 use warnings;
 
-use JSON::PP;
+use JSON;
 
 STDOUT->binmode(':utf8');
-print JSON::PP->new->pretty->canonical->encode(
-  JSON::PP->new->relaxed->allow_barekey->allow_singlequote->decode(
+print JSON->new->pretty->canonical->encode(
+  JSON->new->relaxed->decode(
     do { local $/; <> }
   )
 );
