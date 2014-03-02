@@ -1,0 +1,29 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my ( $sz, @file ) = @ARGV;
+
+my $size = parse_size($sz);
+
+for my $fl (@file) {
+  open my $fh, '>', $fl or die "Can't write $fl: $!\n";
+  sysseek $fh, $size - 1, 0 or die "Can't extend $fl: $!\n";
+  syswrite $fh, "\0";
+}
+
+sub parse_size {
+  my $sz = shift;
+  my @sc = qw( B K M G T P );
+  die "Bad size\n" unless $sz =~ m{^(\d+(?:\.\d+)?)(\w*)$};
+  my ( $count, $scale ) = ( $1, uc $2 );
+  return $count if $scale eq '';
+  for my $power ( 0 .. $#sc ) {
+    return $count * 1024**$power if $scale eq $sc[$power];
+  }
+  die "Bad size\n";
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
