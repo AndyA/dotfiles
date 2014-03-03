@@ -9,214 +9,221 @@ use Memoize;
 $| = 1;
 
 my @path = map glob, qw( /etc/dbsave.cfg ~/.dbsave ./dbsave.cfg );
-my $me = basename( $0 );
+my $me = basename($0);
 
 my %CONFIG = (
-    DBHOST     => 'localhost',
-    MYSQL      => 'mysql',
-    MYSQLDUMP  => 'mysqldump',
-    MYSQLEXTRA => '',
-    DIR        => '.',
-    INCLUDE    => [],
-    EXCLUDE    => []
+  DBHOST     => 'localhost',
+  MYSQL      => 'mysql',
+  MYSQLDUMP  => 'mysqldump',
+  MYSQLEXTRA => '',
+  DIR        => '.',
+  INCLUDE    => [],
+  EXCLUDE    => [],
+  SAVEOPT    => []
 );
 
 my @dumpopts = qw(
-  --add-drop-table
-  --extended-insert=TRUE
-  --complete-insert=TRUE
-  --routines
-  --hex-blob
-  --disable-keys
+ --add-drop-table
+ --extended-insert=TRUE
+ --complete-insert=TRUE
+ --routines
+ --hex-blob
+ --disable-keys
 );
 
-memoize( 'enum_databases' );
-memoize( 'enum_tables' );
+memoize('enum_databases');
+memoize('enum_tables');
 
 our $CONFIG;
 my %config = ();
 
 for my $cfg ( grep -e, @path ) {
-    local $CONFIG = undef;
-    require $cfg;
-    # Handle legacy configs that assign to $CONFIG
-    add_config( %{$CONFIG} ) if 'HASH' eq ref $CONFIG;
+  local $CONFIG = undef;
+  require $cfg;
+  # Handle legacy configs that assign to $CONFIG
+  add_config( %{$CONFIG} ) if 'HASH' eq ref $CONFIG;
 }
 
-my $dir = cfg( 'DIR' );
+my $dir = cfg('DIR');
 
 if ( $me eq 'dbsave' ) {
-    mkpath( $dir, 0, 0777 );
+  mkpath( $dir, 0, 0777 );
 
-    # Simple mode
-    dbsave( cfg( 'INCLUDE' ) || [], cfg( 'EXCLUDE' ) || [] );
+  # Simple mode
+  dbsave(
+    cfg('INCLUDE') || [],
+    cfg('EXCLUDE') || [],
+    cfg('SAVEOPT') || []
+  );
 
-    # Got rules?
-    my $rules = cfg( 'RULES' );
+  # Got rules?
+  my $rules = cfg('RULES');
 
-    if ( defined( $rules ) ) {
-        for my $sfx ( sort keys %{$rules} ) {
-            my $rule = $rules->{$sfx};
-            dbsave( $rule->{INCLUDE} || [],
-                $rule->{EXCLUDE} || [], $sfx );
-        }
+  if ( defined($rules) ) {
+    for my $sfx ( sort keys %{$rules} ) {
+      my $rule = $rules->{$sfx};
+      dbsave(
+        $rule->{INCLUDE} || [],
+        $rule->{EXCLUDE} || [],
+        $rule->{SAVEOPT} || [], $sfx
+      );
     }
+  }
 }
 elsif ( $me eq 'dbload' ) {
-    dbload( cfg( 'INCLUDE' ) );
+  dbload( cfg('INCLUDE') ) unless cfg('NOLOAD');
 
-    my $rules = cfg( 'RULES' );
+  my $rules = cfg('RULES');
 
-    if ( defined( $rules ) ) {
-        for my $sfx ( sort keys %{$rules} ) {
-            my $rule = $rules->{$sfx};
-            dbload( $rule->{INCLUDE} || [], $sfx );
-        }
+  if ( defined($rules) ) {
+    for my $sfx ( sort keys %{$rules} ) {
+      my $rule = $rules->{$sfx};
+      dbload( $rule->{INCLUDE} || [], $sfx )
+       unless $rule->{NOLOAD};
     }
+  }
 
 }
 else {
-    die
-      "I only know what to do when I'm called dbsave or dbload. I appear "
-      . "to be called '$me'\n";
+  die "I only know what to do when I'm called dbsave or dbload. I appear "
+   . "to be called '$me'\n";
 }
 
 sub dbload {
-    my ( $inc_list, $name ) = @_;
+  my ( $inc_list, $name ) = @_;
 
-    my %inc = ();
-    for ( @{$inc_list} ) {
-        my ( $db, $table ) = split( /\./, $_ );
-        $inc{$db}++;
+  my %inc = ();
+  for ( @{$inc_list} ) {
+    my ( $db, $table ) = split( /\./, $_ );
+    $inc{$db}++;
+  }
+  for my $db ( sort keys %inc ) {
+    my $file = $db;
+    $file = "$file-$name" if defined($name);
+    my $in = "$dir/$file.sql";
+    for ( glob($in) ) {
+      load($_) if -f $_;
     }
-    for my $db ( sort keys %inc ) {
-        my $file = $db;
-        $file = "$file-$name" if defined( $name );
-        my $in = "$dir/$file.sql";
-        for ( glob( $in ) ) {
-            load( $_ ) if -f $_;
-        }
-    }
+  }
 }
 
 sub load {
-    my ( $file ) = @_;
-    if ( -f $file ) {
-        print "Loading from $file\n";
-        my $cmd = "cat $file | " . mysql_cmd( 'MYSQL' );
-        system( $cmd) == 0
-          or die "$cmd failed ($?)\n";
-    }
+  my ($file) = @_;
+  if ( -f $file ) {
+    print "Loading from $file\n";
+    my $cmd = "cat $file | " . mysql_cmd('MYSQL');
+    system($cmd) == 0
+     or die "$cmd failed ($?)\n";
+  }
 }
 
 sub save {
-    my ( $file, $db, @tab ) = @_;
+  my ( $file, $db, $opts, @tab ) = @_;
 
-    my $tab = join( ' ', sort @tab );
+  my $tab = join( ' ', sort @tab );
 
-    if ( $tab ) {
-        my $out = "$dir/$file.sql";
-        print "Saving $db ($tab) as $out\n";
-        my $cmd = mysql_cmd( 'MYSQLDUMP', @dumpopts, $db, $tab );
-        open I, "$cmd|" or die "Can't exec $cmd ($!)\n";
-        open O, ">$out" or die "Can't write $out ($!)\n";
-        print O "CREATE DATABASE /*!32312 IF NOT EXISTS*/ `$db`;\n";
-        print O "USE `$db`;\n";
-        while ( <I> ) {
-            print O;
-        }
-        close O;
-        close I or die "Can't exec $cmd ($!)\n";
+  if ($tab) {
+    my $out = "$dir/$file.sql";
+    print "Saving $db ($tab) as $out\n";
+    my $cmd
+     = mysql_cmd( 'MYSQLDUMP', @dumpopts, @{ $opts || [] }, $db, $tab );
+    open I, "$cmd|" or die "Can't exec $cmd ($!)\n";
+    open O, ">$out" or die "Can't write $out ($!)\n";
+    print O "CREATE DATABASE /*!32312 IF NOT EXISTS*/ `$db`;\n";
+    print O "USE `$db`;\n";
+    while (<I>) {
+      print O;
     }
+    close O;
+    close I or die "Can't exec $cmd ($!)\n";
+  }
 }
 
 sub dbsave {
-    my ( $inc_list, $exc_list, $name ) = @_;
+  my ( $inc_list, $exc_list, $opts, $name ) = @_;
 
-    my $inc = expand_wildcards( @{$inc_list} );
-    my $exc = expand_wildcards( @{$exc_list} );
+  my $inc = expand_wildcards( @{$inc_list} );
+  my $exc = expand_wildcards( @{$exc_list} );
 
-    # Remove exclusions from list of tables
-    for my $d ( keys %$exc ) {
-        for my $t ( keys %{ $exc->{$d} } ) {
-            delete $inc->{$d}->{$t};
-        }
+  # Remove exclusions from list of tables
+  for my $d ( keys %$exc ) {
+    for my $t ( keys %{ $exc->{$d} } ) {
+      delete $inc->{$d}->{$t};
     }
-    for my $db ( sort keys %$inc ) {
-        my $file = $db;
-        $file = "$file-$name" if defined $name;
-        save( $file, $db, sort keys %{ $inc->{$db} } );
-    }
+  }
+  for my $db ( sort keys %$inc ) {
+    my $file = $db;
+    $file = "$file-$name" if defined $name;
+    save( $file, $db, $opts, sort keys %{ $inc->{$db} } );
+  }
 }
 
 sub cfg { $config{ shift() } }
 
 sub switch {
-    my ( $flag, $key ) = @_;
-    if ( defined( my $val = cfg( $key ) ) ) {
-        return "$flag$val";
-    }
-    return;
+  my ( $flag, $key ) = @_;
+  if ( defined( my $val = cfg($key) ) ) {
+    return "$flag$val";
+  }
+  return;
 }
 
 sub mysql_cmd {
-    my $key = shift;
-    return join ' ', grep defined,
-      cfg( $key ),
-      switch ( '-u ',         'DBUSER' ),
-      switch ( '--host=',     'DBHOST' ),
-      switch ( '--password=', 'DBPASS' ),
-      cfg( 'MYSQLEXTRA' ), @_;
+  my $key = shift;
+  return join ' ', grep defined,
+   cfg($key),
+   switch ( '-u ',         'DBUSER' ),
+   switch ( '--host=',     'DBHOST' ),
+   switch ( '--password=', 'DBPASS' ),
+   cfg('MYSQLEXTRA'), @_;
 }
 
 sub catch_command {
-    my $cmd = shift;
-    my @db  = ();
-    open my $ch, "$cmd|" or die "Can't shell $cmd ($!)\n";
-    while ( <$ch> ) {
-        chomp;
-        push @db, $_;
-    }
-    close $ch or die "Can't shell $cmd ($!)\n";
-    shift @db;
-    return @db;
+  my $cmd = shift;
+  my @db  = ();
+  open my $ch, "$cmd|" or die "Can't shell $cmd ($!)\n";
+  while (<$ch>) {
+    chomp;
+    push @db, $_;
+  }
+  close $ch or die "Can't shell $cmd ($!)\n";
+  shift @db;
+  return @db;
 }
 
 sub enum_databases {
-    return catch_command(
-        "echo SHOW DATABASES | " . mysql_cmd( 'MYSQL' ) );
+  return catch_command( "echo SHOW DATABASES | " . mysql_cmd('MYSQL') );
 }
 
 sub enum_tables {
-    return catch_command(
-        "echo SHOW TABLES | " . mysql_cmd( 'MYSQL', @_ ) );
+  return catch_command( "echo SHOW TABLES | " . mysql_cmd( 'MYSQL', @_ ) );
 }
 
 sub expand_wildcards {
-    my $got = {};
-    for my $dt ( @_ ) {
-        my ( $db, $table ) = split( /\./, $dt );
-        $table = '*' unless defined $table;
-        for ( $db, $table ) {
-            $_ = quotemeta( $_ );
-            s/\\\*/.*/g;
-            s/\\\?/./g;
-        }
-        for my $d ( enum_databases() ) {
-            if ( $d =~ /^$db$/ ) {
-                for my $t ( enum_tables( $d ) ) {
-                    if ( $t =~ /^$table$/ ) {
-                        $got->{$d}->{$t}++;
-                    }
-                }
-            }
-        }
+  my $got = {};
+  for my $dt (@_) {
+    my ( $db, $table ) = split( /\./, $dt );
+    $table = '*' unless defined $table;
+    for ( $db, $table ) {
+      $_ = quotemeta($_);
+      s/\\\*/.*/g;
+      s/\\\?/./g;
     }
-    return $got;
+    for my $d ( enum_databases() ) {
+      if ( $d =~ /^$db$/ ) {
+        for my $t ( enum_tables($d) ) {
+          if ( $t =~ /^$table$/ ) {
+            $got->{$d}->{$t}++;
+          }
+        }
+      }
+    }
+  }
+  return $got;
 }
 
 sub add_config {
-    die "Config must be a list of key => value pairs"
-      if @_ % 2;
-    %config = ( %config, @_ );
+  die "Config must be a list of key => value pairs"
+   if @_ % 2;
+  %config = ( %config, @_ );
 }
