@@ -1,0 +1,36 @@
+#!/bin/bash
+
+DEST=/Volumes/EastBolton
+SRC=/Volumes/Basil/Incoming
+STASH=~/Documents/Destiny/EastBolton
+
+SRCM="$SRC/MANIFEST.json"
+STASHM="$STASH/MANIFEST.json"
+
+function die {
+  echo "$*" 1>&2
+  exit 1
+}
+
+[ -d "$DEST" ] || die "$DEST not mounted"
+
+echo "Scanning files"
+destiny "$SRC"
+
+if diff "$SRCM" "$STASHM" >/dev/null; then
+  echo "Nothing to do"
+  exit
+fi
+
+cd "$( dirname "$SRC" )"
+echo "Copying files"
+destiny-diff "$STASHM" "$SRCM" | cpio -pdv "$DEST"
+
+echo "Updating manifest"
+jsonpretty < "$SRCM" > "$STASHM"
+cd "$STASH"
+git add "MANIFEST.json"
+git commit -m "Snapshot"
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
