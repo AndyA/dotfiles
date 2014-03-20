@@ -18,6 +18,8 @@ my %O = (
   ],
 );
 
+my @failed = ();
+
 GetOptions( 'o:s' => \$O{o} ) or die;
 
 for my $obj (@ARGV) {
@@ -43,10 +45,32 @@ for my $obj (@ARGV) {
    $obj;
 }
 
+if (@failed) {
+  print "Problems:\n";
+  for my $fail (@failed) {
+    print "  $fail->{file}: $fail->{msg}\n";
+  }
+}
+
+sub tidy {
+  my $str = shift;
+  for ($str) { s/^\s+//; s/\s+$// }
+  return $str;
+}
+
+sub fail {
+  my ( $file, $msg ) = @_;
+  push @failed, { file => $file, msg => tidy($msg) };
+}
+
 sub sift {
   my $file = file shift;
-  my $info = mediainfo($file);
   print "$file\n";
+  my $info = eval { mediainfo($file) };
+  unless ($info) {
+    fail( $file, $@ );
+    return;
+  }
   my $dir  = $file->parent;
   my $name = $file->basename;
   for my $key ( @{ $O{key} } ) {
