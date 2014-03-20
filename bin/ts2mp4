@@ -42,6 +42,7 @@ for my $dir (@ARGV) {
 
 sub stable {
   my ( $wait, @name ) = @_;
+  return unless @name;
   my @state = map { [$_, ( stat $_ )[9]] } @name;
   sleep $wait;
   @state = map { [@$_, ( stat $_->[0] )[9]] } @state;
