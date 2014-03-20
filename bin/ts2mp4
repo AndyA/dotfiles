@@ -9,7 +9,7 @@ use warnings;
 use File::Find;
 
 for my $dir (@ARGV) {
-  my @ts = stable( find_ts($dir) );
+  my @ts = stable( 5, find_ts($dir) );
   for my $ts (@ts) {
     ( my $mp4 = $ts ) =~ s/\.ts$/.mp4/i;
     ( my $tmp = $ts ) =~ s/\.ts$/.tmp.mp4/i;
@@ -41,9 +41,9 @@ for my $dir (@ARGV) {
 }
 
 sub stable {
-  my @name = @_;
+  my ( $wait, @name ) = @_;
   my @state = map { [$_, ( stat $_ )[9]] } @name;
-  sleep 5;
+  sleep $wait;
   @state = map { [@$_, ( stat $_->[0] )[9]] } @state;
   return map { $_->[0] } grep { $_->[1] == $_->[2] } @state;
 }
