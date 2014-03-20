@@ -6,15 +6,37 @@ use autodie;
 use strict;
 use warnings;
 
-use Data::Dumper;
 use File::Find;
-use Path::Class;
 
 for my $dir (@ARGV) {
   my @ts = find_ts($dir);
   for my $ts (@ts) {
+    ( my $mp4 = $ts ) =~ s/\.ts$/.mp4/i;
+    ( my $tmp = $ts ) =~ s/\.ts$/.tmp.mp4/i;
+    if ( -f $mp4 && -M $mp4 < -M $ts ) {
+      print "$mp4 exists, skipping\n";
+      next;
+    }
     my $map = probe($ts);
-    print Dumper($map);
+
+    my @cmd = (
+      ffmpeg => -y => -i => $ts,
+      ( map { ( -map => $_ ) } map { $_->[0] } $map->{video}{unknown},
+        $map->{audio}{eng}
+      ),
+      '-c:a' => 'libfaac',
+      '-b:a' => '256k',
+      '-c:v' => 'copy',
+      $tmp
+    );
+    print join( ' ', @cmd ), "\n";
+    my $rc = system @cmd;
+    print "ffmpeg exit: $rc\n";
+    if ( $rc ) {
+      unlink $tmp;
+      next;
+    }
+    rename $tmp, $mp4;
   }
 }
 
@@ -36,7 +58,7 @@ sub probe {
     {
       my ( $id, $lang, $type ) = ( $1, $2, $3 );
       $lang //= 'unknown';
-      push @{ $map->{ lc $type } }{ lc $lang }, $1;
+      push @{ $map->{ lc $type }{ lc $lang } }, $1;
     }
   }
   return $map;
