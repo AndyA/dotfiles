@@ -1,0 +1,65 @@
+#!/usr/bin/env perl
+
+use 5.010;
+
+use autodie;
+use strict;
+use warnings;
+
+use Data::Dumper;
+use File::Find;
+use Path::Class;
+
+for my $dir (@ARGV) {
+  my @ts = find_ts($dir);
+  for my $ts (@ts) {
+    my $map = probe($ts);
+    print Dumper($map);
+  }
+}
+
+sub probe {
+  my $vf  = shift;
+  my $tmp = "/tmp/ffprobe.$$.log";
+  my $cmd = join ' ', 'ffprobe',
+   -i => shell_escape($vf),
+   '>', shell_escape($tmp), '2>&1';
+  print "$cmd\n";
+  my $rc = system $cmd;
+  die "ffprobe failed: $rc" if $rc;
+  my $map = {};
+  open my $tf, '<', $tmp;
+
+  while (<$tf>) {
+    chomp;
+    if (/^\s*Stream\s+\#(\d+:\d+)\[0x[0-9a-f]+\](?:\(([^\)]+)\))?:\s+(\w+):/)
+    {
+      my ( $id, $lang, $type ) = ( $1, $2, $3 );
+      $lang //= 'unknown';
+      push @{ $map->{ lc $type } }{ lc $lang }, $1;
+    }
+  }
+  return $map;
+}
+
+sub shell_escape {
+  ( my $word = shift ) =~ s/([!\s"'*?:(){};\$<>&\\])/\\$1/g;
+  return $word;
+}
+
+sub find_ts {
+  my $dir = shift;
+  return ($dir) if -f $dir;
+  my @ts = ();
+  find {
+    wanted => sub {
+      return unless -f && /\.ts$/i;
+      push @ts, $_;
+    },
+    no_chdir => 1,
+  }, $dir;
+  return sort @ts;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
