@@ -31,11 +31,10 @@ sub get_meta {
   my ( $stash, @objs ) = @_;
   my $meta = {};
   find(
-    {
-      wanted => sub {
+    { wanted => sub {
         my $obj = $File::Find::name;
         mention( 'get     ', $obj );
-        $meta->{$obj} = [ lstat $obj ];
+        $meta->{$obj} = [lstat $obj];
       },
       no_chdir => 1
     },
@@ -49,8 +48,7 @@ sub set_meta {
   my ( $stash, @objs ) = @_;
   my $meta = retrieve $stash;
   find(
-    {
-      wanted => sub {
+    { wanted => sub {
         my $obj = $File::Find::name;
         if ( my $md = $meta->{$obj} ) {
           mention( 'set     ', $obj );
@@ -81,4 +79,3 @@ sub usage {
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
-
