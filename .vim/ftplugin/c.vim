@@ -25,7 +25,7 @@ endfunction
 
 if executable('astyle')
   function! s:tidy()
-    let l:loc = g:get_location()
+    let l:loc = Get_location()
     let l:rc  = s:look_up('.astylerc', 5)
     if len(l:rc)
       let l:tidy = ':%!astyle --options=' . l:rc
@@ -33,7 +33,7 @@ if executable('astyle')
       let l:tidy = ':%!astyle'
     endif
     exec l:tidy
-    call g:set_location(l:loc)
+    call Set_location(l:loc)
   endfunction
   noremap <buffer> <f2> :call <SID>tidy()<CR>
 endif

@@ -1,18 +1,18 @@
 " Useful stuff
-function! g:get_location()
+function! Get_location()
   let l:window = ( line('w0') + line('w$') ) / 2
   let l:line   = line('.')
   let l:col    = col('.')
   return { 'window': l:window, 'line': l:line, 'col': l:col }
 endfunction
 
-function! g:set_location(loc)
+function! Set_location(loc)
   exec 'normal ' . a:loc['window'] . 'zz'
   exec 'normal ' . a:loc['line']   . 'G'
   exec 'normal ' . a:loc['col']    . '|'
 endfunction
 
-function! g:align_assignments()
+function! Align_assignments()
   " Patterns needed to locate assignment operators...
   let ASSIGN_OP   = '[-+*/%|&]\?=\@<!=[=~]\@!'
   let ASSIGN_LINE = '^\(.\{-}\)\s*\(' . ASSIGN_OP . '\)\(.*\)$'

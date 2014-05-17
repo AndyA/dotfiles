@@ -16,9 +16,9 @@ endif
 
 function! s:tidy()
   if executable('jsindent')
-    let l:loc = g:get_location()
+    let l:loc = Get_location()
     exec ':%!jsindent'
-    call g:set_location(l:loc)
+    call Set_location(l:loc)
   endif
 endfunction
 
