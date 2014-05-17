@@ -15,6 +15,7 @@ my %O = (
   key => [
     'size/{video.width}x{video.height}',
     'format/{video.format},{audio.format}',
+    'info/{video.format},{audio.format}/{video.width}x{video.height}',
   ],
 );
 
