@@ -1,9 +1,16 @@
 if which brew >/dev/null 2>&1; then
   prefix=$( brew --prefix )
     
-  for d in share/npm/bin; do
+  for d in 'share/npm/bin'; do
     dd="$prefix/$d"
     [ -d "$dd" ] && PATH="$PATH:$dd"
+  done
+
+  for d in 'lib/python2.7/site-packages'; do
+    dd="$prefix/$d"
+    [ -d "$dd" ] || continue
+    [ "$PYTHONPATH" ] && PYTHONPATH="$PYTHONPATH:"
+    PYTHONPATH="$PYTHONPATH$dd"
   done
 
 fi
