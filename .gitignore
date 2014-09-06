@@ -53,6 +53,7 @@
 /.dotcloud/
 /.dropbox
 /.dropbox-dist
+/.dropbox-master/
 /.dvdcss
 /.dzil
 /.eaglerc
@@ -136,6 +137,7 @@
 /.perldb_history
 /.pgpass
 /.pind
+/.pip/
 /.pki
 /.plurk
 /.plurk-cpan.store
