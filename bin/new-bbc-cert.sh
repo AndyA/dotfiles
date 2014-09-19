@@ -17,9 +17,11 @@ openssl pkcs12 -in $PKCS12 -out $CRT -nodes -clcerts -nokeys
 
 # Copy some other places
 cp $PKCS12 ~/.subversion/certs
-sudo cp $CRT $KEY $STUNNEL_CFG
-sudo chown root:admin $STUNNEL_CFG/andy.{crt,key}
-sudo chmod 400 $STUNNEL_CFG/andy.{crt,key}
+if [ -d "$STUNNEL_CFG" ]; then
+  sudo cp $CRT $KEY $STUNNEL_CFG
+  sudo chown root:admin $STUNNEL_CFG/andy.{crt,key}
+  sudo chmod 400 $STUNNEL_CFG/andy.{crt,key}
+fi
 
 # vim:ts=2:sw=2:sts=2:et:ft=sh
 
