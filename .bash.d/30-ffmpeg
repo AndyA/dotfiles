@@ -1,1 +1,0 @@
-[ -d /opt/ffmpeg/bin ] && PATH=/opt/ffmpeg/bin:$PATH
