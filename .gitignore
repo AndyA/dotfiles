@@ -75,14 +75,12 @@
 /.gconf
 /.gconfd
 /.gdb_history
-/.gegl-0.0
+/.gegl-*
 /.gem
 /.gemrc
 /.get_iplayer/
 /.gforth-history
-/.gimp-2.4
-/.gimp-2.6
-/.gimp-2.8/
+/.gimp-*/
 /.gitconfig
 /.gitk
 /.gksu.lock
@@ -93,7 +91,7 @@
 /.gnuplot_history
 /.google
 /.gphoto/
-/.gstreamer-0.10
+/.gstreamer-*
 /.gtk-bookmarks
 /.gvfs
 /.hcwd
