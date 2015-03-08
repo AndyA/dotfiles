@@ -1,0 +1,38 @@
+#!/bin/bash
+
+ENC=~/Dropbox/Store.enc
+MNT=$PWD/Store
+
+umount=false
+for opt in $*; do
+  case $opt in
+    -u) 
+      umount=true
+      ;;
+    -*)
+      echo "Bad option: $opt"
+      exit 1
+      ;;
+    *)
+      args="$args $opt"
+      ;;
+  esac
+done
+
+if $umount; then
+  FU="$( which fusermount )"
+  if [ -z "$FU" ]; then
+    umount "$MNT"
+  else
+    fusermount -u "$MNT"
+  fi
+else
+  if mount | grep "$MNT" >/dev/null; then
+    echo "$MNT is already mounted"
+    exit
+  fi
+  encfs "$ENC" "$MNT"
+fi
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
