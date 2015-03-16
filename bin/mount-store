@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ENC=~/Dropbox/Store.enc
-MNT=$PWD/Store
+MNT=~/Store
 
 umount=false
 for opt in $*; do
