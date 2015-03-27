@@ -1,0 +1,31 @@
+#!/usr/bin/env perl
+
+use v5.10;
+
+use autodie;
+use strict;
+use warnings;
+
+chomp( my @ln = <> );
+
+my ($len);
+
+for (@ln) {
+  next unless /\\\s*$/;
+  ( my $ln = $_ ) =~ s/\s*\\\s*$//;
+  my $ll = length $ln;
+  $len = $ll unless defined $len && $len > $ll;
+}
+
+for (@ln) {
+  unless (/\\\s*$/) {
+    say;
+    next;
+  }
+
+  ( my $ln = $_ ) =~ s/\s*\\\s*$//;
+  say $ln, ( ' ' x ( $len + 2 - length $ln ) ), '\\';
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
