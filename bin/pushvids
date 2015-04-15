@@ -1,7 +1,0 @@
-#!/bin/sh
-rsync -avmP --delete --bwlimit=400 \
-  --filter='+ */' \
-  --filter='+ *.mov' --filter='+ *.m4v' --filter='+ *.mp4' \
-  --filter='- *' \
-  /Users/andy/Music/iTunes/iTunes\ Music \
-  andy@lupin:~/Videos/iTunes

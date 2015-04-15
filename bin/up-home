@@ -1,9 +1,0 @@
-#!/bin/sh
-
-. ~/.ripley
-
-for h in $HOSTS ; do
-  host=$(athome "$h.ripley")
-  echo "Updating $host"
-  ssh $host 'cd ~ && svn up'
-done
