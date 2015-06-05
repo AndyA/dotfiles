@@ -1,6 +1,0 @@
-#!/bin/sh
-for dir in `echo $PATH | sed -e 's/:/ /g'` ; do
-  find $dir $*
-done
-
-

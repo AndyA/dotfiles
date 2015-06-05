@@ -1,2 +1,0 @@
-#!/bin/sh
-ssh -L 2500:post.hexten.net:25 hush

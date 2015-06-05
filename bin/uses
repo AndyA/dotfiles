@@ -1,4 +1,0 @@
-#!/bin/sh
-
-ack -h '^use\s+(\w+(?:::\w+)*).*' --output=\$1 | sort -u
-
