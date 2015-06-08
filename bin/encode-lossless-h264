@@ -1,0 +1,17 @@
+#!/bin/bash
+
+suffix='lossless-h264'
+ext='mov'
+
+function process {
+  ffmpeg -i "$1"                          \
+    -nostdin                              \
+    -c:v libx264 -preset ultrafast -qp 0  \
+    -c:a pcm_s16le -r:a 48000             \
+    -y "$2"
+}
+
+source "$( dirname "$0" )/with-video-files"
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
