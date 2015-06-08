@@ -31,6 +31,8 @@ self_re=".*\\.$suffix\\.(tmp\\.)?$ext\$"
     echo "$src -> $dst"
     tmp="${src%.*}.$suffix.tmp.$ext"
     process "$src" "$tmp" && mv "$tmp" "$dst"
+    # ffmpeg doesn't exit via SIGINT when it gets SIGINT
+    [ $? == 255 ] && exit
   fi
 done
 
