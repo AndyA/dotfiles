@@ -1,6 +1,6 @@
 #!/bin/bash
 
-suffix='lossless-h264'
+suffix='h264-pcm-lossless'
 ext='mov'
 
 function process {
