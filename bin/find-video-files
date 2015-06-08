@@ -5,7 +5,7 @@ for obj in "$@"; do
     echo "$obj"; 
   elif [ -d "$obj" ]; then
     find "$obj" -type f -size +1k -print0  \
-      | xargs -0 file -iN -F:::            \
+      | xargs -0 file --mime -N -F:::      \
       | perl -ne 'print "$1\n" if /(.+):::\s+video\//'
   fi
 done
