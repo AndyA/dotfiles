@@ -2,7 +2,7 @@
    "convertStrings" : "double",
    "elseNewline" : true,
    "indent" : "  ",
-   "noNewlineAfterVar" : true,
+   "noNewlineBetweenVar" : true,
    "noSpaceAfterFunction" : true,
    "noSpaceWithIncDec" : true,
    "quoteProperties" : false
