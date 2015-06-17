@@ -15,9 +15,9 @@ if executable('ack')
 endif
 
 function! s:tidy()
-  if executable('jsindent')
+  if executable('js-beautify')
     let l:loc = Get_location()
-    exec ':%!jsindent'
+    exec ':%!js-beautify -f -'
     call Set_location(l:loc)
   endif
 endfunction
