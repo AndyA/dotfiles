@@ -6,6 +6,7 @@ ext='m4v'
 function process {
   ffmpeg -i "$1"             \
     -nostdin                 \
+    -pix_fmt yuv420p         \
     -c:v libx264 -b:v 5000k  \
     -c:a libfaac -b:a 256k   \
     -y "$2"

@@ -1,0 +1,63 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use JavaScript::Beautifier qw( js_beautify );
+
+my %opts = (
+  indent_size      => 2,
+  indent_character => ' ',
+);
+
+my $verbose = 0;
+my $help    = 0;
+
+GetOptions(
+  'i|indent:i' => \$opts{indent_size},
+  'h|help'     => \$help,
+  'v|verbose'  => \$verbose,
+) or syntax();
+
+syntax() if $help;
+
+if ( @ARGV ) {
+  indent_file( \%opts, $_ ) for @ARGV;
+}
+else {
+  indent( \%opts, \*STDIN, \*STDOUT );
+}
+
+sub indent_file {
+  my ( $opt, $file ) = @_;
+  print "Indenting $file\n" if $verbose;
+  my $tmp = "$file.tmp";
+  {
+    open my $ih, '<', $file or die "Can't read $file ($!)\n";
+    open my $oh, '>', $tmp  or die "Can't write $tmp ($!)\n";
+    indent( $opt, $ih, $oh );
+  }
+  rename $tmp, $file or die "Can't rename $tmp as $file\n";
+}
+
+sub indent {
+  my ( $opt, $ih, $oh ) = @_;
+  my $src = do { local $/; <$ih> };
+  my $pretty = js_beautify( $src, $opt );
+  print $oh $pretty;
+}
+
+sub syntax {
+  print "usage: jsindent [options] < infile.js > outfile.js\n",
+   "       jsindent [options] somefile.js\n\n",
+   "Options:\n",
+   "  -i, --indent N    Indent size (default 2)\n",
+   "  -h, --help        Get help\n",
+   "  -v, --verbose     Report progress\n",
+   "\n";
+  exit;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+

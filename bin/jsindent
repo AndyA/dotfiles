@@ -1,63 +1,68 @@
-#!/usr/bin/env perl
+#!/usr/bin/env node
+"use strict";
 
-use strict;
-use warnings;
+var rw = require("rw");
+var fs = require("fs");
+var path = require("path");
+var pjs = require("pretty-js");
+var _ = require("underscore");
+var rcfile = ".jsindent.json";
+var rcpath = [
+    ".",
+    process.env.HOME
+  ];
 
-use Getopt::Long;
-use JavaScript::Beautifier qw( js_beautify );
-
-my %opts = (
-  indent_size      => 2,
-  indent_character => ' ',
-);
-
-my $verbose = 0;
-my $help    = 0;
-
-GetOptions(
-  'i|indent:i' => \$opts{indent_size},
-  'h|help'     => \$help,
-  'v|verbose'  => \$verbose,
-) or syntax();
-
-syntax() if $help;
-
-if ( @ARGV ) {
-  indent_file( \%opts, $_ ) for @ARGV;
-}
-else {
-  indent( \%opts, \*STDIN, \*STDOUT );
+var options = loadConfig(rcpath, rcfile);
+var src = rw.readFileSync("/dev/stdin", "utf8");
+var dst = pjs(src, options);
+if (options.noNewlineAfterVar) {
+  dst = fixup(dst);
 }
 
-sub indent_file {
-  my ( $opt, $file ) = @_;
-  print "Indenting $file\n" if $verbose;
-  my $tmp = "$file.tmp";
-  {
-    open my $ih, '<', $file or die "Can't read $file ($!)\n";
-    open my $oh, '>', $tmp  or die "Can't write $tmp ($!)\n";
-    indent( $opt, $ih, $oh );
+rw.writeFileSync("/dev/stdout", dst, "utf8");
+
+// Hack: remove blanks between var decls. The intention is to implement this
+// properly in pretty-js.
+function fixup(src) {
+  var ln = src.split("\n"), out = [];
+  var reBlank = /^\s*$/;
+  var reVAR = /^\s*var\s+/;
+  var nBlank = 0, inVAR = false, wasInVAR = false;
+
+  for (var i = 0; i < ln.length; i++) {
+    if (reBlank.test(ln[i])) {
+      nBlank++;
+      continue;
+    }
+
+    wasInVAR = inVAR;
+    inVAR = reVAR.test(ln[i]);
+
+    if (!wasInVAR || !inVAR) {
+      for (var b = 0; b < nBlank; b++) {
+        out.push("");
+      }
+    }
+
+    nBlank = 0;
+    out.push(ln[i]);
   }
-  rename $tmp, $file or die "Can't rename $tmp as $file\n";
+
+  return out.join("\n");
 }
 
-sub indent {
-  my ( $opt, $ih, $oh ) = @_;
-  my $src = do { local $/; <$ih> };
-  my $pretty = js_beautify( $src, $opt );
-  print $oh $pretty;
+function loadConfig(rcpath, rcfile) {
+  var opt = {};
+
+  rcpath.forEach(function(p) {
+    var rc = path.join(p, rcfile);
+
+    if (fs.existsSync(rc)) {
+      _.extend(opt, JSON.parse(fs.readFileSync(rc)));
+    }
+  });
+
+  return opt;
 }
 
-sub syntax {
-  print "usage: jsindent [options] < infile.js > outfile.js\n",
-   "       jsindent [options] somefile.js\n\n",
-   "Options:\n",
-   "  -i, --indent N    Indent size (default 2)\n",
-   "  -h, --help        Get help\n",
-   "  -v, --verbose     Report progress\n",
-   "\n";
-  exit;
-}
-
-# vim:ts=2:sw=2:sts=2:et:ft=perl
-
+// vim:ts=2:sw=2:sts=2:et:ft=javascript
