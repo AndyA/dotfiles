@@ -1,0 +1,66 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Digest::SHA;
+use File::Path qw( rmtree );
+use Getopt::Long;
+
+my %opt = (
+  number  => 4,
+  diff    => 0,
+  verbose => 0,
+);
+
+GetOptions(
+  'n:i'       => \$opt{number},
+  'v|verbose' => \$opt{verbose},
+  'd|diff'    => \$opt{diff},
+) or die "Bad options\n";
+
+rotate( \%opt, @ARGV );
+
+sub rotate {
+  my ( $opt, @files ) = @_;
+  for my $file ( @files ) {
+    rotate_file( $opt, $file );
+  }
+}
+
+sub same_file {
+  my ( $fa, $fb ) = @_;
+  return unless -f $fa && -f $fb;
+  return unless -s $fa == -s $fb;
+  return file_digest( $fa ) eq file_digest( $fb );
+}
+
+sub file_digest {
+  my $f = shift;
+  open my $fh, '<', $f or die "Can't read $f: $!\n";
+  return Digest::SHA->new->addfile( $fh )->hexdigest;
+}
+
+sub rotate_file {
+  my ( $opt, $file ) = @_;
+  my $next = $file;
+  $next .= '.0' unless $next =~ /\.(\d)+$/;
+  $next =~ s/\.(\d+)$/'.' . ($1 + 1)/e;
+  my $gen = $1;
+  if ( -e $next ) {
+    return if $opt->{diff} && same_file( $file, $next );
+    if ( $gen - 1 >= $opt->{number} ) {
+      print "$next -> ** oblivion **\n" if $opt->{verbose};
+      ( -d $next ? rmtree( $next ) : unlink( $next ) )
+       or die "Can't remove $next: $!\n";
+    }
+    else {
+      rotate_file( $opt, $next );
+    }
+  }
+
+  print "$file -> $next\n" if $opt->{verbose};
+  rename $file, $next or die "Can't rename $file as $next: $!\n";
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
