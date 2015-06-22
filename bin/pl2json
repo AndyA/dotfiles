@@ -11,16 +11,15 @@ my $me = basename $0;
 if ( $me eq 'pl2json' ) {
   my $data = eval do { local $/; <> };
   die $@ if $@;
-  print JSON->new->pretty->encode( $data );
+  print JSON->new->pretty->encode($data);
 }
 elsif ( $me eq 'json2pl' ) {
   print Data::Dumper->new(
-    [
-      JSON->new->decode(
+    [ JSON->new->decode(
         do { local $/; <> }
       )
     ]
-  )->Indent( 2 )->Quotekeys( 0 )->Useqq( 1 )->Terse( 1 )->Dump;
+  )->Indent(2)->Quotekeys(0)->Sortkeys(1)->Useqq(1)->Terse(1)->Dump;
 }
 else {
   die "I only know what to do if I'm called pl2json or json2pl.",
