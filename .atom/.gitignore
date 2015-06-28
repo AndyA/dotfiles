@@ -1,5 +1,6 @@
-storage
+.node-gyp
+.npm
+/nohup.out
 compile-cache
 dev
-.npm
-.node-gyp
+storage
