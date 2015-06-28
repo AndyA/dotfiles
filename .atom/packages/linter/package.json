@@ -48,8 +48,8 @@
   "homepage": "https://github.com/AtomLinter/Linter",
   "_id": "linter@1.1.0",
   "_shasum": "972092753b45e80e243ff8a3aa073ef235cb2fd3",
-  "_resolved": "file:../d-115528-17986-11b383z/package.tgz",
-  "_from": "../d-115528-17986-11b383z/package.tgz",
+  "_resolved": "file:../d-115528-81962-1ct6ptz/package.tgz",
+  "_from": "../d-115528-81962-1ct6ptz/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
