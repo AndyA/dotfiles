@@ -1,0 +1,17 @@
+'.platform-darwin atom-workspace':
+  'ctrl-`': 'terminal-panel:toggle'
+  'cmd-shift-t': 'terminal-panel:new'
+  'cmd-shift-j': 'terminal-panel:next'
+  'cmd-shift-k': 'terminal-panel:prev'
+  'cmd-shift-x': 'terminal-panel:destroy'
+
+'.platform-linux atom-workspace, .platform-win32 atom-workspace':
+  'ctrl-`': 'terminal-panel:toggle'
+  'alt-shift-t': 'terminal-panel:new'
+  'alt-shift-j': 'terminal-panel:next'
+  'alt-shift-k': 'terminal-panel:prev'
+  'alt-shift-x': 'terminal-panel:destroy'
+
+'.cli-status atom-text-editor':
+  'up': 'core:undo'
+  'down': 'core:redo'

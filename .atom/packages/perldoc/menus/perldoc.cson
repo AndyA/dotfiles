@@ -1,0 +1,21 @@
+'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Toggle perldoc'
+      'command': 'perldoc:toggle'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'perldoc'
+      'submenu': [
+        {
+          'label': 'Toggle perldoc'
+          'command': 'perldoc:toggle'
+        }
+      ]
+    ]
+  }
+]

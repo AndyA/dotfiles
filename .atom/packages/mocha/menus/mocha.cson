@@ -1,0 +1,20 @@
+# See https://atom.io/docs/latest/creating-a-package#menus for more details
+'context-menu':
+  'atom-text-editor': [
+      {
+        'label': 'Test with mocha',
+        'command': 'mocha:test'
+      }
+  ]
+
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'mocha'
+      'submenu': [
+        { 'label': 'Run Test Suite', 'command': 'mocha:test' }
+      ]
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+"*":
+  "exception-reporting":
+    userId: "f9a18cac-be95-c8b9-09ec-02a129e9b8d7"
+  welcome:
+    showOnStartup: false
+  core:
+    themes: [
+      "one-dark-ui"
+      "base16-tomorrow-dark-theme"
+    ]
+    disabledPackages: [
+      "jshint"
+    ]
+  editor:
+    invisibles: {}
+  mocha:
+    specDirectory: "./test/"
+  minimap:
+    plugins:
+      "git-diff": true
+  "terminal-panel": {}
+  linter: {}
+  "linter-eslint": {}

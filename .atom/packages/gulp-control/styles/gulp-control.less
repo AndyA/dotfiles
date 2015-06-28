@@ -1,0 +1,57 @@
+// The ui-variables file is provided by base themes provided by Atom.
+//
+// See https://github.com/atom/atom-dark-ui/blob/master/stylesheets/ui-variables.less
+// for a full listing of what's available.
+@import "ui-variables";
+
+.gulp-control {
+  color: @text-color;
+
+  .tasks {
+    float: left;
+    height: 100%;
+    width: 25%;
+    background: @tab-background-color;
+    border-right: 1px solid @base-border-color;
+    padding: 10px;
+    overflow-y: scroll;
+
+    .task {
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+
+      &.active {
+        background: @button-background-color;
+        color: @text-color-highlight;
+
+        &.running {
+          background: @button-background-color-selected;
+        }
+      }
+
+      &:hover {
+        color: @text-color-highlight;
+      }
+    }
+  }
+
+  .output {
+    float: left;
+    height: 100%;
+    width: 75%;
+    background: @tool-panel-background-color;
+    padding: 10px;
+    overflow-y: scroll;
+
+    pre {
+      padding: 0;
+      font-size: 11px;
+      background: @tool-panel-background-color;
+
+      &.error {
+        color: @text-color-error;
+      }
+    }
+  }
+}
