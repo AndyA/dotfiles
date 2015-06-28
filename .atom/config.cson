@@ -13,6 +13,7 @@
       "jsdoc-generator"
       "linter"
       "makro"
+      "autocomplete-ctags"
     ]
     projectHome: "~/Works"
   editor:
@@ -35,3 +36,5 @@
   "jsdoc-generator": {}
   perltidy: {}
   "linter-less": {}
+  "clang-format":
+    formatJavascriptOnSave: false
