@@ -1,0 +1,36 @@
+{
+  "name": "clang-format",
+  "main": "./lib/main",
+  "version": "1.14.0",
+  "private": true,
+  "description": "Format your C/C++/Obj-C/Javascript files with clang-format from inside atom. Requires clang-format to be installed.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LiquidHelium/atom-clang-format"
+  },
+  "license": "MIT",
+  "readme": "# clang-format package\n\nFormat your C/C++/Obj-C/Javascript files with clang-format from inside atom. Requires clang-format to be installed and on your systems path.\n\nMore info on clang-format can be found here: http://clang.llvm.org/docs/ClangFormat.html http://clang.llvm.org/docs/ClangTools.html\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/LiquidHelium/atom-clang-format/issues"
+  },
+  "homepage": "https://github.com/LiquidHelium/atom-clang-format",
+  "_id": "clang-format@1.14.0",
+  "_shasum": "2e4e80889174e0fdf000f5275e14275c2abc3bc1",
+  "_resolved": "file:../d-115528-17083-1qhntrr/package.tgz",
+  "_from": "../d-115528-17083-1qhntrr/package.tgz",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".coffee": [
+        "lib/clang-format.coffee",
+        "lib/main.coffee"
+      ],
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
+}

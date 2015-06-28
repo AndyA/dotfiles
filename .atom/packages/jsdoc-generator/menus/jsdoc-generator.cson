@@ -1,0 +1,25 @@
+'context-menu':
+  '.tree-view': [
+    'label': 'to JsDoc'
+    'command': 'jsdoc-generator:out-tree'
+  ]
+  'atom-text-editor': [
+    {
+      'label': 'to JsDoc'
+      'command': 'jsdoc-generator:out'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'jsdoc-generator'
+      'submenu': [
+        {
+          'label': 'to JsDoc'
+          'command': 'jsdoc-generator:out'
+        }
+      ]
+    ]
+  }
+]

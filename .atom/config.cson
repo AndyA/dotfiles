@@ -10,7 +10,11 @@
     ]
     disabledPackages: [
       "jshint"
+      "jsdoc-generator"
+      "linter"
+      "makro"
     ]
+    projectHome: "~/Works"
   editor:
     invisibles: {}
   mocha:
@@ -20,4 +24,14 @@
       "git-diff": true
   "terminal-panel": {}
   linter: {}
-  "linter-eslint": {}
+  "linter-eslint":
+    showRuleIdInMessage: true
+    disableWhenNoEslintrcFileInPath: true
+  docblockr:
+    auto_add_method_tag: true
+    deep_indent: true
+    align_tags: "shallow"
+    extra_tags_go_after: true
+  "jsdoc-generator": {}
+  perltidy: {}
+  "linter-less": {}
