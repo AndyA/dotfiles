@@ -241,6 +241,7 @@
 /.update-notifier
 /.usb-creator.log
 /.usbcreator.log
+/.v8flags.*
 /.viking
 /.viking-maps
 /.viminfo
