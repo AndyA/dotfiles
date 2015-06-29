@@ -1,7 +1,7 @@
 {
   "name": "script",
   "main": "./lib/script",
-  "version": "2.25.3",
+  "version": "2.26.0",
   "private": false,
   "description": "Run code in Atom!",
   "author": {
@@ -12,6 +12,10 @@
     {
       "name": "Kyle Kelley",
       "email": "rgbkrk@gmail.com"
+    },
+    {
+      "name": "Christopher Armstrong",
+      "email": "radix@twistedmatrix.com"
     },
     {
       "name": "Victor",
@@ -309,10 +313,10 @@
     "url": "https://github.com/rgbkrk/atom-script/issues"
   },
   "homepage": "https://github.com/rgbkrk/atom-script",
-  "_id": "script@2.25.3",
-  "_shasum": "b0020a6312e5512fb145c1fb813f7e9abfc33991",
-  "_resolved": "file:../d-115528-77346-1a4q1tf/package.tgz",
-  "_from": "../d-115528-77346-1a4q1tf/package.tgz",
+  "_id": "script@2.26.0",
+  "_shasum": "bcb52015293b3e88e2f6ba02de3dedee1b15164c",
+  "_resolved": "file:../d-115529-63931-hv5041/package.tgz",
+  "_from": "../d-115529-63931-hv5041/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [

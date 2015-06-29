@@ -90,8 +90,7 @@ module.exports =
 
             # `eslint >= 0.21.0`
             if engine.addPlugin
-              pluginPath = if @useGlobalEslint then @npmPath else origPath
-              config.plugins.forEach(@loadPlugin.bind(this, engine, pluginPath))
+              config.plugins.forEach(@loadPlugin.bind(this, engine, filePath))
             else
               options.plugins = config.plugins
               engine = new CLIEngine(options)
@@ -141,19 +140,35 @@ module.exports =
               }
             ]
 
-  loadPlugin: (engine, basedir, pluginName) ->
+  loadPlugin: (engine, filePath, pluginName) ->
+    # Support private modules for plugins
+    # they starts with `@`
+    namespace = ''
+    if pluginName[0] is '@'
+      [namespace, pluginName] = pluginName.split '/'
+      namespace += '/'
+
+    npmPluginName = pluginName.replace 'eslint-plugin-', ''
+    npmPluginName = "#{namespace}eslint-plugin-#{npmPluginName}"
+
     try
-      pluginName = pluginName.replace 'eslint-plugin-', ''
-      pluginPath = sync "eslint-plugin-#{pluginName}", {basedir}
+      pluginPath = sync npmPluginName, {basedir: path.dirname(filePath)}
       plugin = require pluginPath
 
-      engine.addPlugin pluginName, plugin
+      return engine.addPlugin pluginName, plugin
     catch error
-      console.warn "[Linter-ESLint] error loading plugin"
-      console.warn error.message
-      console.warn error.stack
+      if @useGlobalEslint
+        try
+          pluginPath = sync npmPluginName, {basedir: @npmPath}
+          plugin = require pluginPath
 
-      atom.notifications.addError "[Linter-ESLint] plugin #{pluginName} not found", {dismissable: true}
+          return engine.addPlugin pluginName, plugin
+
+    console.warn "[Linter-ESLint] error loading plugin"
+    console.warn error.message
+    console.warn error.stack
+
+    atom.notifications.addError "[Linter-ESLint] plugin #{pluginName} not found", {dismissable: true}
 
   requireESLint: (filePath) ->
     @localEslint = false
