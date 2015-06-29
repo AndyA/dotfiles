@@ -39,3 +39,4 @@
     formatJavascriptOnSave: false
   "atom-beautify":
     _analyticsUserId: "28afc5e2-8e9c-4e71-8c79-67dd3cbe7f6b"
+    perl_perltidy_profile: "~/.perltidyrc"
