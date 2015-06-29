@@ -1,0 +1,16 @@
+'.text.html.tt':
+  'for':
+    'prefix': 'for'
+    'body': '[% FOR ${1:var} IN ${2:set} %]\n\t$3\n[% END %]'
+  'if':
+    'prefix': 'if'
+    'body': '[% IF ${1:condition} %]\n\t$2\n[% ELSE %]\n\t$3\n[% END %]'
+  'include':
+    'prefix': 'inc'
+    'body': '[% INCLUDE ${1:template} %]'
+  'unless':
+    'prefix': 'unl'
+    'body': '[% UNLESS ${1:condition} %]\n\t$2\n[% END %]'
+  'wrapper':
+    'prefix': 'wrap'
+    'body': '[% WRAPPER ${1:template} %]\n\t$2\n[% END %]'
