@@ -1,0 +1,10 @@
+genome:
+  title: "genome"
+  paths: [
+    "/opt/genome"
+  ]
+remarc:
+  title: "remarc"
+  paths: [
+    "/home/andy/Works/RemArc/remarc"
+  ]
