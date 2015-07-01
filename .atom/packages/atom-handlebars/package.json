@@ -1,6 +1,6 @@
 {
   "name": "atom-handlebars",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "Handlebars support in Atom",
   "engines": {
     "atom": "*",
@@ -20,25 +20,28 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "atom",
-    "handlebars"
+    "handlebars",
+    "ember",
+    "grammar",
+    "snippets"
   ],
   "author": {
     "name": "Jackson Egan",
     "email": "jackson@sneagan.com",
     "url": "http://sneagan.com/"
   },
-  "readme": "# Handlebars support in Atom\n\nAdds syntax highlighting and snippets to Handlebars files in Atom.\n\nModified from [HTML Language Support in Atom](https://github.com/atom/language-html).\n\nContributions are greatly appreciated. Please fork this repository and open a pull request to add snippets, make grammar tweaks, etc.\n",
+  "readme": "# Handlebars support in Atom\n\nAdds syntax highlighting and snippets to Handlebars files in Atom.\n\n## Install\n\n```bash\n$ apm install atom-handlebars\n```\n\nOr Settings ➔ Packages ➔ Search for `atom-handlebars`\n\n## Snippets\n\n- `each` ⇥\n- `list` ⇥\n- `if` ⇥\n- `ifelse` ⇥\n- `unless` ⇥\n- `unelse` ⇥\n- `else` ⇥\n- `with` ⇥\n- `log` ⇥\n- `dbg` ⇥\n- `escape` ⇥\n\n## Contributions\n\nContributions are greatly appreciated. Please fork this repository and open a pull request to add snippets, make grammar tweaks, etc.\n",
   "readmeFilename": "README.md",
-  "_id": "atom-handlebars@0.5.0",
-  "_shasum": "40ba3c57e263a6840e1cab850cabc32f27c7e629",
-  "_resolved": "file:../d-115528-17347-p2fn3k/package.tgz",
-  "_from": "../d-115528-17347-p2fn3k/package.tgz",
+  "_id": "atom-handlebars@1.0.0",
+  "_shasum": "1c24d15adb7430432f3ff0b6036c84cf9c5f334f",
+  "_resolved": "file:../d-115530-6737-1pyg1lv/package.tgz",
+  "_from": "../d-115530-6737-1pyg1lv/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [],
     "extensions": {
       ".json": [
+        "coffeelint.json",
         "package.json"
       ]
     },
