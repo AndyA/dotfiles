@@ -1,7 +1,7 @@
 {
   "name": "minimap",
   "main": "./lib/main",
-  "version": "4.10.1",
+  "version": "4.10.2",
   "private": true,
   "description": "A preview of the full source code.",
   "author": {
@@ -49,10 +49,10 @@
     "url": "https://github.com/atom-minimap/minimap/issues"
   },
   "homepage": "https://github.com/atom-minimap/minimap",
-  "_id": "minimap@4.10.1",
-  "_shasum": "0eafa1065a21af83aa90ffcfdbb8b43627cf7938",
-  "_resolved": "file:../d-115529-63924-1fzz647/package.tgz",
-  "_from": "../d-115529-63924-1fzz647/package.tgz",
+  "_id": "minimap@4.10.2",
+  "_shasum": "eec4f60f698ed1cc4443e0b8a5dd3b45d83db2cb",
+  "_resolved": "file:../d-11562-4709-1aqc41n/package.tgz",
+  "_from": "../d-11562-4709-1aqc41n/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -209,6 +209,7 @@
         "package.json"
       ],
       ".coffee": [
+        "lib/decoration.coffee",
         "lib/main.coffee",
         "lib/minimap-element.coffee",
         "lib/minimap-plugin-generator-element.coffee",

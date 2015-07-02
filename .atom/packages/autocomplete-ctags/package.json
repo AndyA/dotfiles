@@ -1,7 +1,7 @@
 {
   "name": "autocomplete-ctags",
   "main": "./lib/main",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "description": "Autocomplete-plus provider for ctags",
   "keywords": [
     "autocomplete",
@@ -30,16 +30,16 @@
       }
     }
   },
-  "readme": "# autocomplete-ctags package\n\nAutocomplete-plus provider for ctags\n[![Build Status](https://travis-ci.org/aki77/atom-autocomplete-ctags.svg)](https://travis-ci.org/aki77/atom-autocomplete-ctags)\n\n[![Gyazo](http://i.gyazo.com/007c0aef7ad4a05c1f94ee8ce6a00d41.gif)](http://gyazo.com/007c0aef7ad4a05c1f94ee8ce6a00d41)\n\n## Features\n\n* If your project has a tags/.tags/TAGS/.TAGS file at the root then autocomplete are supported.\n* coexist with [symbols-view package](https://atom.io/packages/symbols-view)\n* support multiple root folders.\n* Snippet generator for ctags.\n\n## Settings\n\n* `minimumPrefixLength` (default: 3)\n* `caseInsensitive` (default: true)\n* `useSnippers` (default: true)\n\n## Todo\n\n* [ ] fuzzy matching\n* [ ] Add language snippers. (pull requests welcome!)\n",
+  "readme": "# autocomplete-ctags package\n\nAutocomplete-plus provider for ctags\n[![Build Status](https://travis-ci.org/aki77/atom-autocomplete-ctags.svg)](https://travis-ci.org/aki77/atom-autocomplete-ctags)\n\n[![Gyazo](http://i.gyazo.com/007c0aef7ad4a05c1f94ee8ce6a00d41.gif)](http://gyazo.com/007c0aef7ad4a05c1f94ee8ce6a00d41)\n\n## Features\n\n* If your project has a tags/.tags/TAGS/.TAGS file at the root then autocomplete are supported.\n* coexist with [symbols-view package](https://atom.io/packages/symbols-view)\n* support multiple root folders.\n* Snippet generator for ctags.\n\n## Settings\n\n* `minimumPrefixLength` (default: 3)\n* `caseInsensitive` (default: true)\n* `useSnippers` (default: true)\n* `disableBuiltinProvider` (default: false)\n\n## Todo\n\n* [ ] fuzzy matching\n* [ ] Add language snippers. (pull requests welcome!)\n",
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/aki77/atom-autocomplete-ctags/issues"
   },
   "homepage": "https://github.com/aki77/atom-autocomplete-ctags",
-  "_id": "autocomplete-ctags@0.2.0",
-  "_shasum": "ace3bdf5c1aeb1413dc5d6ba7522601d5c01cca7",
-  "_resolved": "file:../d-115528-16796-fl8clm/package.tgz",
-  "_from": "../d-115528-16796-fl8clm/package.tgz",
+  "_id": "autocomplete-ctags@0.2.3",
+  "_shasum": "f1afddecd2156ada0b9343a741a6dcb333193d1f",
+  "_resolved": "file:../d-11562-4696-1hjywlc/package.tgz",
+  "_from": "../d-11562-4696-1hjywlc/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -114,12 +114,12 @@
         "lib/get-tags-file.coffee",
         "lib/main.coffee",
         "lib/snippers/coffee.coffee",
+        "lib/snippers/default.coffee",
         "lib/snippers/index.coffee",
         "lib/snippers/snipper.coffee"
       ],
       ".node": [
-        "node_modules/ctags/build/Release/ctags.node",
-        "node_modules/ctags/build/Release/obj.target/ctags.node"
+        "node_modules/ctags/build/Release/ctags.node"
       ],
       ".js": [
         "node_modules/ctags/lib/ctags.js",
@@ -153,7 +153,6 @@
       {
         "paths": [
           "node_modules/ctags/build/Release",
-          "node_modules/ctags/build/Release/obj.target",
           "node_modules/ctags/lib",
           "node_modules/ctags"
         ],
