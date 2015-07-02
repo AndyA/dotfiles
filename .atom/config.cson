@@ -17,6 +17,7 @@
     projectHome: "~/Works"
   editor:
     invisibles: {}
+    fontSize: 12
   mocha:
     specDirectory: "./test/"
   minimap:
