@@ -86,3 +86,15 @@
 
               1;
             """
+'.source.sql':
+  'Procedure':
+    'prefix': 'procedure'
+    'body': """
+            DROP PROCEDURE IF EXISTS `${1:procedure}`;
+            DELIMITER //
+            CREATE PROCEDURE `${1}` (${2})
+            BEGIN
+              ${3}
+            END//
+            DELIMITER ;
+                        """
