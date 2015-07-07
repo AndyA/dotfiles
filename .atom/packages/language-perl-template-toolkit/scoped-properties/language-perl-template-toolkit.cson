@@ -1,3 +1,0 @@
-'.text.html.tt':
-  'editor':
-    'foldEndPattern': '(</(?i:(head|table|tr|div|style|script|ul|ol|form|dl))>|^ *\\[% *END *%\\])'

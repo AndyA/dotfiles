@@ -1,7 +1,0 @@
-.node-gyp
-.npm
-/nohup.out
-projects.cson
-compile-cache
-dev
-storage

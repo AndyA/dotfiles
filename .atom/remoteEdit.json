@@ -1,1 +1,0 @@
-{"hostList":"[{\"alias\":\"\",\"hostname\":\"ernie.hexten.net\",\"directory\":\"/opt/genome\",\"username\":\"andy\",\"port\":\"22\",\"localFiles\":\"[]\",\"useAgent\":false,\"usePrivateKey\":true,\"usePassword\":false,\"passphrase\":\"\",\"privateKeyPath\":\"/Users/andy/.ssh/id_dsa\",\"deserializer\":\"SftpHost\"}]","deserializer":"InterProcessData"}

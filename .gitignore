@@ -26,6 +26,7 @@
 /.arduino.mk
 /.arduino/
 /.arista
+/.atom/
 /.audacity-data/
 /.avidemux/
 /.bash_history
