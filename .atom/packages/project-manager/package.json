@@ -1,7 +1,7 @@
 {
   "name": "project-manager",
   "main": "./lib/project-manager",
-  "version": "1.15.10",
+  "version": "1.15.11",
   "description": "Project Manager for easy access and switching between projects in Atom.",
   "repository": {
     "type": "git",
@@ -29,10 +29,10 @@
     "url": "https://github.com/danielbrodin/atom-project-manager/issues"
   },
   "homepage": "https://github.com/danielbrodin/atom-project-manager",
-  "_id": "project-manager@1.15.10",
-  "_shasum": "5d8a01cff9a0d28e368bdcb3b3d6fd54c26181db",
-  "_resolved": "file:../d-11561-4271-wgmwnq/package.tgz",
-  "_from": "../d-11561-4271-wgmwnq/package.tgz",
+  "_id": "project-manager@1.15.11",
+  "_shasum": "76787a054e8bdbf449092dfdc25adc7794364c0a",
+  "_resolved": "file:../d-11567-47632-1nygyv0/package.tgz",
+  "_from": "../d-11567-47632-1nygyv0/package.tgz",
   "_atomModuleCache": {
     "version": 1,
     "dependencies": [
@@ -206,7 +206,8 @@
       ".coffee": [
         "lib/project-manager-add-view.coffee",
         "lib/project-manager-view.coffee",
-        "lib/project-manager.coffee"
+        "lib/project-manager.coffee",
+        "lib/settings.coffee"
       ],
       ".js": [
         "node_modules/atom-space-pen-views/lib/main.js",

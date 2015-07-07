@@ -1,3 +1,27 @@
+## 0.8.6
+* Add -code-completion-macros argument to enable macro completion
+
+## 0.8.5
+* Relax the limit of clang outputs
+
+## 0.8.4
+* Reintroduce config settings
+
+## 0.8.3
+* Improve behavior with semicolon
+
+## 0.8.2
+* Reintroduce "symbol position" with better symbol regex
+* Use rightLabel instead of label
+
+## 0.8.1
+* Stop using symbol position to better completions
+
+## 0.8.0
+* Start working with [autocomplete-plus](https://github.com/atom/autocomplete-plus)!
+  Most of provider code from https://github.com/benogle/autocomplete-clang
+  Copyright (c) 2015 Ben Ogle under MIT license.
+
 ## 0.7.0
 * Stop using deprecated transaction API (inline preview feature was disabled)
 

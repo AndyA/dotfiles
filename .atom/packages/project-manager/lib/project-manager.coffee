@@ -1,4 +1,8 @@
+{CompositeDisposable} = require 'atom'
 fs = require 'fs'
+Settings = null
+ProjectsListView = null
+ProjectsAddView = null
 
 module.exports =
   config:
@@ -27,12 +31,14 @@ module.exports =
         'group'
       ]
 
-  projectManagerView: null
   projectManagerAddView: null
-
   filepath: null
+  subscriptions: null
 
   activate: (state) ->
+    @subscriptions = new CompositeDisposable
+    @handleEvents()
+
     fs.exists @file(), (exists) =>
       unless exists
         fs.writeFile @file(), '{}', (error) ->
@@ -43,25 +49,30 @@ module.exports =
         @subscribeToProjectsFile()
         @loadCurrentProject()
 
-    atom.commands.add 'atom-workspace',
-      'project-manager:toggle': =>
-        @createProjectManagerView(state).toggle(@)
-
-      'project-manager:save-project': =>
-        @createProjectManagerAddView(state).toggle(@)
-
-      'project-manager:edit-projects': =>
-        atom.workspace.open @file()
-
-      'project-manager:reload-project-settings': =>
-        @loadCurrentProject()
-
     atom.config.observe 'project-manager.environmentSpecificProjects',
       (newValue, obj = {}) =>
         previous = if obj.previous? then obj.previous else newValue
         unless newValue is previous
           @updateFile()
           @subscribeToProjectsFile()
+
+  handleEvents: (state) ->
+    @subscriptions.add atom.commands.add 'atom-workspace',
+      'project-manager:toggle': =>
+        ProjectsListView ?= require './project-manager-view'
+        projectsListView = new ProjectsListView()
+        projectsListView.toggle(@)
+
+      'project-manager:save-project': =>
+        ProjectsAddView ?= require './project-manager-add-view'
+        projectsAddView = new ProjectsAddView()
+        projectsAddView.toggle(@)
+
+      'project-manager:edit-projects': =>
+        atom.workspace.open @file()
+
+      'project-manager:reload-project-settings': =>
+        @loadCurrentProject()
 
   file: (update = false) ->
     @filepath = null if update
@@ -100,7 +111,8 @@ module.exports =
         if project
           if project.template? and data[project.template]?
             project = _.deepExtend(project, data[project.template])
-          @enableSettings(project.settings) if project.settings?
+          Settings ?= require './settings'
+          Settings.enable(project.settings) if project.settings?
       done?()
 
   getCurrentProject: (projects) ->
@@ -110,28 +122,6 @@ module.exports =
         if path in atom.project.getPaths()
           return project
     return false
-
-  flattenSettings: (root, dict, path) ->
-    _ = require 'underscore-plus'
-    for key, value of dict
-      dotPath = key
-      dotPath = "#{path}.#{key}" if path?
-      isObject = not _.isArray(value) and _.isObject(value)
-      if not isObject
-        root[dotPath] = value
-      else
-        @flattenSettings root, dict[key], dotPath
-
-  enableSettings: (settings) ->
-    _ = require 'underscore-plus'
-    flatSettings = {}
-    @flattenSettings flatSettings, settings
-    for setting, value of flatSettings
-      if _.isArray value
-        currentValue = atom.config.get setting
-        value = _.union currentValue, value
-      atom.config.setRawValue setting, value
-    # atom.config.emit 'updated'
 
   addProject: (project) ->
     CSON = require 'season'
@@ -151,14 +141,5 @@ module.exports =
       pathsToOpen: project.paths
       devMode: project.devMode
 
-  createProjectManagerView: (state) ->
-    unless @projectManagerView?
-      ProjectManagerView = require './project-manager-view'
-      @projectManagerView = new ProjectManagerView()
-    @projectManagerView
-
-  createProjectManagerAddView: (state) ->
-    unless @projectManagerAddView?
-      ProjectManagerAddView = require './project-manager-add-view'
-      @projectManagerAddView = new ProjectManagerAddView()
-    @projectManagerAddView
+  deactivate: ->
+    @subscriptions.dispose()

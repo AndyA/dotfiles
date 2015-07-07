@@ -1,7 +1,7 @@
-fs = require 'fs'
 path = require 'path'
 {sync} = require 'resolve'
-{exec} = require 'child_process'
+{execSync} = require 'child_process'
+{statSync} = require 'fs'
 {CompositeDisposable} = require 'atom'
 {allowUnsafeNewFunction} = require 'loophole'
 
@@ -20,20 +20,26 @@ module.exports =
     disableWhenNoEslintrcFileInPath:
       type: 'boolean'
       default: false
+      description: 'Disable linter when no `.eslintrc` is found in project'
     useGlobalEslint:
       type: 'boolean'
       default: false
+      description: 'Use globaly installed `eslint`'
     showRuleIdInMessage:
       type: 'boolean'
-      default: false
+      default: true
+      description: 'Show the `eslint` rule before error'
+    globalNodePath:
+      type: 'string'
+      default: ''
+      description: 'Run `$ npm config get prefix` to find it'
 
   activate: ->
     console.log 'activate linter-eslint'
     @subscriptions = new CompositeDisposable
 
     # Load global eslint path
-    @useGlobalEslint = atom.config.get 'linter-eslint.useGlobalEslint'
-    if @useGlobalEslint then @findGlobalNPMdir()
+    if atom.config.get('linter-eslint.useGlobalEslint') then @findGlobalNPMdir()
 
   deactivate: ->
     @subscriptions.dispose()
@@ -45,7 +51,7 @@ module.exports =
       lintOnFly: true
       lint: (TextEditor) =>
         filePath = TextEditor.getPath()
-        origPath = if filePath then path.dirname filePath else ''
+        dirname = if filePath then path.dirname filePath else ''
 
         # Check for `onlyConfig`
         #
@@ -61,7 +67,7 @@ module.exports =
 
         # Add rulePaths option
         rulesDir = atom.config.get 'linter-eslint.eslintRulesDir'
-        rulesDir = findFile(origPath, [rulesDir], false, 0) if rulesDir
+        rulesDir = findFile(dirname, [rulesDir], false, 0) if rulesDir
 
         # Add showRuleId option
         showRuleId = atom.config.get 'linter-eslint.showRuleIdInMessage'
@@ -82,7 +88,7 @@ module.exports =
 
           # Check for ignore path files from `.eslintignore`
           if options.ignorePath
-            relative = origPath.replace "#{path.dirname options.ignorePath}#{path.sep}", ''
+            relative = filePath.replace "#{path.dirname options.ignorePath}#{path.sep}", ''
             return [] if engine.isPathIgnored relative or engine.isPathIgnored "#{relative}/"
 
           # We have plugins to load
@@ -134,7 +140,7 @@ module.exports =
             [
               {
                 type: 'error'
-                text: 'error while linting file, open console for more informations'
+                text: 'error while linting file, open the console for more information'
                 file: filePath
                 range: [[0, 0], [0, 0]]
               }
@@ -177,21 +183,56 @@ module.exports =
       eslint = require eslintPath
       @localEslint = true
       return eslint
-    catch
+    catch error
       if @useGlobalEslint
         try
           eslintPath = sync 'eslint', {basedir: @npmPath}
           eslint = require eslintPath
           @localEslint = true
           return eslint
+      else
+        console.warn '[Linter-ESLint] local `eslint` not found'
+        console.warn error
+
+        atom.notifications.addError '
+          [Linter-ESLint] `eslint` binary not found localy, falling back to packaged one.
+          Plugins won\'t be loaded and linting will possibly not work.
+          (Try `Use Global ESLint` option, or install localy `eslint` to your project.)',
+          {dismissable: true}
+
     # Fall back to the version packaged in linter-eslint
     return require('eslint')
 
   findGlobalNPMdir: ->
-    exec 'npm config get prefix', (code, stdout, stderr) =>
-      if not stderr
-        cleanPath = stdout.replace(/[\n\r\t]/g, '')
-        dir = path.join(cleanPath, 'lib', 'node_modules')
-        fs.exists dir, (exists) =>
-          if exists
-            @npmPath = dir
+    try
+      # Get global node dir from options
+      globalNodePath = atom.config.get 'linter-eslint.globalNodePath'
+
+      # If none, try to find it
+      unless globalNodePath
+        globalNodePath = execSync 'npm config get prefix', {encoding: 'utf8'}
+        globalNodePath = globalNodePath.replace /[\n\r\t]/g, ''
+
+      # Windows specific
+      # (see: https://github.com/AtomLinter/linter-eslint/issues/138#issuecomment-118666827)
+      globalNpmPath = path.join globalNodePath, 'node_modules'
+
+      # Other OS, `node_modules` path will be in `./lib/node_modules`
+      try
+        statSync(globalNpmPath).isDirectory()
+      catch
+        globalNpmPath = path.join globalNodePath, 'lib', 'node_modules'
+
+      if statSync(globalNpmPath).isDirectory()
+        @useGlobalEslint = true
+        @npmPath = globalNpmPath
+
+    catch error
+      console.warn '[Linter-ESlint] error loading global eslint'
+      console.warn error
+
+      atom.notifications.addError '
+        [Linter-ESLint] Global node modules path not found, using packaged ESlint.
+        Plugins won\'t be loaded and linting will possibly not work.
+        (Try to set `Global node path` if not set)',
+        {dismissable: true}
