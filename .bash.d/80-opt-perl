@@ -1,0 +1,9 @@
+for perl_path in \
+  "/opt/perl5/perls/perl-5.20.1/bin"
+do
+  if [ -d "$perl_path" ]; then
+    PATH="$perl_path:$PATH"
+    break
+  fi
+done
+
