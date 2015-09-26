@@ -1,0 +1,115 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use Set::IntSpan::Fast::XS;
+
+use constant MERGE   => 128;
+use constant BS      => 1024 * 1024;
+use constant REBLOCK => 1;
+
+my $in  = shift;
+my $out = shift;
+defined $out or die "ddsparse <in> <out>\n";
+dupe2( $in, $out );
+
+sub reblock {
+  my ( $set, $ibs, $obs ) = @_;
+  my $oset = Set::IntSpan::Fast::XS->new;
+  my $iter = $set->iterate_runs;
+  while ( my ( $from, $to ) = $iter->() ) {
+    $oset->add_range( int( $from * $ibs / $obs ),
+      int( ( $to * $ibs + $obs - 1 ) / $obs ) );
+  }
+  return $oset;
+}
+
+sub dupe2 {
+  my ( $in, $out ) = @_;
+  my ( $used, $bsize, $bcount ) = get_used($in);
+
+  if (REBLOCK) {
+    dd_list( $in, $out, reblock( $used, $bsize, BS ), BS, 1 );
+  }
+  else {
+    dd_list( $in, $out, $used, $bsize, MERGE );
+  }
+  make_empty( $out, $bsize, $bcount );
+}
+
+sub dd_list {
+  my ( $in, $out, $used, $bsize, $merge ) = @_;
+
+  my $iter    = $used->iterate_runs;
+  my @pending = ();
+
+  my $flush = sub {
+    while ( my $rec = shift @pending ) {
+      my ( $from, $to ) = @$rec;
+      copy_block( $in, $out, $bsize, $from, $to - $from + 1 );
+    }
+  };
+
+  while ( my ( $from, $to ) = $iter->() ) {
+    # Coallesce adjacent runs
+    if ( @pending && $pending[-1][1] + $merge >= $from ) {
+      $pending[-1][1] = $to;
+    }
+    else {
+      push @pending, [$from, $to];
+    }
+
+    $flush->() if @pending > 1;
+  }
+
+  $flush->();
+}
+
+sub copy_block {
+  my ( $idev, $odev, $bsize, $from, $len ) = @_;
+  print "**** $from ($len)\n";
+  system 'dd', "if=$idev", "of=$odev", "bs=$bsize", "seek=$from",
+   "skip=$from", "count=$len"
+   and die "dd failed: $?\n";
+}
+
+sub make_empty {
+  my ( $dev, $size, $count ) = @_;
+  system 'dd', 'if=/dev/zero', "of=$dev",
+   "bs=$size", "seek=$count", 'count=0'
+   and die "dd failed: $?\n";
+}
+
+sub get_used {
+  my $dev  = shift;
+  my $free = Set::IntSpan::Fast::XS->new;
+  my ( $used, $bsize, $bcount );
+  open my $fh, '-|', 'dumpe2fs', $dev
+   or die "Can't run dumpe2fs $dev: $!\n";
+
+  while (<$fh>) {
+    if (/^Block\s+size:\s+(\d+)/) {
+      $bsize = $1;
+      next;
+    }
+
+    if (/^Block\s+count:\s+(\d+)/) {
+      die "Already seen block count" if $used;
+      $bcount = $1;
+      $used   = Set::IntSpan::Fast::XS->new;
+      $used->add_range( 0, $bcount - 1 );
+      next;
+    }
+
+    if (/^\s*Free\s+blocks:\s+(.*)/) {
+      $used->remove_from_string($1);
+      next;
+    }
+  }
+
+  return ( $used, $bsize, $bcount );
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
