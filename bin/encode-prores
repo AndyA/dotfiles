@@ -4,10 +4,11 @@ suffix='prores'
 ext='mov'
 
 function process {
-  ffmpeg -i "$1"    \
-    -nostdin        \
-    -c:v prores     \
-    -c:a pcm_s16le  \
+  ffmpeg -i "$1"       \
+    -nostdin           \
+    -async 1 -vsync 0  \
+    -c:v prores        \
+    -c:a pcm_s16le     \
     -y "$2"
 }
 
