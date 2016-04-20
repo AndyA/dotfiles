@@ -1,0 +1,82 @@
+#!/usr/bin/env perl
+
+use v5.10;
+
+use autodie;
+use strict;
+use warnings;
+
+use File::Find;
+use Getopt::Long;
+use JSON;
+use Path::Class;
+
+@ARGV = ('.') unless @ARGV;
+
+use constant USAGE => <<EOT;
+Syntax: $0 [options] <dir> ...
+
+Options:
+    -r, --rename            Rename files as "GOPRO xxxx yyyy"
+    -d, --dirs              Rename files into dirs "GOPRO xxxx"
+        --ffmpeg            Output ffmpeg "concat" format file
+    -p, --prefix=<prefix>   Prefix to use instead of "GOPRO"
+EOT
+
+my %O = (
+  rename => undef,
+  dirs   => undef,
+  ffmpeg => undef,
+  prefix => 'GOPRO',
+);
+
+GetOptions(
+  'r|rename'   => \$O{rename},
+  'd|dirs'     => \$O{dirs},
+  'ffmpeg'     => \$O{ffmpeg},
+  'p|prefix:s' => \$O{prefix},
+) or die USAGE;
+
+my %by_dir = ();
+find {
+  no_chdir => 1,
+  wanted   => sub {
+    return unless /\b(?:GOPR|GP\d\d)(\d\d\d\d)\.\w+/;
+    my ( $seq, $vid ) = ( $1, file $_);
+    my $dir = $vid->parent;
+    push @{ $by_dir{"$dir"} }, [$seq, $vid];
+  }
+}, @ARGV;
+
+for my $dir ( sort keys %by_dir ) {
+  my @vids = sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] }
+   @{ $by_dir{$dir} };
+
+  if ( $O{rename} || $O{dirs} ) {
+    my @rename = ();
+    my $next   = 1;
+    for my $vid (@vids) {
+      my ($ext) = $vid->[1] =~ /\.([^.]+)$/;
+      my @new_name
+       = ( nice_name( $vid->[0] ), sprintf "%04d.%s", $next++, $ext );
+      @new_name = join '-', @new_name unless $O{dirs};
+      my $new_vid = file( $dir, @new_name );
+      say "$vid->[1] --> $new_vid";
+      $new_vid->parent->mkpath;
+      rename "$vid->[1]", "$new_vid";
+    }
+  }
+  elsif ( $O{ffmpeg} ) {
+    say "file '$_->[1]'" for @vids;
+  }
+  else {
+    say $_->[1] for @vids;
+  }
+}
+
+sub nice_name {
+  my $seq = shift;
+  return join '-', $O{prefix}, $seq;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
