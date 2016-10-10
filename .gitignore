@@ -116,6 +116,7 @@
 /.guestfish
 /.gvfs
 /.hcwd
+/.homebridge/
 /.hotssh
 /.htoprc
 /.icons
@@ -285,11 +286,13 @@
 /Mail
 /Movies
 /Music
+/Network Trash Folder/
 /Pictures
 /Public
 /Sites
 /Store/
 /Templates
+/Temporary Items/
 /Ubuntu One
 /Videos
 /VirtualBox VMs
