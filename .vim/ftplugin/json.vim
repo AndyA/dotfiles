@@ -20,7 +20,7 @@ if executable('ack')
 endif
 
 function! s:tidy()
-  if executable('jsindent')
+  if executable('jsontidy')
     let l:loc = Get_location()
     exec ':%!jsontidy'
     call Set_location(l:loc)

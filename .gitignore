@@ -21,8 +21,10 @@
 /.adobe
 /.afterstep
 /.airstreamrc
+/.airtame/
 /.android
 /.apache-test
+/.apache/
 /.appcfg_nag
 /.aptitude
 /.arduino.mk
@@ -35,6 +37,7 @@
 /.bash_local
 /.bash_logout
 /.bash_profile
+/.bash_sessions/
 /.bazaar
 /.bcast
 /.beebem
@@ -113,6 +116,7 @@
 /.guestfish
 /.gvfs
 /.hcwd
+/.homebridge/
 /.hotssh
 /.htoprc
 /.icons
@@ -282,11 +286,13 @@
 /Mail
 /Movies
 /Music
+/Network Trash Folder/
 /Pictures
 /Public
 /Sites
 /Store/
 /Templates
+/Temporary Items/
 /Ubuntu One
 /Videos
 /VirtualBox VMs

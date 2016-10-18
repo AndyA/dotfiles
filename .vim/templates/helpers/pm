@@ -14,7 +14,15 @@ my $package = infer_package( $name, $ext );
 print <<EOT;
 package $package;
 
-use Moose;
+our \$VERSION = "0.01";
+
+use v5.10;
+
+EOT
+
+if ( $name =~ m{/Role/} ) {
+  print <<EOT;
+use Moose::Role;
 
 =head1 NAME
 
@@ -23,6 +31,24 @@ $package - do something
 =cut
 
 1;
+EOT
+}
+else {
+  print <<EOT;
+use Moose;
+
+=head1 NAME
+
+$package - do something
+
+=cut
+
+no Moose;
+__PACKAGE__->meta->make_immutable;
+EOT
+}
+
+print <<EOT;
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
 EOT
@@ -49,18 +75,18 @@ sub is_package {
 sub guess_lib {
   my $file = shift;
   open my $th, '<', $file or return;
-  while ( <$th> ) {
+  while (<$th>) {
     chomp;
     next unless /^\s*package\s+(\w+(?:::\w+)*)\b/;
-    my $pfile = package_to_file( $1 );
+    my $pfile = package_to_file($1);
     return $1 if $file =~ m{^(.*?)/\Q$pfile\E$};
   }
   return;
 }
 
 sub guess {
-  for ( @_ ) {
-    my $lib = guess_lib( $_ );
+  for (@_) {
+    my $lib = guess_lib($_);
     return $lib if defined $lib;
   }
   return;
@@ -69,23 +95,23 @@ sub guess {
 sub infer_package {
   my ( $name, $ext ) = @_;
 
-  my ( $base, $in_dir ) = fileparse( $name );
+  my ( $base, $in_dir ) = fileparse($name);
 
   my @already = glob "$in_dir/*.$ext";
 
-  if ( defined( my $lib = guess( @already ) ) ) {
+  if ( defined( my $lib = guess(@already) ) ) {
     if ( $name =~ m{^\Q$lib\E/(.*)$} ) {
-      return file_to_package( $1 );
+      return file_to_package($1);
     }
   }
 
-  for my $pfx ( @PFX ) {
+  for my $pfx (@PFX) {
     if ( $name =~ m{(?:^|/)\Q$pfx\E/(.*)} ) {
-      return file_to_package( $1 );
+      return file_to_package($1);
     }
   }
 
-  return file_to_package( $base );
+  return file_to_package($base);
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
