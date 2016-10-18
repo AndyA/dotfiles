@@ -64,6 +64,14 @@ if ( $verb eq "load" ) {
     else {
       load_table( $sql, $C->{db} );
     }
+    delete $tables{$tbl};
+  }
+  if ( keys %tables ) {
+    my @orphan = sort keys %tables;
+    say "Deleting orphan tables: ", join ", ", @orphan;
+    my $dbh = dbh( $C->{db} );
+    $dbh->do("DROP TABLE `$_`") for @orphan;
+    $dbh->disconnect;
   }
 }
 elsif ( $verb eq "save" ) {
@@ -136,7 +144,7 @@ sub create_db {
   my $conn = { %{ $_[0] } };
   my $db   = delete $conn->{database} // die "No database named";
   my $dbh  = dbh($conn);
-  $dbh->do("CREATE DATABASE IF NOT EXISTS $db");
+  $dbh->do("CREATE DATABASE IF NOT EXISTS `$db`");
   $dbh->disconnect();
 }
 
