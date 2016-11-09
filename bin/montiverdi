@@ -1,0 +1,207 @@
+#!/usr/bin/env perl
+
+use v5.10;
+
+use autodie;
+use strict;
+use warnings;
+
+use File::Find;
+use GD;
+use Getopt::Long;
+use Image::Size;
+use JSON;
+use List::Util qw( max shuffle sum );
+use Storable qw( dclone );
+
+use constant WIDTH => 2560;
+
+use constant USAGE => <<EOT;
+Syntax: $0 [options] <dirs or images>...
+
+Options:
+    -o, --output <file.png>   Output filename
+    -w, --width  <width>      Output width in pixels
+    -h, --height <height>     Output height in pixels
+    -a, --across <n>          Number of images on first line
+    -g, --grow   <n>          Growth factor for line width
+    -z, --zigzag              Alternate small to large, large to small
+
+EOT
+
+my %O = (
+  output => "montage.png",
+  width  => WIDTH,
+  height => undef,
+  across => undef,
+  grow   => 1,
+  zigzag => 0,
+);
+
+GetOptions(
+  'output:s' => \$O{output},
+  'width:i'  => \$O{width},
+  'height:i' => \$O{height},
+  'across:i' => \$O{across},
+  'grow:s'   => \$O{grow},
+  'zigzag'   => \$O{zigzag},
+) or die USAGE;
+
+my @image = ();
+for my $obj (@ARGV) {
+  if ( -d $obj ) {
+    find {
+      wanted => sub {
+        return unless -f;
+        return unless /\.jpg$/i;
+        push @image, get_image($_);
+      },
+      no_chdir => 1
+     },
+     $obj;
+  }
+  else {
+    push @image, get_image($obj);
+  }
+}
+
+unless (@image) {
+  say "No images to process";
+  exit;
+}
+
+my @img = shuffle @image;
+my $use = $O{across} // 1 + int sqrt scalar @img;
+my $iter
+ = defined $O{height} ? infinite_iter(@image) : random_iter(@image);
+
+my @spec   = ();
+my $dir    = 1;
+my $height = 0;
+IMAGE: while ( $use > 0 && @img >= int $use ) {
+  my @row = ();
+  for ( 1 .. int $use ) {
+    my $next = $iter->();
+    last IMAGE unless defined $next;
+    push @row, $next;
+  }
+  if ( $O{zigzag} ) {
+    @row = sort { $dir * ( $a->{aspect} <=> $b->{aspect} ) } @row;
+    $dir = -$dir;
+  }
+  push @spec, format_row(@row);
+  my $row_height = $spec[-1]{height};
+  if ( $row_height < 5 ) {
+    say "Stopping because row height is only $row_height pixels.";
+    last IMAGE;
+  }
+  $height += $row_height;
+  last if defined $O{height} && $height > $O{height};
+  $use *= $O{grow};
+}
+
+my $out_w = $O{width};
+my $out_h = sum map { $_->{height} } @spec;
+
+my $im          = GD::Image->new( $out_w, $out_h, 1 );
+my $y_pos       = 0;
+my %image_cache = ();
+for my $row (@spec) {
+  say "Row at $y_pos";
+  my $x_pos = 0;
+  for my $ident ( @{ $row->{images} } ) {
+    say "  ", $ident->{name};
+    my $src = $image_cache{ $ident->{name} } //=
+     GD::Image->new( $ident->{name} );
+    $im->copyResampled(
+      $src, $x_pos, $y_pos, 0, 0,
+      $ident->{scaled_width},
+      $ident->{scaled_height},
+      $ident->{width}, $ident->{height}
+    );
+    $x_pos += $ident->{scaled_width};
+  }
+  $y_pos += $row->{height};
+}
+
+{
+  open my $fh, '>', $O{output};
+  $fh->print( $im->png );
+}
+
+#say JSON->new->pretty->canonical->encode( \@spec );
+
+sub round($) { int 0.5 + $_[0] }
+sub sign($) { $_[0] < 0 ? -1 : $_[0] > 0 ? 1 : 0 }
+
+sub random_iter {
+  my @item = shuffle @_;
+  return sub { shift @item };
+}
+
+sub infinite_iter {
+  my @item = @_;
+  return sub { }
+   unless @item;
+  my @queue = ();
+  return sub {
+    @queue = shuffle @item unless @queue;
+    return dclone shift @queue;
+  };
+}
+
+sub format_row {
+  my @img = @_;
+
+  my $height = max map { $_->{height} } @img;
+  my $width = 0;
+
+  for my $img (@img) {
+    my $iw = $img->{width} * $height / $img->{height};
+    $width += $iw;
+  }
+
+  my $sh = round( $height * $O{width} / $width );
+
+  my $scaled_width = 0;
+  for my $img (@img) {
+    my $sw = round( $img->{width} * $sh / $img->{height} );
+    $img->{scaled_height} = $sh;
+    $img->{scaled_width}  = $sw;
+    $scaled_width += $sw;
+  }
+
+  my $error = $O{width} - $scaled_width;
+
+  ADJUST: while (1) {
+    for my $img ( shuffle @img ) {
+      last ADJUST unless $error;
+      $img->{scaled_width} += sign $error;
+      $error -= sign $error;
+    }
+  }
+
+  return { height => $sh, images => \@img };
+}
+
+sub get_image {
+  my $name = shift;
+  my ( $width, $height ) = imgsize $name;
+  return unless defined $width;
+  return {
+    name   => $name,
+    width  => $width,
+    height => $height,
+    aspect => $width / $height
+  };
+}
+
+sub show_widths {
+  my @img   = @_;
+  my $total = 0;
+  for my $img (@img) { $total += $img->{scaled_width} }
+  say "$total : ", join " ", map { $_->{scaled_width} } @img;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
