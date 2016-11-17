@@ -3,9 +3,10 @@
 scriptencoding utf-8
 set encoding=utf-8
 
+execute pathogen#infect()
+
 " Abbreviations
 ia #e andy@hexten.net
-ia Therese Thérèse
 
 set background=dark
 if $COLORTERM == 'gnome-terminal' || $TERM == 'xterm-256color'

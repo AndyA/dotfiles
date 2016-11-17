@@ -15,9 +15,9 @@ if executable('ack')
 endif
 
 function! s:tidy()
-  if executable('js-beautify')
+  if executable('esformatter')
     let l:loc = Get_location()
-    exec ':%!js-beautify -f -'
+    exec ':%!esformatter'
     call Set_location(l:loc)
   endif
 endfunction
