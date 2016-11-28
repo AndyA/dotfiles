@@ -6,9 +6,31 @@
       "alignComments" : true,
       "value" : "  "
    },
+   "jsx" : {
+      "JSXExpressionsSingleLine" : true,
+      "alignWithFirstAttribute" : false,
+      "attrsOnSameLineAsTag" : false,
+      "closingTagOnNewLine" : false,
+      "firstAttributeOnSameLine" : true,
+      "formatJSX" : true,
+      "formatJSXExpressions" : true,
+      "htmlOptions" : {
+         "brace_style" : "collapse",
+         "indent_char" : " ",
+         "indent_size" : 2,
+         "max_preserve_newlines" : 2,
+         "preserve_newlines" : true
+      },
+      "maxAttrsOnTag" : 3,
+      "removeSpaceBeforeClosingJSX" : false,
+      "spaceInJSXExpressionContainers" : " "
+   },
    "lineBreak" : {
       "value" : "\n"
    },
+   "plugins" : [
+      "esformatter-jsx"
+   ],
    "whiteSpace" : {
       "removeTrailing" : 1,
       "value" : " "
