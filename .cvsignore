@@ -1,2 +1,5 @@
 .*.sw?
+.AppleDouble/
+.DS_Store
+.prove
 Session.vim
