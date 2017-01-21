@@ -33,6 +33,7 @@
 /.atom/
 /.audacity-data/
 /.avidemux/
+/.avidemux6/
 /.bash_history
 /.bash_local
 /.bash_logout
@@ -83,6 +84,7 @@
 /.evolution
 /.filezilla
 /.flashplayer-versions
+/.flickr-downloadr/
 /.flowblade/
 /.fluxbox
 /.fontconfig
@@ -121,6 +123,7 @@
 /.htoprc
 /.icons
 /.idea/
+/.idlerc/
 /.inkscape-etc/
 /.install4j
 /.ion3
@@ -162,6 +165,7 @@
 /.mplayer
 /.mysql/
 /.mysql_history
+/.nDSstore
 /.nautilus
 /.node-gyp/
 /.node_repl_history
@@ -173,10 +177,12 @@
 /.openoffice.org
 /.openshot
 /.openvpn
+/.oracle_jre_usage/
 /.org.eclipse.epp.usagedata.recording.userId
 /.ovpn/
 /.padre
 /.pause
+/.pdepend/
 /.pearrc
 /.perl
 /.perlbrew
@@ -242,6 +248,7 @@
 /.tgdb
 /.themes
 /.thinupload
+/.thumb/
 /.thumbnails
 /.thunderbird
 /.titi
@@ -253,6 +260,7 @@
 /.usb-creator.log
 /.usbcreator.log
 /.v8flags.*
+/.vagrant.d/
 /.viking
 /.viking-maps
 /.viminfo
@@ -260,6 +268,7 @@
 /.vmware
 /.vpndiff
 /.wapi
+/.wget-hsts
 /.whohas/
 /.wine
 /.winff/
@@ -283,6 +292,7 @@
 /Documents
 /Downloads
 /Dropbox
+/Google Drive/
 /Library
 /Lightworks/
 /Mail
