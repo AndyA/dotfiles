@@ -49,6 +49,7 @@ my %by_dir = ();
 find {
   no_chdir => 1,
   wanted   => sub {
+    return if /\.AppleDouble/;
     return unless /\b(?:GOPR|GP\d\d)(\d\d\d\d)\.\w+/;
     my ( $seq, $vid ) = ( $1, file $_);
     my $dir = $vid->parent;

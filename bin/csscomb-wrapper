@@ -1,0 +1,40 @@
+#!/usr/bin/env perl
+
+use v5.10;
+
+use autodie;
+use strict;
+use warnings;
+
+use Getopt::Long;
+use File::Temp qw( tempfile );
+
+use constant USAGE => <<EOT;
+Usage: $0 [options] < file.less > output.less
+
+Options:
+
+    -c, --config <file> Name config file
+
+EOT
+
+my %O = ( config => glob "~/.csscomb.json" );
+
+GetOptions( 'c|config:s' => \$O{config} ) or die USAGE;
+
+my $ext = shift // ".less";
+my ( $fh, $filename ) = tempfile(
+  "csscomb-XXXXXX",
+  SUFFIX => $ext,
+  TMPDIR => 1,
+  UNLINK => 1
+);
+
+my $src = do { local $/; <> };
+$fh->write($src);
+system "csscomb", -c => $O{config}, $filename;
+open my $rfh, '<', $filename;
+print for <$rfh>;
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
