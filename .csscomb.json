@@ -313,7 +313,7 @@
          "text-shadow"
       ]
    ],
-   "space-after-colon" : " ",
+   "space-after-colon" : 0,
    "space-after-combinator" : " ",
    "space-after-opening-brace" : "\n",
    "space-after-selector-delimiter" : "\n",
