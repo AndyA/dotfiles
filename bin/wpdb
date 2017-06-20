@@ -9,6 +9,7 @@ use warnings;
 use DBI;
 use Getopt::Long;
 use JSON;
+use List::Util qw( max );
 use PHP::Serialization qw( serialize unserialize );
 use Path::Class;
 use Scalar::Util qw( blessed );
@@ -52,6 +53,8 @@ if ( $verb eq "load" ) {
     $replace{$base} = $here_base;
   }
 
+  show_replace(%replace);
+
   for my $sql (@sql) {
     ( my $tbl = $sql->basename ) =~ s/\.sql$//;
     say "Loading $sql into $tbl";
@@ -87,6 +90,8 @@ elsif ( $verb eq "save" ) {
     }
   }
 
+  show_replace(%replace);
+
   for my $tbl (@tables) {
     my $sql = file $C->{dirs}{sql} // "sql", "$tbl.sql";
     my $tmp = file $C->{dirs}{sql} // "sql", "$tbl.tmp.sql";
@@ -117,6 +122,17 @@ elsif ( $verb eq "save" ) {
 }
 else {
   die USAGE;
+}
+
+sub show_replace {
+  my %rep   = @_;
+  my @from  = sort keys %rep;
+  return unless @from;
+  my $width = max map length, @from;
+  say "Replacements:";
+  for my $from (@from) {
+    printf "  %-${width}s => %s\n", $from, $rep{$from};
+  }
 }
 
 sub load_table {
