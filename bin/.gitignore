@@ -1,2 +1,3 @@
 /clock
-/perl5*
+/local/
+perl5*
