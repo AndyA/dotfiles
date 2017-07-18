@@ -1,3 +1,5 @@
 .*.sw?
+.AppleDouble/
+.DS_Store
 Session.vim
 tags
