@@ -44,6 +44,7 @@
 /.bcast
 /.beebem
 /.bluefish/
+/.byobu/
 /.bzr.log
 /.cache
 /.carmetal_config/
@@ -64,6 +65,7 @@
 /.cvspass
 /.cvsps
 /.dbsave
+/.dbshell
 /.dbus
 /.dbus-keyrings
 /.ddd
@@ -160,6 +162,7 @@
 /.merkaartor/
 /.minecraft/
 /.mission-control
+/.mongorc.js
 /.mozconfig
 /.mozilla
 /.mozilla-thunderbird
@@ -268,6 +271,7 @@
 /.vimprojects
 /.vmware
 /.vpndiff
+/.w3af/
 /.wapi
 /.wget-hsts
 /.whohas/
