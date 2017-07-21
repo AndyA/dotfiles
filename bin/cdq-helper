@@ -1,0 +1,55 @@
+#!/usr/bin/env perl
+
+use v5.10;
+
+use strict;
+use warnings;
+
+use File::Basename;
+use File::Spec;
+use Getopt::Long;
+
+use constant SEARCH_PATH => map glob, qw( .q q ~/.q );
+
+use constant USAGE => <<EOT;
+Usage: $0 <options> [tag]
+
+Options:
+
+    -c      Output completions
+
+EOT
+
+my $completion = 0;
+GetOptions( 'c' => \$completion ) or die USAGE;
+
+die USAGE if @ARGV > 1;
+
+my $target = shift // '';
+
+my @tags = ();
+my %dict = ();
+for my $qdir (SEARCH_PATH) {
+  for my $link ( glob "$qdir/*" ) {
+    next unless -l $link;
+    my $tag = basename($link);
+    my $dst = readlink $link;
+    next unless defined $dst;
+    my $abs = File::Spec->rel2abs( $dst, $qdir );
+    next if exists $dict{$tag};
+    $dict{$tag} = $abs;
+    push @tags, $tag;
+  }
+}
+
+if ($completion) {
+  say for grep /^\Q$target/, @tags;
+}
+else {
+  die USAGE unless length $target;
+  die "No cdq tag $target\n" unless exists $dict{$target};
+  say $dict{$target};
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
