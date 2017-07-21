@@ -1,10 +1,10 @@
 function cdq() {
-  eval $( cdq-helper "$@" )
+  eval $( private-cdq-helper "$@" )
 }
 
 function _cdq() {
   COMPREPLY=(
-    $( cdq-helper -c "${COMP_WORDS[@]:1}" )
+    $( private-cdq-helper -c "${COMP_WORDS[@]:1}" )
   )
 }
 
