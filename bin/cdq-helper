@@ -9,9 +9,10 @@ use Cwd;
 use File::Basename;
 use File::Spec;
 use Getopt::Long;
+use String::ShellQuote;
 
 use constant USAGE => <<EOT;
-Usage: $0 <options> [tag]
+Usage: $0 <options> [tag]...
 
 Options:
 
@@ -22,16 +23,54 @@ EOT
 my $completion = 0;
 GetOptions( 'c' => \$completion ) or die USAGE;
 
-die USAGE if @ARGV > 1;
+my @path   = @ARGV;
+my $target = pop @path;
 
-my $target = shift // '';
-
-my @tags = ();
 my %dict = ();
-my $pwd  = '';
-my $cwd  = Cwd::cwd;
-while ( $cwd ne $pwd ) {
-  for my $dir ( '.q', 'q' ) {
+my @tags = load_path( \%dict, Cwd::cwd, '.q', 'q' );
+
+for my $hop (@path) {
+  die "No tag \"$hop\"\n" unless exists $dict{$hop};
+  my $next = $dict{$hop};
+  %dict = ();
+  @tags = load_path( \%dict, $next, '.q', 'q' );
+}
+
+if ($completion) {
+  $target //= '';
+  if ( exists $dict{$target} ) {
+    my $next = $dict{$target};
+    %dict = ();
+    say for load_path( \%dict, $next, '.q', 'q' );
+  }
+  else {
+    say for grep /^\Q$target/, @tags;
+  }
+}
+else {
+  die USAGE unless length $target;
+  die "No cdq tag $target\n" unless exists $dict{$target};
+  say "cd ", shell_quote( $dict{$target} );
+}
+
+sub load_path {
+  my ( $dict, $cwd, @dir ) = @_;
+
+  my @tags = ();
+  my $pwd  = '';
+  while ( $cwd ne $pwd ) {
+    push @tags, load_tags( \%dict, $cwd, '.q', 'q' );
+    $pwd = $cwd;
+    $cwd = dirname($cwd);
+  }
+  return @tags;
+}
+
+sub load_tags {
+  my ( $dict, $cwd, @dir ) = @_;
+
+  my @tags = ();
+  for my $dir (@dir) {
     my $qdir = File::Spec->catdir( $cwd, $dir );
     for my $link ( glob File::Spec->catfile( $qdir, "*" ) ) {
       next unless -l $link;
@@ -39,23 +78,12 @@ while ( $cwd ne $pwd ) {
       my $dst = readlink $link;
       next unless defined $dst;
       my $abs = File::Spec->rel2abs( $dst, $qdir );
-      next if exists $dict{$tag};
-      $dict{$tag} = $abs;
+      next if exists $dict->{$tag};
+      $dict->{$tag} = $abs;
       push @tags, $tag;
     }
   }
-  $pwd = $cwd;
-  $cwd = dirname($cwd);
-}
-
-if ($completion) {
-  say for grep /^\Q$target/, @tags;
-}
-else {
-  die USAGE unless length $target;
-  die "No cdq tag $target\n" unless exists $dict{$target};
-  say $dict{$target};
+  return @tags;
 }
 
 # vim:ts=2:sw=2:sts=2:et:ft=perl
-

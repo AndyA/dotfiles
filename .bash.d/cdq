@@ -1,6 +1,5 @@
 function cdq() {
-  local key=${1:-=}
-  cd "`cdq-helper $key`"
+  eval $( cdq-helper "$@" )
 }
 
 function _cdq() {
