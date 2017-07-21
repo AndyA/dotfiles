@@ -3,9 +3,8 @@ function cdq() {
 }
 
 function _cdq() {
-  local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=(
-    $( cdq-helper -c $cur )
+    $( cdq-helper -c "${COMP_WORDS[@]:1}" )
   )
 }
 
