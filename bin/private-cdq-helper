@@ -72,16 +72,19 @@ sub load_tags {
 
   my @tags = ();
   for my $dir (@dir) {
-    my $qdir = File::Spec->catdir( $cwd, $dir );
-    for my $link ( glob File::Spec->catfile( $qdir, "*" ) ) {
-      next unless -l $link;
-      my $tag = basename($link);
-      my $dst = readlink $link;
-      next unless defined $dst;
-      my $abs = File::Spec->rel2abs( $dst, $qdir );
-      next if exists $dict->{$tag};
-      $dict->{$tag} = $abs;
-      push @tags, $tag;
+    my $gqdir = File::Spec->catdir( $cwd, $dir );
+    my $lqdir = File::Spec->catfile( $gqdir, "local" );
+    for my $qdir ( $lqdir, $gqdir ) {
+      for my $link ( glob File::Spec->catfile( $qdir, "*" ) ) {
+        next unless -l $link;
+        my $tag = basename($link);
+        my $dst = readlink $link;
+        next unless defined $dst;
+        my $abs = File::Spec->rel2abs( $dst, $qdir );
+        next if exists $dict->{$tag};
+        $dict->{$tag} = $abs;
+        push @tags, $tag;
+      }
     }
   }
   return @tags;
