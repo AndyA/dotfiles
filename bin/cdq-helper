@@ -28,6 +28,7 @@ my $target = pop @path;
 
 my %dict = ();
 my @tags = load_path( \%dict, Cwd::cwd, '.q', 'q' );
+push @tags, load_path( \%dict, glob('~'), '.q' );
 
 for my $hop (@path) {
   die "No tag \"$hop\"\n" unless exists $dict{$hop};
