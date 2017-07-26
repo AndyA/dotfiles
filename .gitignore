@@ -3,6 +3,7 @@
 .CFUserTextEncoding
 .DS_Store
 .sw?
+/.3T/
 /.AndroidStudio*/
 /.AppleDesktop/
 /.AppleDouble/
@@ -120,6 +121,7 @@
 /.gtkrc-*
 /.guestfish
 /.gvfs
+/.halberd/
 /.hcwd
 /.homebridge/
 /.hotssh
