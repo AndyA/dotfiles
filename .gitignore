@@ -48,6 +48,7 @@
 /.byobu/
 /.bzr.log
 /.cache
+/.cargo/
 /.carmetal_config/
 /.ccache
 /.cgdb
