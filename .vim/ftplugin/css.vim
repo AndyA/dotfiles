@@ -35,22 +35,18 @@ function! s:find_rc(file)
   return ''
 endfunction
 
-if executable('prettycss')
+if executable('csscomb-wrapper')
   function! s:tidy()
     let l:loc = Get_location()
-    let l:rc  = s:find_rc('.prettycssrc')
+    let l:rc  = s:find_rc('.csscomb.jsobn')
     if len(l:rc)
-      let l:tidy = ':%!prettycss --ignore-all -c' . l:rc . ' -'
+      let l:tidy = ':%!csscomb-wrapper -c' . l:rc
     else
-      let l:tidy = ':%!prettycss --ignore-all -'
+      let l:tidy = ':%!csscomb-wrapper'
     endif
     exec l:tidy
     call Set_location(l:loc)
   endfunction
   noremap <buffer> <f2> :call <SID>tidy()<CR>
-endif
-
-if executable('ack')
-  setlocal grepprg=ack\ --type=css
 endif
 
