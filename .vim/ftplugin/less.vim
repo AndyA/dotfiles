@@ -35,14 +35,14 @@ function! s:find_rc(file)
   return ''
 endfunction
 
-if executable('csscomb-wrapper')
+if executable('csscomb')
   function! s:tidy()
     let l:loc = Get_location()
-    let l:rc  = s:find_rc('.csscomb.jsobn')
+    let l:rc  = s:find_rc('.csscomb.json')
     if len(l:rc)
-      let l:tidy = ':%!csscomb-wrapper -c' . l:rc
+      let l:tidy = ':%!csscomb -c ' . l:rc
     else
-      let l:tidy = ':%!csscomb-wrapper'
+      let l:tidy = ':%!csscomb'
     endif
     exec l:tidy
     call Set_location(l:loc)
