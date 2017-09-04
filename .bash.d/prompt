@@ -12,7 +12,7 @@ export GIT_PS1_SHOWSTASHSTATE="true"
 export GIT_PS1_SHOWUNTRACKEDFILES="true"
 
 if [ $TERM = 'screen' -o $TERM = 'xterm' -o $TERM = 'xterm-color' -o $TERM = 'xterm-256color' ] ; then
-    PS1='[\A] \[\e]2;\u@\H:\w\a\]\[\e[01;32m\u\e[m@\e[01;34m\h\e[m:\e[01;32m\w\e[m\]$(__git_ps1 " (%s)")\n\$ '
+    PS1='[\A] \[\e]2;\u@\H:\w\a\]\[\e[01;32m\u\e[m@\e[01;34m\h\e[m:\e[01;32m\w\e[m\]\e[36m$(__git_ps1 " (%s)")\e[m\n\$ '
 else
     PS1='[\A] \u \$ '
 fi
