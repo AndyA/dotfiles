@@ -38,6 +38,8 @@ function source_dir {
 source_dir "$HOME/.bash.d/$RCUNAME"
 # Per host config
 source_dir "$HOME/.bash.d/$HOSTNAME"
+# Local config
+source_dir "$HOME/.bash.d/local"
 # Global topical config
 source_dir "$HOME/.bash.d"
 
