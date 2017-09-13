@@ -1,5 +1,8 @@
+*.andy
 .*.sw?
 .AppleDouble/
 .DS_Store
 Session.vim
+package-lock.json
 tags
+test-item.jpg
