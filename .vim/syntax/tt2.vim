@@ -1,23 +1,12 @@
-" Vim syntax file
-" Language: TT2 ( Perl Module Template-Toolkit 2.x )
-" References:   Template-Toolkit 2 
-"                   http://search.cpan.org/~abw/Template-Toolkit/
-"                   http://template-toolkit.org/
-"                   C:\> perldoc Template
-"                   C:\> perldoc Template::Manual::Directives
-" Last Change:  16 May 2007
-" Filenames:    *.tt2
-" Maintainar:   Moriki, Atsushi <4woods+vim@gmail.com>
-" Version:      0.1.3
-" Summary:      Syntax Highlight for Template-Toolkit 2.x
-" Description:  Syntax Highlight for Template-Toolkit 2.x
-"       Contain Perl code in PERL/RAWPERL directive. (runtime sytax/perl.vim)
-"       No fold.
-"       HTML syntax for including TT2 syntax. ( tt2html.vim / unfinished )
-"       Can define START_TAG/END_TAG for your style.
+" Language:      TT2 (Perl Template Toolkit)
+" Maintainer:    vim-perl <vim-perl@googlegroups.com>
+" Author:        Moriki, Atsushi <4woods+vim@gmail.com>
+" Homepage:      http://github.com/vim-perl/vim-perl
+" Bugs/requests: http://github.com/vim-perl/vim-perl/issues
+" Last Change:   {{LAST_CHANGE}}
 "
-" Instration:
-"   put tt2.vim and tt2html.vim in to your syntax diretory.
+" Installation:
+"   put tt2.vim and tt2html.vim in to your syntax directory.
 "
 "   add below in your filetype.vim.
 "       au BufNewFile,BufRead *.tt2 setf tt2
@@ -62,11 +51,16 @@ if !exists("b:tt2_syn_tags")
     "let b:tt2_syn_tags = '\[% %] \[\* \*]'
 endif
 
-let b:tt2_syn_inc_perl = 1
+if !exists("b:tt2_syn_inc_perl")
+    let b:tt2_syn_inc_perl = 1
+endif
 
 if exists("b:current_syntax")
   finish
 endif
+
+let s:cpo_save = &cpo
+set cpo&vim
 
 syn case match
 
@@ -100,7 +94,7 @@ if exists("b:tt2_syn_tags")
                     \ 'keepend extend'
 
         "Include Perl syntax when 'PERL' 'RAWPERL' block
-        if exists("b:tt2_syn_inc_perl")
+        if b:tt2_syn_inc_perl
             syn include @Perl $VIMRUNTIME/syntax/perl.vim
             exec 'syn region tt2_perlcode '.
                         \ 'start=+\(\(RAW\)\=PERL\s*[-]\=' . s:ed . '\(\n\)\=\)\@<=+ ' .
@@ -127,7 +121,7 @@ else
                 \ keepend extend
 
     "Include Perl syntax when 'PERL' 'RAWPERL' block
-    if exists("b:tt2_syn_inc_perl")
+    if b:tt2_syn_inc_perl
         syn include @Perl $VIMRUNTIME/syntax/perl.vim
         syn region tt2_perlcode
                     \ start=+\(\(RAW\)\=PERL\s*[-]\=%]\(\n\)\=\)\@<=+
@@ -142,7 +136,7 @@ syn keyword tt2_directive contained
             \ LAST NEXT BREAK STOP BLOCK
             \ IF IN UNLESS ELSIF FOR FOREACH WHILE SWITCH CASE
             \ USE PLUGIN MACRO META
-            \ TRY FINAL RETURN LAST 
+            \ TRY FINAL RETURN LAST
             \ CLEAR TO STEP AND OR NOT MOD DIV
             \ ELSE PERL RAWPERL END
 syn match   tt2_directive +|+ contained
@@ -187,7 +181,7 @@ syn match   tt2_blockname_joint "+"                    contained                
 
 syn cluster tt2_statement_cluster contains=tt2_directive,tt2_variable,tt2_operator,tt2_string_q,tt2_string_qq,tt2_deref,tt2_comment,tt2_func,tt2_bracket_b,tt2_bracket_r,tt2_number
 
-"Sincronizing
+" Synchronizing
 syn sync minlines=50
 
 hi def link tt2_tag         Type
@@ -209,5 +203,8 @@ if exists("b:tt2_syn_tags")
 endif
 
 let b:current_syntax = "tt2"
+
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
 " vim:ts=4:sw=4

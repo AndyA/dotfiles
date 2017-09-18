@@ -68,6 +68,7 @@ autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
   \| exe "normal g'\"" | endif
 
 let mapleader=','
+let perl_sub_signatures = 1
 
 vmap bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \| 
   \sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
