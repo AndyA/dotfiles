@@ -1,63 +1,99 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env perl
 
-# Usage:
-#   rsync_parallel.sh [--parallel=N] [rsync args...]
-# 
-# Options:
-#   --parallel=N	Use N parallel processes for transfer. Defaults to 10.
-#
-# Notes:
-#   * Requires GNU Parallel
-#   * Use with ssh-keys. Lots of password prompts will get very annoying.
-#   * Does an itemize-changes first, then chunks the resulting file list and launches N parallel
-#     rsyncs to transfer a chunk each.
-#   * be a little careful with the options you pass through to rsync. Normal ones will work, you 
-#     might want to test weird options upfront.
-#
+use v5.10;
 
-if [[ "$1" == --parallel=* ]]; then
-	PARALLEL="${1##*=}"
-	shift
-else
-	PARALLEL=10
-fi
-echo "Using up to $PARALLEL processes for transfer..."
+use autodie;
+use strict;
+use warnings;
 
-TMPDIR=$(mktemp -d)
-trap "rm -rf $TMPDIR" EXIT
+use File::Temp;
+use Path::Class;
 
-echo "Figuring out file list..."
-# sorted by size (descending)
-rsync $@ --out-format="%l %n" --no-v --dry-run | sort -n -r > $TMPDIR/files.all
+my @args = ();
+my %opts = ( parallel => 10 );
 
-# check for nothing-to-do
-TOTAL_FILES=$(cat $TMPDIR/files.all | wc -l)
-if [ "$TOTAL_FILES" -eq "0" ]; then
-	echo "Nothing to transfer :)"
-	exit 0
-fi
+parse_args(@ARGV);
+my $todo   = make_chunks( $opts{parallel}, get_files(@args) );
+my $dir    = File::Temp->newdir;
+my @chunks = write_chunks( $dir, $todo );
 
-function array_min {
-	# return the (index, value) of the minimum element in the array
-	IC=($(tr ' ' '\n' <<<$@ | cat -n | sort -k2,2nr | tail -n1))
-	echo $((${IC[0]} - 1)) ${IC[1]}
+{
+  my @cmd = (
+    'parallel',
+    -j => $opts{parallel},
+    '-t', '--verbose', '--progress', 'rsync', "--files-from={}", @args
+  );
+  open my $ch, '|-', @cmd;
+  print $ch "$_\n" for @chunks;
+  close $ch;
 }
 
-echo "Calculating chunks..."
-# declare chunk-size array
-for ((I = 0 ; I < PARALLEL ; I++ )); do
-	CHUNKS["$I"]=0 
-done
+sub parse_args {
+  my @argv = @_;
+  while (@argv) {
+    my $arg = shift @argv;
+    if ( $arg =~ /^--(\w+)(.*)/ ) {
+      my ( $opt, $val ) = ( $1, $2 );
+      if ( exists $opts{$opt} ) {
+        if ( $val =~ /^=(.*)/ ) {
+          $opts{$opt} = $1;
+          next;
+        }
 
-# add each file to the emptiest chunk, so they're as balanced by size as possible
-while read FSIZE FPATH; do
-	MIN=($(array_min ${CHUNKS[@]}))
-	CHUNKS["${MIN[0]}"]=$((${CHUNKS["${MIN[0]}"]} + $FSIZE))
-	echo $FPATH >> $TMPDIR/chunk.${MIN[0]}
-done < $TMPDIR/files.all
+        die "Bad option: $arg"
+         if length $val;
+        die "Missing value for --$opt"
+         unless @argv;
 
-find "$TMPDIR" -type f -name "chunk.*" -printf "\n*** %p ***\n" -exec cat {} \;
+        $opts{$opt} = shift @argv;
+        next;
+      }
+    }
+    push @args, $arg;
+  }
+}
 
-echo "Starting transfers..."
-find "$TMPDIR" -type f -name "chunk.*" | parallel -j $PARALLEL -t --verbose --progress rsync --files-from={} $@
+sub get_files {
+  my @args = @_;
+  my @cmd
+   = ( 'rsync', @args, '--out-format=%l %n', '--no-v', '--dry-run' );
+  my @files = ();
+  open my $fh, '-|', @cmd;
+  while (<$fh>) {
+    chomp;
+    my ( $size, $name ) = split /\s+/, $_, 2;
+    next if $size eq 'receiving';
+    push @files, { size => $size, name => $name };
+  }
+  close $fh;
+  return @files;
+}
+
+sub make_chunks {
+  my ( $chunks, @todo ) = @_;
+  my %todo = ();
+  my @by_size = map { { size => 0, chunk => $_ } } 1 .. $chunks;
+  for my $obj ( sort { $b->{size} <=> $a->{size} } @todo ) {
+    @by_size = sort { $a->{size} <=> $b->{size} } @by_size;
+    $by_size[0]{size} += $obj->{size};
+    push @{ $todo{ $by_size[0]{chunk} } }, $obj->{name};
+  }
+  @$_ = sort { $a cmp $b } @$_ for values %todo;
+  return \%todo;
+}
+
+sub write_chunks {
+  my ( $dir, $todo ) = @_;
+
+  my @chunks = ();
+  while ( my ( $chunk, $list ) = each %$todo ) {
+    my $cf = file $dir, "chunk.$chunk";
+    push @chunks, $cf;
+    my $fh = $cf->openw;
+    print $fh "$_\n" for @$list;
+  }
+  return @chunks;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
