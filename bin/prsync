@@ -63,6 +63,7 @@ sub get_files {
     chomp;
     my ( $size, $name ) = split /\s+/, $_, 2;
     next if $size eq 'receiving';
+    next if $name =~ m{/$};
     push @files, { size => $size, name => $name };
   }
   close $fh;
