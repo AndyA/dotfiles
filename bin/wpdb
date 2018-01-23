@@ -56,7 +56,8 @@ if ( $verb eq "load" ) {
   my $here_home = $C->{home};
   if ( defined $here_home ) {
     for my $home ( get_config( $C, 'home' ) ) {
-      $replace{$home} = $here_home;
+      $replace{$home} = $here_home
+       unless $home eq $here_home;
     }
   }
 
@@ -94,7 +95,8 @@ elsif ( $verb eq "save" ) {
 
     if ( defined $canonical ) {
       for my $val ( get_config( $C, $key ) ) {
-        $replace{$val} = $canonical;
+        $replace{$val} = $canonical
+         unless $val eq $canonical;
       }
     }
   }
