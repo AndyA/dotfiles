@@ -259,6 +259,7 @@
 /.thumbnails
 /.thunderbird
 /.titi
+/.trello-cli/
 /.tsclient
 /.twitter
 /.uml/
@@ -281,6 +282,7 @@
 /.wine
 /.winff/
 /.wireshark
+/.wp-cli/
 /.wsrc
 /.wtmp.json
 /.xaralx/
