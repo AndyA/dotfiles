@@ -44,6 +44,7 @@
 /.bazaar
 /.bcast
 /.beebem
+/.bitmonero/
 /.bluefish/
 /.byobu/
 /.bzr.log
@@ -70,9 +71,11 @@
 /.dbshell
 /.dbus
 /.dbus-keyrings
+/.dbvis/
 /.ddd
 /.din/
 /.dmrc
+/.docker/
 /.dosemu
 /.dotcloud/
 /.dropbox
@@ -136,6 +139,7 @@
 /.irb-history
 /.irb_history
 /.irssi
+/.isql_history
 /.ivy2
 /.jackdrc
 /.java
@@ -180,6 +184,7 @@
 /.npm/
 /.nvidia-settings-rc
 /.octave_hist
+/.odbc.ini
 /.openoffice
 /.openoffice.org
 /.openshot
@@ -194,6 +199,7 @@
 /.perl
 /.perlbrew
 /.perldb_history
+/.pgadmin/
 /.pgpass
 /.pind
 /.pip/
@@ -214,6 +220,7 @@
 /.quicksynergy
 /.recently-used
 /.recently-used.xbel
+/.redis-commander
 /.rediscli_history
 /.remmina/
 /.remote_test
@@ -235,6 +242,7 @@
 /.smoke-tapx
 /.smoke-work
 /.smokestack-stash.yml
+/.sonar/
 /.sonjzeen
 /.spamassassin
 /.splunk
@@ -302,10 +310,12 @@
 /Documents
 /Downloads
 /Dropbox
+/Google Drive File Stream
 /Google Drive/
 /Library
 /Lightworks/
 /Mail
+/Monero/
 /Movies
 /Music
 /Network Trash Folder/
