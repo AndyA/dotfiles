@@ -1,0 +1,61 @@
+#!/usr/bin/env perl
+
+use v5.10;
+
+use autodie;
+use strict;
+use warnings;
+
+my %INDENT = (
+  '(' => ')',
+  '[' => ']',
+  '{' => '}',
+);
+
+my %OUTDENT = reverse %INDENT;
+
+my $PAD = "  ";
+
+my $pattern = join( "",
+  "[", ( map quotemeta, keys %INDENT, keys %OUTDENT, '"', "'" ), "]" );
+
+my $indent = 0;
+my %level  = map { $_ => 0 } keys %INDENT;
+my @qstack = ();
+
+while (<>) {
+  chomp( my $ln = $_ );
+  my $pending = 0;
+  my @part = split /($pattern)/, $ln;
+  for my $part (@part) {
+
+    if ( $part eq "'" || $part eq '"' ) {
+      if ( @qstack && $qstack[-1] eq $part ) {
+        pop @qstack;
+      }
+      else {
+        push @qstack, $part;
+      }
+    }
+
+    unless (@qstack) {
+      if ( $INDENT{$part} ) {
+        $pending++;
+        $level{$part}++;
+      }
+      elsif ( defined( my $other = $OUTDENT{$part} ) ) {
+        $indent-- if $indent > 0;
+        warn "Too many $part\n"
+         unless $level{$other} > 0;
+        $level{$other}--;
+      }
+    }
+  }
+  my $pad = $PAD x $indent;
+  $ln =~ s/^\s*//;
+  say $pad, $ln;
+  $indent += $pending;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
