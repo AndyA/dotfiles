@@ -24,7 +24,7 @@ self_re=".*\\.$suffix\\.(tmp\\.)?$ext\$"
         | perl -ne 'print "$1\n" if /(.+):::\s+video\// || /(.+?\.mts):::/i'
     fi
   done
-} | while read src; do
+} | while read -r src; do
   [[ "$src" =~ $self_re ]] && continue
   dst="${src%.*}.$suffix.$ext"
   if [ "$src" -nt "$dst" ]; then
