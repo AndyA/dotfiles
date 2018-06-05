@@ -1,0 +1,2 @@
+[ -d /opt/depot_tools ] && PATH=/opt/depot_tools:$PATH
+
