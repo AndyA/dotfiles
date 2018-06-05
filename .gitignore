@@ -5,6 +5,7 @@
 .sw?
 /.3T/
 /.AndroidStudio*/
+/.AppleDB/
 /.AppleDesktop/
 /.AppleDouble/
 /.DownloadManager
@@ -36,6 +37,7 @@
 /.avidemux/
 /.avidemux6/
 /.aws/
+/.babel.json
 /.bash_history
 /.bash_local
 /.bash_logout
@@ -54,6 +56,7 @@
 /.ccache
 /.cgdb
 /.citrix
+/.cmake/
 /.cola
 /.compiz
 /.config
@@ -120,6 +123,7 @@
 /.gphoto/
 /.gradle/
 /.gstreamer-*
+/.gsutil/
 /.gtk-bookmarks
 /.gtk-recordmydesktop
 /.gtkrc-*
@@ -245,6 +249,7 @@
 /.sonar/
 /.sonjzeen
 /.spamassassin
+/.sphinxql_history
 /.splunk
 /.sprouts/
 /.spumux/
@@ -283,6 +288,8 @@
 /.vimprojects
 /.vmware
 /.vpndiff
+/.vpython-root/
+/.vpython_cipd_cache/
 /.w3af/
 /.wapi
 /.wget-hsts
@@ -339,4 +346,5 @@
 /node_modules/
 /perl5
 /svn-prop.tmp
+/tools/
 /workspace
