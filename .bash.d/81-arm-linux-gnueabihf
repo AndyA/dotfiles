@@ -1,0 +1,2 @@
+[ -d /opt/rpi_rootfs/tools/arm-linux-gnueabihf/bin ] && PATH=/opt/rpi_rootfs/tools/arm-linux-gnueabihf/bin:$PATH
+
