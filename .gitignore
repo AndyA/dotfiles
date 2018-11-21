@@ -70,6 +70,7 @@
 /.cups
 /.cvspass
 /.cvsps
+/.dat/
 /.dbsave
 /.dbshell
 /.dbus
@@ -308,6 +309,7 @@
 /.xsession-errors
 /.xsession-errors.old
 /.xslate_cache/
+/.yarnrc
 /.zcompdump
 /.znc
 /.zshrc
