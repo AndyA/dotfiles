@@ -149,6 +149,7 @@
 /.jackdrc
 /.java
 /.jmc/
+/.julia/
 /.kde
 /.keystore
 /.kino-history
@@ -220,6 +221,7 @@
 /.pulse-cookie
 /.purple
 /.putty
+/.python_history
 /.qgis2/
 /.qt
 /.quicksynergy
@@ -248,6 +250,7 @@
 /.smoke-work
 /.smokestack-stash.yml
 /.sonar/
+/.sonic-pi/
 /.sonjzeen
 /.spamassassin
 /.sphinxql_history
