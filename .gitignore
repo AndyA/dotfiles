@@ -92,6 +92,7 @@
 /.eclipse
 /.eclipse_keyring
 /.emacs
+/.emscripten*
 /.esd_auth
 /.evolution
 /.filezilla
