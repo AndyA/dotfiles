@@ -1,0 +1,794 @@
+#!/usr/bin/env bash
+
+# twa: a tiny website auditing script
+
+shopt -s nocasematch
+
+TWA_VERSION="1.7.0"
+
+TWA_TIMEOUT="${TWA_TIMEOUT:-5}"
+TWA_USER_AGENT="${TWA_USER_AGENT:-Mozilla/5.0}"
+read -r -a TWA_CURLOPTS <<< "${TWA_CURLOPTS}"
+
+declare -A TWA_CODES=(
+  # Stage 0
+  [TWA-0001]="Expected port 443 to be open, but it isn't"
+
+  # Stage 1
+  [TWA-0101]="HTTP redirects to HTTPS using a 302"
+  [TWA-0102]="HTTP redirects to HTTP (not secure)"
+  [TWA-0103]="HTTP doesn't redirect at all"
+
+  # Stage 2
+  [TWA-0201]="Skipping security checks due to no secure channel"
+  [TWA-0202]="Strict-Transport-Security max-age is less than 6 months"
+  [TWA-0203]="Strict-Transport-Security, but no includeSubDomains"
+  [TWA-0204]="Strict-Transport-Security, but no preload"
+  [TWA-0205]="Strict-Transport-Security missing"
+  [TWA-0206]="X-Frame-Options is 'sameorigin', consider 'deny'"
+  [TWA-0207]="X-Frame-Options is 'allow-from', consider 'deny' or 'none'"
+  [TWA-0208]="X-Frame-Options missing"
+  [TWA-0209]="X-Content-Type-Options missing"
+  [TWA-0210]="X-XSS-Protection is '0'; XSS filtering disabled"
+  [TWA-0211]="X-XSS-Protection sanitizes but doesn't block, consider mode=block?"
+  [TWA-0212]="X-XSS-Protection missing"
+  [TWA-0213]="Referrer-Policy specifies '\${rp}', consider 'no-referrer'?"
+  [TWA-0214]="Referrer-Policy missing"
+  [TWA-0215]="Content-Security-Policy 'default-src' is '\${csp_default_src}'"
+  [TWA-0216]="Content-Security-Policy 'default-src' is missing"
+  [TWA-0217]="Content-Security-Policy has one or more 'unsafe-inline' policies"
+  [TWA-0218]="Content-Security-Policy has one or more 'unsafe-eval' policies"
+  [TWA-0219]="Content-Security-Policy missing"
+  [TWA-0220]="Feature-Policy missing"
+
+  # Stage 3
+  [TWA-0301]="Site sends 'Server' with what looks like a version tag: \${server}"
+  [TWA-0302]="Site sends a long 'Server', probably disclosing version info: \${server}"
+  [TWA-0303]="Site sends '\${badheader}', probably disclosing version info: '\${content}'"
+
+  # Stage 4
+  [TWA-0401]="SCM repository being served at: \${url}"
+  [TWA-0402]="Possible SCM repository being served (maybe protected?) at: \${url}"
+  [TWA-0403]="Environment file being served at: \${url}"
+  [TWA-0404]="Possible environment file being served (maybe protected?) at: \${url}"
+  [TWA-0405]="Config file being served at: \${url}"
+  [TWA-0406]="Possible config file being served (maybe protected?) at: \${url}"
+  [TWA-0407]="Package management file being served at: \${url}"
+  [TWA-0408]="Possible package management file being served (maybe protected?) at: \${url}"
+  [TWA-0409]="Build file being served at: \${url}"
+  [TWA-0410]="Possible build file being served (maybe protected?) at: \${url}"
+
+  # Stage 5
+  [TWA-0501]="No robots file found at: \${domain}/robots.txt"
+  [TWA-0502]="robots.txt lists what looks like an admin panel"
+  [TWA-0503]="robots.txt lists what looks like CGI scripts"
+
+  # Stage 6
+  [TWA-0601]="No CAA records found"
+  [TWA-0602]="Domain doesn't specify any valid issuers"
+  [TWA-0603]="Domain explicitly disallows all issuers"
+  [TWA-0604]="Domain doesn't specify any violation reporting endpoints"
+
+  # Stage 7
+  [TWA-0701]="Domain is listening on a development/backend port: \${dev_port}"
+
+  # Stage 8
+  [TWA-0801]="cookie '\${cookie_name}' has 'secure' but no 'httponly' flag"
+  [TWA-0802]="cookie '\${cookie_name}' has no 'secure' flag"
+)
+
+# If we're being sourced, stop execution here.
+# You can use this to read `TWA_CODES` above via `source` in other programs.
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] || return
+
+# TTY check to prevent breaking scripts
+# Respect the "NO_COLOR spec"
+if [[ -t 1 && -z "${NO_COLOR}" ]]; then
+  # Colored output
+  TWA_COLOR_GREEN=$(tput setaf 2)
+  TWA_COLOR_BLUE=$(tput setaf 4)
+  TWA_COLOR_RED=$(tput setaf 1)
+  TWA_COLOR_PURPLE=$(tput setaf 5)
+  TWA_COLOR_RESET=$(tput sgr0)
+fi
+
+function installed {
+  cmd=$(command -v "${1}")
+
+  [[ -n "${cmd}" ]] && [[ -f "${cmd}" ]]
+  return ${?}
+}
+
+function die {
+  echo "Error: $*" >&2
+  exit 1
+}
+
+function warn {
+  echo "Warn: $*" >&2
+}
+
+function verbose {
+  [[ -n "${verbose}" ]] && echo "[+] $*" >&2
+}
+
+function ensure {
+  "$@" \
+    || die "Failed to run '$*'. Aborting."
+}
+
+function probe {
+  verbose "Probing ${1}:${2}"
+  nc -z -w "${TWA_TIMEOUT}" "${1}" "${2}" 2>/dev/null
+}
+
+function fetch {
+  curl "${TWA_CURLOPTS[@]}" -A "'${TWA_USER_AGENT}'" --max-time "${TWA_TIMEOUT}" "${@}"
+}
+
+function fetch_headers {
+  verbose "Fetching headers for ${1}"
+  fetch -s -I "${1}"
+}
+
+function fetch_respcode {
+  fetch -o /dev/null -s -I -L -w "%{http_code} %{url_effective}" "${1}"
+}
+
+function get_header {
+  header="${1,,}"
+
+  verbose "Extracting ${header}"
+
+  awk "tolower(\$0) ~ /^${header}:/ { print substr(\$0, index(\$0, \$2)) }" | tr -d '\r\n'
+}
+
+function get_field {
+  field="${1,,}"
+
+  verbose "Extracting ${field}"
+
+  awk "BEGIN { RS = \";\" }
+      tolower(\$1) ~ /^${field}/ { print substr(\$0, index(\$0, \$2)) }" | tr -d '\r\n'
+}
+
+function get_cookies {
+  verbose "Extracting cookies from headers"
+
+  awk "tolower(\$0) ~ /^set-cookie:/ { print substr(\$0, index(\$0, \$2)) }"
+}
+
+function output {
+  if [[ -n "${csv}" ]]; then
+    message="${3//\"/\"\"}"
+    message="\"${message}\""
+
+    echo "${1},${2},${message},${4}"
+  else
+    # default is ANSI
+    # colorize first arg
+    first="";
+    if [ "${1}" == "PASS" ]; then
+      first="${TWA_COLOR_GREEN}${1}${TWA_COLOR_RESET}"
+    elif [ "${1}" == "MEH" ]; then
+      first="${TWA_COLOR_BLUE}${1}${TWA_COLOR_RESET}"
+    elif [ "${1}" == "FAIL" ] || [ "${1}" == "FATAL" ]; then
+      first="${TWA_COLOR_RED}${1}${TWA_COLOR_RESET}"
+    elif [ "${1}" == "UNK" ] || [ "${1}" == "SKIP" ]; then
+      first="${TWA_COLOR_PURPLE}${1}${TWA_COLOR_RESET}"
+    fi;
+    echo -e "$first(${2}): ${3}"
+  fi;
+}
+
+# PASS: A test passed with flying colors (nothing wrong at all).
+function PASS {
+  output "PASS" "${domain}" "${1}"
+}
+
+# MEH: A test passed, but with one or more things that could be improved.
+function MEH {
+  msg=$(eval "echo \"${1}: ${TWA_CODES[${1}]}\"")
+  output "MEH" "${domain}" "${msg}" "${1}"
+}
+
+# FAIL: A test failed, and should be fixed.
+function FAIL {
+  msg=$(eval "echo \"${1}: ${TWA_CODES[${1}]}\"")
+  output "FAIL" "${domain}" "${msg}" "${1}"
+}
+
+# FATAL: A really important test failed, and should be fixed immediately.
+function FATAL {
+  msg=$(eval "echo \"${1}: ${TWA_CODES[${1}]}\"")
+  output "FATAL" "${domain}" "${msg}" "${1}"
+}
+
+# UNK: The server gave us something we didn't understand.
+function UNK {
+  output "UNK" "${domain}" "${1}"
+}
+
+# SKIP: This test hasn't been implemented yet.
+function SKIP {
+  output "SKIP" "${domain}" "${1}"
+}
+
+
+# Stage 0: The server should support HTTPS.
+#
+# Checks:
+# * Connecting via port 443 should yield a valid certificate and HTTP connection.
+#
+# This test is a little special, in that it sets "no_https" if it fails. Stage 2
+# checks "no_https" and doesn't run if it's set, as security headers are pointless over HTTP.
+# As such, failure in this stage is marked as "FATAL".
+function stage_0_has_https {
+  verbose "Stage 0: Server supports HTTPS"
+
+  # First, just probe the domain to see if it listens on 443.
+  if ! probe "${domain}" 443 ; then
+    FATAL TWA-0001
+    no_https=1 ; return
+  fi
+
+  # The rest below would be cool, but is probably unnecessary since `curl`
+  # won't connect to an insecure HTTPS server by default.
+  # # Then, use `openssl` to retrieve the certificate and test its validity.
+  # cert=$(openssl s_client -connect "${domain}:443" < /dev/null)
+
+  # expiry=$(openssl x509 -noout -dates <<< "${cert}")
+
+  # not_before=$(grep -o "^notBefore=.+" <<< "${expiry}" | cut -d = -f2-)
+  # not_after=$(grep -o "^notAfter=.+" <<< "${expiry}" | cut -d = -f2-)
+
+  # if [[ -z "${not_before}" || -z "${not_after}" ]]; then
+  #   # I don't think this will ever happen, but it doesn't hurt to check.
+  #   FAIL "server sent a certificate, but it's missing either a notBefore or a notAfter?"
+  # else
+  #   not_before=$(date -d "${not_before}" +%s)
+  #   not_after=$(date -d "${not_after}" +%s)
+  #   now=$(date +%s)
+
+  #   if [[ "${now}" -lt "${not_before}" ]]; then
+  #     FAIL ""
+  #   fi
+  # fi
+}
+
+
+# Stage 1: HTTP should be redirected to HTTPS; no exceptions.
+#
+# Checks:
+# * Connecting via port 80 should return HTTP 301 with a HTTPS location.
+function stage_1_redirection {
+  verbose "Stage 1: HTTP -> HTTPS redirection"
+  headers=$(fetch_headers "http://${domain}")
+
+  location=$(get_header "Location" <<< "${headers}")
+  read -r response < <(awk '/^HTTP/ { print $2 }' <<< "${headers}")
+
+  if [[ "${location}" =~ ^https ]]; then
+    if [[ "${response}" =~ ^30[18]$ ]]; then
+      PASS "HTTP redirects to HTTPS using a ${response}"
+    elif [[ "${response}" =~ ^30[27]$ ]]; then
+      MEH TWA-0101
+    else
+      UNK "HTTP sends an HTTPS location but with a weird response code: ${response}"
+    fi
+  elif [[ "${location}" =~ ^http ]]; then
+    FAIL TWA-0102
+  else
+    FAIL TWA-0103
+  fi
+}
+
+
+# Stage 2: The server should specify a decent set of security headers.
+#
+# Checks:
+# * Strict-Transport-Security should specify a max-age
+# * X-Frame-Options should be "deny"
+# * X-Content-Type-Options should be "nosniff"
+# * X-XSS-Protection should be "1; mode=block"
+# * Referrer-Policy should be "no-referrer"
+# * Content-Security-Policy should be whatever awful policy string is the most secure.
+#
+# TODO: Add Feature-Policy?
+function stage_2_security_headers {
+  verbose "Stage 2: Sane security headers"
+
+  if [[ -n "${no_https}" ]]; then
+    FATAL TWA-0201
+    return
+  fi
+
+  headers=$(fetch_headers "https://${domain}")
+
+  sts=$(get_header "Strict-Transport-Security" <<< "${headers}")
+  sts_max_age=$(get_field "max-age" <<< "${sts}" | awk -F= '{ print $2 }')
+  sts_incl_subs=$(get_field "includeSubDomains" <<< "${sts}")
+  sts_preload=$(get_field "preload" <<< "${sts}")
+
+  if [[ -n "${sts}" ]]; then
+    if [[ -n "${sts_max_age}" ]]; then
+      if [[ "${sts_max_age}" -ge 15768000 ]]; then
+        PASS "Strict-Transport-Security max-age is at least 6 months"
+      else
+        MEH TWA-0202
+      fi
+    else
+      UNK "Strict-Transport-Security received, but no max-age"
+    fi
+
+    if [[ -n "${sts_incl_subs}" ]]; then
+      PASS "Strict-Transport-Security specifies includeSubDomains"
+    else
+      MEH TWA-0203
+    fi
+
+    if [[ -n "${sts_preload}" ]]; then
+      PASS "Strict-Transport-Security specifies preload"
+    else
+      MEH TWA-0204
+    fi
+  else
+    FAIL TWA-0205
+  fi
+
+  xfo=$(get_header "X-Frame-Options" <<< "${headers}")
+  xfo=${xfo,,}
+
+  if [[ -n "${xfo}" ]]; then
+    if [[ "${xfo}" == "deny" ]]; then
+      PASS "X-Frame-Options is 'deny'"
+    elif [[ "${xfo}" == "sameorigin" ]]; then
+      MEH TWA-0206
+    elif [[ "${xfo}" =~ ^allow-from ]]; then
+      MEH TWA-0207
+    else
+      UNK "X-Frame-Options set to something weird: ${xfo}"
+    fi
+  else
+    FAIL TWA-0208
+  fi
+
+  xcto=$(get_header "X-Content-Type-Options" <<< "${headers}")
+
+  if [[ -n "${xcto}" ]]; then
+    if [[ "${xcto,,}" == "nosniff" ]]; then
+      PASS "X-Content-Type-Options is 'nosniff'"
+    else
+      UNK "X-Content-Type-Options set to something weird: ${xcto}"
+    fi
+  else
+    FAIL TWA-0209
+  fi
+
+  xxp=$(get_header "X-XSS-Protection" <<< "${headers}")
+  xxp=${xxp,,}
+
+  if [[ -n "${xxp}" ]]; then
+    if [[ "${xxp}" == 0 ]]; then
+      FAIL TWA-0210
+    elif [[ "${xxp}" =~ ^1 ]]; then
+      if [[ "${xxp}" =~ mode=block ]]; then
+        PASS "X-XSS-Protection specifies mode=block"
+      else
+        MEH TWA-0211
+      fi
+    fi
+  else
+    FAIL TWA-0212
+  fi
+
+  rp=$(get_header "Referrer-Policy" <<< "${headers}")
+  rp=${rp,,}
+
+  if [[ -n "${rp}" ]]; then
+    if [[ "${rp}" == "no-referrer" ]]; then
+      PASS "Referrer-Policy specifies 'no-referrer'"
+    elif [[ "${rp}" == "unsafe-url"
+            || "${rp}" == "no-referrer-when-downgrade"
+            || "${rp}" == "origin"
+            || "${rp}" == "origin-when-cross-origin"
+            || "${rp}" == "same-origin"
+            || "${rp}" == "strict-origin" ]]; then
+      MEH TWA-0213
+    fi
+  else
+    FAIL TWA-0214
+  fi
+
+  csp=$(get_header "Content-Security-Policy" <<< "${headers}")
+  csp_default_src=$(get_field "default-src" <<< "${csp}" | cut -d " " -f2-)
+
+  if [[ -n "${csp}" ]]; then
+    if [[ -n "${csp_default_src}" ]]; then
+      if [[ "${csp_default_src//\'}" == "none" ]]; then
+        PASS "Content-Security-Policy 'default-src' is 'none'"
+      else
+        MEH TWA-0215
+      fi
+    else
+      FAIL TWA-0216
+    fi
+
+    if [[ "${csp}" =~ unsafe-inline ]]; then
+      FAIL TWA-0217
+    fi
+
+    if [[ "${csp}" =~ unsafe-eval ]]; then
+      FAIL TWA-0218
+    fi
+  else
+    FAIL TWA-0219
+  fi
+
+  fp=$(get_header "Feature-Policy" <<< "${headers}")
+
+  if [[ -n "${fp}" ]]; then
+    SKIP "Feature-Policy checks not implemented yet"
+  else
+    FAIL TWA-0220
+  fi
+}
+
+
+# Stage 3: The server should disclose a minimum amount of information about itself.
+#
+# Checks:
+#  * The "Server:" header shouldn't contain a version number or OS distribution code.
+#  * The server shouldn't be sending common nonstandard identifying headers (X-Powered-By)
+function stage_3_server_information_disclosure {
+  verbose "Stage 3: Information disclosure"
+  server=$(get_header "Server" <<< "${headers}")
+
+  if [[ -n "${server}" ]]; then
+    server_wc=$(wc -w <<< "${server}")
+    if [[ "${server_wc}" -le 1 ]]; then
+      if [[ "${server}" == */* ]]; then
+        FAIL TWA-0301
+      else
+        PASS "Site sends 'Server', but probably only a vendor ID: ${server}"
+      fi
+    else
+      FAIL TWA-0302
+    fi
+  else
+    PASS "Site doesn't send 'Server' header"
+  fi
+
+  for badheader in X-Powered-By Via X-AspNet-Version X-AspNetMvc-Version; do
+    content=$(get_header "${badheader}" <<< "${headers}")
+
+    if [[ -n "${content}" ]]; then
+      FAIL TWA-0303
+    else
+      PASS "Site doesn't send '${badheader}'"
+    fi
+  done
+}
+
+
+# Stage 4: The server shouldn't be serving SCM repositories or common environment files.
+#
+# Checks:
+# * GET /.git/HEAD should 404.
+# * GET /.hg/store/00manifest.i should 404.
+# * GET /.svn/entries should 404.
+# * GET /.env should 404.
+# * GET /.dockerenv should 404.
+function stage_4_repo_and_env_disclosure {
+  verbose "Stage 4: SCM repo and env file disclosure"
+
+  for repo_file in .git/HEAD .hg/store/00manifest.i .svn/entries; do
+    url="http://${domain}/${repo_file}"
+
+    read -r -a resp < <(fetch_respcode "${url}")
+    code="${resp[0]}"
+    eurl="${resp[1]}"
+
+    if [[ "${code}" -eq 404 || "${eurl}" != *${repo_file} ]]; then
+      PASS "No SCM repository at: ${url}"
+    elif [[ "${code}" -eq 200 ]]; then
+      FAIL TWA-0401
+    elif [[ "${code}" -eq 403 ]]; then
+      MEH TWA-0402
+    else
+      UNK "Got a weird response code (${code}) when testing for SCM at: ${url}"
+    fi
+  done
+
+  for env_file in .env .dockerenv; do
+    url="http://${domain}/${env_file}"
+
+    read -r -a resp < <(fetch_respcode "${url}")
+    code="${resp[0]}"
+    eurl="${resp[1]}"
+
+    if [[ "${code}" -eq 404 || "${eurl}" != *${env_file} ]]; then
+      PASS "No environment file at: ${url}"
+    elif [[ "${code}" -eq 200 ]]; then
+      FAIL TWA-0403
+    elif [[ "${code}" -eq 403 ]]; then
+      MEH TWA-0404
+    else
+      UNK "Got a weird response code (${code}) when testing for an environment file at: ${url}"
+    fi
+  done
+
+  for config_file in config.xml config.json config.yaml config.yml config.ini config.cfg; do
+    url="http://${domain}/${config_file}"
+
+    read -r -a resp < <(fetch_respcode "${url}")
+    code="${resp[0]}"
+    eurl="${resp[1]}"
+
+    if [[ "${code}" -eq 404 || "${eurl}" != *${config_file} ]]; then
+      PASS "No config file at: ${url}"
+    elif [[ "${code}" -eq 200 ]]; then
+      FAIL TWA-0405
+    elif [[ "${code}" -eq 403 ]]; then
+      MEH TWA-0406
+    else
+      UNK "Got a weird response code (${code}) when testing for a config file at: ${url}"
+    fi
+  done
+
+  for pm_file in .npmrc Gemfile Gemfile.lock Rakefile setup.py requirements.txt; do
+    url="http://${domain}/${pm_file}"
+
+    read -r -a resp < <(fetch_respcode "${url}")
+    code="${resp[0]}"
+    eurl="${resp[1]}"
+
+    if [[ "${code}" -eq 404 || "${eurl}" != *${pm_file} ]]; then
+      PASS "No package management file at: ${url}"
+    elif [[ "${code}" -eq 200 ]]; then
+      FAIL TWA-0407
+    elif [[ "${code}" -eq 403 ]]; then
+      MEH TWA-0408
+    else
+      UNK "Got a weird response code (${code}) when testing for a config file at: ${url}"
+    fi
+  done
+
+  for build_file in Makefile CMakeLists.txt; do
+    url="http://${domain}/${build_file}"
+
+    read -r -a resp < <(fetch_respcode "${url}")
+    code="${resp[0]}"
+    eurl="${resp[1]}"
+
+    if [[ "${code}" -eq 404 || "${eurl}" != *${build_file} ]]; then
+      PASS "No build file at: ${url}"
+    elif [[ "${code}" -eq 200 ]]; then
+      FAIL TWA-0409
+    elif [[ "${code}" -eq 403 ]]; then
+      MEH TWA-0410
+    else
+      UNK "Got a weird response code (${code}) when testing for a config file at: ${url}"
+    fi
+  done
+}
+
+# Stage 5: Check if the server provides a robots.txt file.
+#
+# Check for "The Robots Exclusion Protocol".
+# Will follow redirects to ensure file exists.
+function stage_5_robots_check {
+  verbose "Stage 5: Robots Exclusion Protocol check"
+
+  read -r -a resp < <(fetch_respcode "${url}")
+  code="${resp[0]}"
+
+  if [[ "${code}" -eq 200 ]]; then
+    PASS "Site provides robots.txt at: ${domain}/robots.txt"
+    robots=$(fetch -L -s "${domain}/robots.txt")
+
+    if [[ "${robots}" =~ .*admin.* ]]; then
+       MEH TWA-0502
+    fi
+
+    if [[ "${robots}" =~ .*cgi-bin.* ]]; then
+       MEH TWA-0503
+    fi
+
+  elif [[ "${code}" -eq 404 ]]; then
+    MEH TWA-0501
+  else
+    UNK "Got a weird response code (${code}) when testing for robots.txt at: ${domain}/robots.txt"
+  fi
+}
+
+# Stage 6: Check for CAA records.
+#
+# Checks:
+# * The domain should specify at least one issue record.
+# * The domain should specify at least one iodef record.
+function stage_6_caa {
+  verbose "Stage 6: CAA checks"
+
+  records=$(dig +noall +answer caa "${domain}")
+
+  issuers=()
+  wildcard_issuers=()
+  iodefs=()
+
+  if [[ -n "${records}" ]]; then
+    while read -r -a record; do
+      type="${record[3]}"
+      flag="${record[4]}"
+      tag="${record[5]}"
+      value="${record[6]//\"}"
+
+      if [[ "${type}" == "CAA" ]]; then
+        if [[ -n "${flag}" && -n "${tag}" && -n "${value}" ]]; then
+          if [[ "${flag}" -eq 0 ]]; then
+            if [[ "${tag}" == "issue" ]]; then
+              if [[ -n "${value}" ]]; then
+                issuers+=("${value}")
+              else
+                UNK "Missing value for issue tag?"
+              fi
+            elif [[ "${tag}" == "issuewild" ]]; then
+              if [[ -n "${value}" ]]; then
+                wildcard_issuers+=("${value}")
+              else
+                UNK "Missing value for issuewild tag?"
+              fi
+            elif [[ "${tag}" == "iodef" ]]; then
+              if [[ -n "${value}" ]]; then
+                iodefs+=("${value}")
+              else
+                UNK "Missing value for iodef tag?"
+              fi
+            else
+              UNK "Weird (nonstandard?) CAA tag: ${tag}"
+            fi
+          else
+            UNK "Nonzero CAA flags: ${flag} for ${tag} ${value}"
+          fi
+        else
+          UNK "Malformed CAA record? (flag=${flag}, tag=${tag}, value=${value})"
+        fi
+      fi
+    done <<< "${records}"
+  else
+    FAIL TWA-0601
+    return
+  fi
+
+  if [[ "${#issuers[@]}" -eq 0 ]]; then
+    FAIL TWA-0602
+  elif [[ "${#issuers[@]}" -eq 1 && "${issuers[0]}" == ";" ]]; then
+    # NOTE(ww): If every site should have HTTPS, then every domain should have CAA
+    # record(s) that specify all valid issuers for certificates.
+    FAIL TWA-0603
+  else
+    PASS "Domain explicitly allows one or more issuers: ${issuers[*]}"
+  fi
+
+  # TODO(ww): What's the best "issuewild" state? Is there one?
+  # References:
+  # https://github.com/SSLMate/caatestsuite/issues/9
+  # https://community.qualys.com/message/41613-re-caa-feature-request-warn-when-there-is-no-issuewild
+
+  if [[ "${#iodefs[@]}" -eq 0 ]]; then
+    # NOTE(ww): This could be a failure, but it's more of a reporting shortcoming
+    # than a security/privacy issue.
+    MEH TWA-0604
+  else
+    PASS "Domain specifies one or more reporting endpoints: ${iodefs[*]}"
+  fi
+}
+
+# Stage 7: Check for common open development/backend ports.
+#
+# Checks:
+#  * Each port should not respond to a connection request.
+function stage_7_open_development_ports {
+  dev_ports=(
+    3000 # node.js (express.js), ruby on rails
+    4443 # common https development port
+    4567 # sinatra
+    8000 # common http development port
+    8008 # common http development port
+    8080 # common http development port
+    8088 # common http development port
+    8081 # common http development port
+    8443 # common https development port
+    8888 # common http development port
+  )
+
+  for dev_port in "${dev_ports[@]}"; do
+    if probe "${domain}" "${dev_port}"; then
+      FAIL TWA-0701
+    else
+      PASS "Domain is not listening on a development/backend port: ${dev_port}"
+    fi
+  done
+}
+
+# Stage 8: Cookie checks.
+#
+# Checks:
+#  * all cookies must have the secure flag.
+#  * each cookie should have the httponly flag. one MEH for each cookie that doesn't.
+function stage_8_cookie_checks {
+  verbose "Stage 8: Cookie checks"
+
+  headers=$(fetch_headers "https://${domain}")
+  cookies=$(get_cookies <<< "${headers}")
+
+  if [[ -n "${cookies}" ]]; then
+
+    mapfile -t cookiearray <<< "${cookies}"
+
+    for cookie in "${cookiearray[@]}"; do
+      cookie_name=$(cut -d= -f1 <<< "${cookie}")
+      has_secure=$(get_field "secure" <<< "${cookie}")
+      has_httponly=$(get_field "HttpOnly" <<< "${cookie}")
+
+      if [[ -n "${has_secure}" && -n "${has_httponly}" ]]; then
+        PASS "cookie '${cookie_name}' has both 'secure' and 'httponly' flags"
+      elif [[ -n "${has_secure}" && -z "${has_httponly}" ]]; then
+        MEH TWA-0801
+      else
+        FAIL TWA-0802
+      fi
+    done
+
+  fi
+}
+
+# Some ideas for a eighth stage:
+# * Fetch the server's cert using `openssl s_client`, check it for known bad suites
+# * Alternatively, just `nmap --script ssl-enum-ciphers -p 443 $domain`
+
+ensure installed curl
+ensure installed nc
+ensure installed dig
+
+[[ "${BASH_VERSINFO[0]}" -ge 4 ]] || die "Expected GNU Bash 4.0 or later, got ${BASH_VERSION}"
+
+while getopts ":wvcV" opt; do
+  case "${opt}" in
+    w ) www=1 ;;
+    v ) verbose=1 ;;
+    c ) csv=1 ;;
+    V ) echo "twa version ${TWA_VERSION}" ; exit ;;
+    \? ) echo "Usage: twa [-cvw] <domain>"; exit ;;
+  esac
+done
+
+shift $((OPTIND - 1))
+
+domain="${1}"
+
+[[ -n "${domain}" ]] || { echo "Usage: twa [-w] <domain>"; exit 1;  }
+[[ "${domain}" =~ ^https?:// ]] && die "Expected a bare domain, e.g. 'example.com'"
+
+if [[ -n "${www}" ]]; then
+  if [[ "${domain}" =~ ^www ]]; then
+    warn "Expected non-www domain with -w, not going any deeper than ${domain}"
+  else
+    "${0}" "www.${domain}"
+  fi
+fi
+
+# If we're in CSV mode, write some column titles.
+if [[ -n "${csv}" ]]; then
+  output status domain message code
+fi
+
+stage_0_has_https
+stage_1_redirection
+stage_2_security_headers
+stage_3_server_information_disclosure
+stage_4_repo_and_env_disclosure
+stage_5_robots_check
+stage_6_caa
+stage_7_open_development_ports
+stage_8_cookie_checks
