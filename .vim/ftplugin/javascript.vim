@@ -11,7 +11,7 @@ setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
 
 if executable('ack')
-  setlocal grepprg=ack\ --type=js
+  setlocal grepprg=ag\ --js
 endif
 
 function! s:tidy()
