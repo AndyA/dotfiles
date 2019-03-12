@@ -1,16 +1,14 @@
-#!/usr/bin/env perl
+#!/usr/bin/env node
 
-use strict;
-use warnings;
+"use strict";
 
-use JSON;
+let text = [];
 
-STDOUT->binmode(':utf8');
-print JSON->new->pretty->canonical->encode(
-  JSON->new->relaxed->decode(
-    do { local $/; <> }
-  )
-);
-
-# vim:ts=2:sw=2:sts=2:et:ft=perl
-
+process.stdin
+  .resume()
+  .setEncoding("utf8")
+  .on("data", chunk => text.push(chunk))
+  .on("end", () => {
+    process.stdout.write(JSON.stringify(JSON.parse(text.join()), null, 2));
+    process.stdout.write("\n");
+  });
