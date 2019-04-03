@@ -189,6 +189,7 @@
 /.node_repl_history
 /.notifo
 /.npm/
+/.npmrc
 /.nvidia-settings-rc
 /.octave_hist
 /.odbc.ini
