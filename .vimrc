@@ -31,6 +31,7 @@ set shiftround
 set showcmd     
 set showmatch  
 set title
+set number
 set t_vb=
 set vb
 set lz
