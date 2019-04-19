@@ -214,6 +214,7 @@
 /.pki
 /.plurk
 /.plurk-cpan.store
+/.pm2/
 /.povray
 /.profile
 /.prove
