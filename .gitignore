@@ -77,6 +77,7 @@
 /.dbus-keyrings
 /.dbvis/
 /.ddd
+/.dh-make-perl/
 /.din/
 /.dmrc
 /.docker/
