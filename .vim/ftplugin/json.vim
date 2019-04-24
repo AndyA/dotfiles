@@ -10,11 +10,6 @@ setlocal keywordprg=man\ -S\ 3
 setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
 
-setlocal foldmethod=syntax
-"if has('conceal')
-"  setlocal conceallevel=2
-"endif
-
 if executable('ack')
   setlocal grepprg=ack\ --type=js
 endif
