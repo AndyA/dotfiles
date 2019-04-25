@@ -16,21 +16,28 @@ use Path::Class;
 use constant USAGE => <<EOT;
 Syntax: $0 [options] <dir> ...
 
+Finds all of the GOPROxxxx and GPyyxxxx files in the named
+directories and lists them in the correct order.
+
 Options:
     -h, --help              Display this text
-    -r, --rename            Rename files as "GOPRO-xxxx-yyyy"
-    -d, --dirs              Rename files into dirs "GOPRO-xxxx"
-    -p, --prefix=<prefix>   Prefix to use instead of "GOPRO"
+    -r, --rename            Rename files as "GoPro-xxxx-yyyy"
+    -d, --dirs              Rename files into dirs "GoPro-xxxx"
+    -p, --prefix=<prefix>   Prefix to use instead of "GoPro"
         --ffmpeg            Output ffmpeg "concat" format file
+    -n, --dryrun            Don't change anything
 EOT
 
 my %O = (
   help   => undef,
   rename => undef,
   dirs   => undef,
-  prefix => 'GOPRO',
+  prefix => 'GoPro',
   ffmpeg => undef,
+  dryrun => undef,
 );
+
+Getopt::Long::Configure("bundling");
 
 GetOptions(
   'h|help'     => \$O{help},
@@ -38,6 +45,7 @@ GetOptions(
   'd|dirs'     => \$O{dirs},
   'p|prefix:s' => \$O{prefix},
   'ffmpeg'     => \$O{ffmpeg},
+  'n|dryrun'   => \$O{dryrun},
 ) or die USAGE;
 
 if ( $O{help} ) {
@@ -74,8 +82,10 @@ if ( $O{rename} || $O{dirs} ) {
 
         my $new_vid = file $dir, @new_name;
         say "$vid --> $new_vid";
-        $new_vid->parent->mkpath;
-        rename $vid, $new_vid;
+        unless ( $O{dryrun} ) {
+          $new_vid->parent->mkpath;
+          rename $vid, $new_vid;
+        }
       }
     }
   );
@@ -86,7 +96,7 @@ else {
     sub {
       my ( $dir, $seq, $name, @vid ) = @_;
       if ( $O{ffmpeg} ) {
-        say "file '$_'" for sort grep { /\.MP4$/i }  @vid;
+        say "file '$_'" for sort grep { /\.MP4$/i } @vid;
       }
       else {
         say for sort @vid;
