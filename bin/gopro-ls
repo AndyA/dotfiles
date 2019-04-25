@@ -16,8 +16,10 @@ use Path::Class;
 use constant USAGE => <<EOT;
 Syntax: $0 [options] <dir> ...
 
-Finds all of the GOPROxxxx and GPyyxxxx files in the named
-directories and lists them in the correct order.
+Finds all of the GOPROxxxx and GPyyxxxx files in the named directories
+and lists them in the correct order.
+
+Use the -r (or -d) options to rename the files in a more friendly style.
 
 Options:
     -h, --help              Display this text
