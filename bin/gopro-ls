@@ -86,7 +86,7 @@ else {
     sub {
       my ( $dir, $seq, $name, @vid ) = @_;
       if ( $O{ffmpeg} ) {
-        say "file '$_'" for sort @vid;
+        say "file '$_'" for sort grep { /\.MP4$/i }  @vid;
       }
       else {
         say for sort @vid;
