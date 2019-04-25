@@ -45,42 +45,65 @@ if ( $O{help} ) {
   exit;
 }
 
-my %by_dir = ();
+my $by_dir = {};
 find {
   no_chdir => 1,
   wanted   => sub {
-    return if /\.AppleDouble/;
     return unless /\b(?:GOPR|GP\d\d)(\d\d\d\d)\.\w+/;
     my ( $seq, $vid ) = ( $1, file $_);
+    my $name = $vid->basename;
+    return if $name =~ /^\./;
+    $name =~ s/\..*//;
     my $dir = $vid->parent;
-    push @{ $by_dir{"$dir"} }, [$seq, $vid];
+    push @{ $by_dir->{"$dir"}{$seq}{$name} }, $vid;
   }
 }, @ARGV;
 
-for my $dir ( sort keys %by_dir ) {
-  my @vids = sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] }
-   @{ $by_dir{$dir} };
+if ( $O{rename} || $O{dirs} ) {
+  my %idx_for_seq = ();
+  with_files(
+    $by_dir,
+    sub {
+      my ( $dir, $seq, $name, @vid ) = @_;
+      my $next = ++$idx_for_seq{$seq};
+      for my $vid (@vid) {
+        my ($ext) = $vid->basename =~ /\.([^.]+)$/;
+        my $nice = nice_name($seq);
+        my @new_name = ( sprintf "%s-%04d.%s", $nice, $next, lc $ext );
+        unshift @new_name, $nice if $O{dirs};
 
-  if ( $O{rename} || $O{dirs} ) {
-    my @rename = ();
-    my $next   = 1;
-    for my $vid (@vids) {
-      my ($ext) = $vid->[1] =~ /\.([^.]+)$/;
-      my $nice = nice_name( $vid->[0] );
-      my @new_name = ( sprintf "%s-%04d.%s", $nice, $next++, $ext );
-      unshift @new_name, $nice if $O{dirs};
-
-      my $new_vid = file( $dir, @new_name );
-      say "$vid->[1] --> $new_vid";
-      $new_vid->parent->mkpath;
-      rename "$vid->[1]", "$new_vid";
+        my $new_vid = file $dir, @new_name;
+        say "$vid --> $new_vid";
+        $new_vid->parent->mkpath;
+        rename $vid, $new_vid;
+      }
     }
-  }
-  elsif ( $O{ffmpeg} ) {
-    say "file '$_->[1]'" for @vids;
-  }
-  else {
-    say $_->[1] for @vids;
+  );
+}
+else {
+  with_files(
+    $by_dir,
+    sub {
+      my ( $dir, $seq, $name, @vid ) = @_;
+      if ( $O{ffmpeg} ) {
+        say "file '$_'" for sort @vid;
+      }
+      else {
+        say for sort @vid;
+      }
+    }
+  );
+}
+
+sub with_files {
+  my ( $by_dir, $cb ) = @_;
+  for my $dir ( sort keys %$by_dir ) {
+    for my $seq ( sort keys %{ $by_dir->{$dir} } ) {
+      for my $name ( sort keys %{ $by_dir->{$dir}{$seq} } ) {
+        my $vid = $by_dir->{$dir}{$seq}{$name};
+        $cb->( $dir, $seq, $name, @$vid );
+      }
+    }
   }
 }
 
