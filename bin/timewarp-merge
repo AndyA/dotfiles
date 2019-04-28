@@ -1,0 +1,67 @@
+#!/bin/bash
+
+config="/tmp/merge.$$.json"
+step=2
+fps="F50:1"
+
+cleanup() {
+  rm -f "$config"
+}
+
+trap cleanup EXIT
+
+cat > "$config" <<EOT
+[
+   {
+      "filter" : "merge",
+      "options" : {
+         "frames" : $step
+      }
+   }
+]
+EOT
+
+for src in "$@"; do
+  echo "Processing $src"
+
+  name="$( basename "$src" )"
+  base="${name%.*}"
+
+  if [[ -d $src ]]; then
+    lst="$base.lst"
+    find "$src" -iname '*.mp4' | sort | perl -pe "s/(.+)/file '\$1'/" > "$lst"
+    prev="$lst"
+  else
+    prev="$src"
+  fi
+
+  sp=$step
+  while [[ $sp -le 65536 ]]; do
+    next="$base.mov/$base.$sp.mov"
+
+    if [[ ! -e $next ]]; then
+      echo "Creating $next"
+
+      tmp="$base.mov/$base.$sp.tmp.mov"
+      mkdir -p "$( dirname "$tmp" )"
+
+      format=""
+      [[ $prev == *.lst ]] && format="-f concat -safe 0"
+
+      ffmpeg                                                              \
+        -nostdin $format -i "$prev"                                       \
+        -an -pix_fmt yuv420p -f yuv4mpegpipe -                            \
+        | y4m2patch $fps                                                  \
+        | timewarp "$config"                                              \
+        | ffmpeg -f yuv4mpegpipe -i - -c:v libx264 -b:v 10000k -y "$tmp"  \
+        && mv "$tmp" "$next"
+    fi
+
+    sp=$((sp*$step))
+    prev="$next"
+  done
+
+done
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
