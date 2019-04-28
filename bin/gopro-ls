@@ -76,10 +76,10 @@ if ( $O{rename} || $O{dirs} ) {
     sub {
       my ( $dir, $seq, $name, @vid ) = @_;
       my $next = ++$idx_for_seq{$seq};
+      my $nice = nice_name($seq);
       for my $vid (@vid) {
         my ($ext) = $vid->basename =~ /\.([^.]+)$/;
-        my $nice = nice_name($seq);
-        my @new_name = ( sprintf "%s-%04d.%s", $nice, $next, lc $ext );
+        my @new_name = ( sprintf "%s-%03d.%s", $nice, $next, lc $ext );
         unshift @new_name, $nice if $O{dirs};
 
         my $new_vid = file $dir, @new_name;
