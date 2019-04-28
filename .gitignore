@@ -354,6 +354,7 @@
 /mm.cfg
 /node_modules/
 /perl5
+/snap/
 /svn-prop.tmp
 /tools/
 /workspace
