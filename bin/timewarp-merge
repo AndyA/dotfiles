@@ -3,6 +3,7 @@
 config="/tmp/merge.$$.json"
 step=2
 fps="F50:1"
+ext="fast"
 
 cleanup() {
   rm -f "$config"
@@ -37,12 +38,12 @@ for src in "$@"; do
 
   sp=$step
   while [[ $sp -le 65536 ]]; do
-    next="$base.mov/$base.$sp.mov"
+    next="$base.$ext/$base.$sp.mov"
 
     if [[ ! -e $next ]]; then
       echo "Creating $next"
 
-      tmp="$base.mov/$base.$sp.tmp.mov"
+      tmp="$base.$ext/$base.$sp.tmp.mov"
       mkdir -p "$( dirname "$tmp" )"
 
       format=""
