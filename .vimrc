@@ -103,5 +103,8 @@ noremap <silent> <C-Down>  <esc><C-w>j<C-w>_
 noremap <silent> <C-Left>  <esc><C-w>h<C-w>_
 noremap <silent> <C-Right> <esc><C-w>l<C-w>_
 
+map <leader>sp ms(V)k:sort u's
+map <leader>sb msvi(:sort u's
+
 imap <silent> <C-D><C-D> <C-R>=strftime("%Y/%m/%d")<CR>
 imap <silent> <C-T><C-T> <C-R>=strftime("%H:%M:%S")<CR>
