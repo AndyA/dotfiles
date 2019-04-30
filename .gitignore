@@ -115,6 +115,7 @@
 /.gemrc
 /.get_iplayer/
 /.gforth-history
+/.ghidra/
 /.gimp-*/
 /.gitconfig
 /.gitk
@@ -328,6 +329,7 @@
 /.zshrc
 /Applications
 /Box Documents/
+/Box/
 /Desktop
 /Documents
 /Downloads
