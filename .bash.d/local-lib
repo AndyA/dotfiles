@@ -1,3 +1,0 @@
-[ -d $HOME/perl5/lib/perl5 ] && eval $(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)
-
-# vim:ts=2:sw=2:sts=2:et:ft=sh

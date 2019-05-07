@@ -1,3 +1,0 @@
-for dir in /opt/{vc,raspi}/{s,}bin; do
-  [ -d "$dir" ] && PATH="$dir:$PATH"
-done

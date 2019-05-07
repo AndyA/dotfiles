@@ -1,0 +1,2 @@
+[ -d /snap/bin ] && PATH=/snap/bin:$PATH
+

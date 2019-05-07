@@ -1,7 +1,0 @@
-for rust_path in ~/.cargo/bin; do
-  if [ -d "$rust_path" ]; then
-    PATH="$rust_path:$PATH"
-    break
-  fi
-done
-
