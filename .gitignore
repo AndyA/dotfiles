@@ -146,6 +146,7 @@
 /.inkscape-etc/
 /.install4j
 /.ion3
+/.ipfs/
 /.irb-history
 /.irb_history
 /.irssi
@@ -285,6 +286,7 @@
 /.thumb/
 /.thumbnails
 /.thunderbird
+/.tig_history
 /.titi
 /.tmuxinator/
 /.trello-cli/
