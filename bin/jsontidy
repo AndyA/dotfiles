@@ -1,16 +1,50 @@
-#!/usr/bin/env perl
+#!/usr/bin/env node
 
-use strict;
-use warnings;
+"use strict";
 
-use JSON;
+const fs = require("fs");
 
-STDOUT->binmode(':utf8');
-print JSON->new->pretty->canonical->encode(
-  JSON->new->relaxed->decode(
-    do { local $/; <> }
-  )
-);
+function getStdin(stdin) {
+  const result = [];
+  let length = 0;
 
-# vim:ts=2:sw=2:sts=2:et:ft=perl
+  return new Promise(resolve => {
+    stdin.on('readable', () => {
+      let chunk;
+      while ((chunk = stdin.read())) {
+        result.push(chunk);
+        length += chunk.length;
+      }
+    });
 
+    stdin.on('end', () => {
+      resolve(Buffer.concat(result, length));
+    });
+  });
+}
+
+function pretty(json) {
+  return JSON.stringify(JSON.parse(json), null, 2);
+}
+
+if (process.argv.length > 2) {
+  for (const file of process.argv.slice(2)) {
+    try {
+      const buf = fs.readFileSync(file);
+      console.log(pretty(buf.toString()));
+    } catch (e) {
+      console.error(e.message);
+      process.exit(1);
+    }
+  }
+} else {
+  getStdin(process.stdin).then(buf => {
+    console.log(pretty(buf.toString()));
+  }).catch(e => {
+    console.error(e.message);
+    process.exit(1);
+  });;
+}
+
+
+// vim:ts=2:sw=2:sts=2:et:ft=javascript
