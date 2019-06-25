@@ -15,9 +15,9 @@ if executable('ack')
 endif
 
 function! s:tidy()
-  if executable('esformatter')
+  if executable('prettier')
     let l:loc = Get_location()
-    exec ':%!esformatter'
+    exec ':%!prettier --stdin --stdin-filepath ' . expand('%:t')
     call Set_location(l:loc)
   endif
 endfunction
