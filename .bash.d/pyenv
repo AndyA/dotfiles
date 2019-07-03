@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [[ -d $HOME/.pyenv ]]; then
+  PATH="$HOME/.pyenv/bin:$PATH"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+fi
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
