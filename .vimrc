@@ -108,3 +108,5 @@ map <leader>sb msvi(:sort u's
 
 imap <silent> <C-D><C-D> <C-R>=strftime("%Y/%m/%d")<CR>
 imap <silent> <C-T><C-T> <C-R>=strftime("%H:%M:%S")<CR>
+
+let @s = 'vi[a,vi[:sort uvi[D'
