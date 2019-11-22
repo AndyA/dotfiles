@@ -199,6 +199,7 @@
 /.nvidia-settings-rc
 /.octave_hist
 /.odbc.ini
+/.oh-my-zsh/
 /.openoffice
 /.openoffice.org
 /.openshot
@@ -328,7 +329,6 @@
 /.yarnrc
 /.zcompdump
 /.znc
-/.zshrc
 /Applications
 /Box Documents/
 /Box/
