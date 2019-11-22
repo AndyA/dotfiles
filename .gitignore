@@ -328,7 +328,9 @@
 /.xslate_cache/
 /.yarnrc
 /.zcompdump
+/.zcompdump-*
 /.znc
+/.zsh_history
 /Applications
 /Box Documents/
 /Box/
