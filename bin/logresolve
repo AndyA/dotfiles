@@ -1,0 +1,27 @@
+#!/usr/bin/env perl
+
+use v5.10;
+
+use autodie;
+use strict;
+use warnings;
+
+use Socket;
+use Regexp::Common qw /net/;
+
+my %CACHE = ();
+
+$| = 1;
+
+while (<>) {
+  s/($RE{net}{IPv4})/resolve($1)/eg;
+  print;
+}
+
+sub resolve {
+  my $ip = shift;
+  return $CACHE{$ip} //= gethostbyaddr( inet_aton($ip), AF_INET ) // $ip;
+}
+
+# vim:ts=2:sw=2:sts=2:et:ft=perl
+
