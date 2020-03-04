@@ -38,8 +38,8 @@ if executable('astyle')
   noremap <buffer> <f2> :call <SID>tidy()<CR>
 endif
 
-if executable('ack')
-  setlocal grepprg=ack\ --type=cc
+if executable('ag')
+  setlocal grepprg=ag\ --type=cc
 endif
 
 nmap ,s :find %:t:r.c<cr> 

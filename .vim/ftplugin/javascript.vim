@@ -10,7 +10,7 @@ setlocal keywordprg=man\ -S\ 3
 setlocal comments=sr:/*,mb:*,ex:*/,://
 setlocal cinoptions=:0
 
-if executable('ack')
+if executable('ag')
   setlocal grepprg=ag\ --js
 endif
 
