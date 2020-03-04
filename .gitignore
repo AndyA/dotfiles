@@ -192,6 +192,7 @@
 /.nDSstore
 /.nautilus
 /.node-gyp/
+/.node-red/
 /.node_repl_history
 /.notifo
 /.npm/
