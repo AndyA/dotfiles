@@ -17,8 +17,7 @@ print <<EOT;
 
 #include <stdio.h>
 
-int
-main( void )
+int main( void )
 {
 $body  return 0;
 }
