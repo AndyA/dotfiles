@@ -190,7 +190,8 @@ async function goVar(dict, name, setVars) {
 
 async function goGlobal(dict, setVars) {
   const { history } = await loadConfig();
-  if (!history.length) throw new Error(`No global history in ${configFile}`);
+  if (!history || !history.length)
+    throw new Error(`No global history in ${configFile}`);
   const addr = history[history.length - 1];
   return resolvePath(dict, addr.split(/\s+/), setVars);
 }
