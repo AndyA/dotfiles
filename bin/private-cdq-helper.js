@@ -149,8 +149,8 @@ async function completePath(dict, tags) {
 async function pushHistory(tags) {
   const conf = await loadConfig();
   if (conf.history[conf.history.length - 1] !== tags) {
-    conf.history = conf.history.slice(-conf.historySize - 1);
     conf.history.push(tags);
+    conf.history = conf.history.slice(-conf.historySize);
     await saveConfig(conf);
   }
 }
