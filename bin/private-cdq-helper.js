@@ -6,6 +6,13 @@ const fsp = require("fs").promises;
 const homeTags = [".q"];
 const dirTags = [".q", "q"];
 
+const configFile = path.join(process.env.HOME, ".cdq.json");
+
+const defaultConfig = {
+  historySize: 10,
+  history: []
+};
+
 const isBelow = (dir, target) =>
   path
     .relative(dir, target)
@@ -30,6 +37,37 @@ const shellQuote = (...words) =>
     .join(" ");
 
 const exportVar = (env, val) => `export ${env}=${shellQuote(val)}`;
+
+const loadJSON = async name =>
+  JSON.parse(await fsp.readFile(name, { encoding: "utf8" }));
+
+const saveJSON = async (name, data) => {
+  const tmp = name + ".tmp";
+  await fsp.writeFile(tmp, JSON.stringify(data, null, 2));
+  await fsp.rename(tmp, name);
+};
+
+const makeConfigStore = file => {
+  let conf;
+  const load = async () => {
+    try {
+      return await loadJSON(file);
+    } catch (e) {
+      if (e.code === "ENOENT") return defaultConfig;
+      throw e;
+    }
+  };
+
+  return [
+    () => (conf = conf || load()),
+    async c => {
+      await saveJSON(file, c);
+      conf = c;
+    }
+  ];
+};
+
+const [loadConfig, saveConfig] = makeConfigStore(configFile);
 
 async function safeReadDir(dir, opt) {
   try {
@@ -108,6 +146,15 @@ async function completePath(dict, tags) {
   return showCompletion(Object.keys(nd));
 }
 
+async function pushHistory(tags) {
+  const conf = await loadConfig();
+  if (conf.history[conf.history.length - 1] !== tags) {
+    conf.history = conf.history.slice(-conf.historySize - 1);
+    conf.history.push(tags);
+    await saveConfig(conf);
+  }
+}
+
 async function resolvePath(dict, tags, setVars) {
   const target = tags.pop(); // destination
   const nd = await walkPath(dict, tags);
@@ -116,9 +163,13 @@ async function resolvePath(dict, tags, setVars) {
   const cmd = [];
 
   if (setVars) {
-    if (process.env.CDQ_CURRENT)
-      cmd.push(exportVar("CDQ_PREVIOUS", process.env.CDQ_CURRENT));
-    cmd.push(exportVar("CDQ_CURRENT", [...tags, target].join(" ")));
+    const addr = [...tags, target].join(" ");
+    await pushHistory(addr);
+    const current = process.env.CDQ_CURRENT;
+    if (addr !== current) {
+      cmd.push(exportVar("CDQ_PREVIOUS", current));
+      cmd.push(exportVar("CDQ_CURRENT", addr));
+    }
   }
 
   cmd.push(shellQuote("cd", nd[target]));
@@ -137,13 +188,22 @@ async function goVar(dict, name, setVars) {
   return resolvePath(dict, addr.split(/\s+/), setVars);
 }
 
+async function goGlobal(dict, setVars) {
+  const { history } = await loadConfig();
+  if (!history.length) throw new Error(`No global history in ${configFile}`);
+  const addr = history[history.length - 1];
+  return resolvePath(dict, addr.split(/\s+/), setVars);
+}
+
 async function cdq(args) {
   const dict = await loadInit();
 
   if (args.length === 0) return goVar(dict, "CDQ_CURRENT", false);
 
-  if (args.length === 1 && args[0] === "-")
-    return goVar(dict, "CDQ_PREVIOUS", true);
+  if (args.length === 1) {
+    if (args[0] === "-") return goVar(dict, "CDQ_PREVIOUS", true);
+    if (args[0] === ".") return goGlobal(dict, true);
+  }
 
   if (args[0] === "-c") return completePath(dict, args.slice(1));
 

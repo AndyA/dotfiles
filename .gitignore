@@ -54,6 +54,7 @@
 /.cargo/
 /.carmetal_config/
 /.ccache
+/.cdq.json
 /.cgdb
 /.citrix
 /.cmake/
