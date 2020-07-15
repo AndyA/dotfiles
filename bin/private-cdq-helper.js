@@ -164,12 +164,12 @@ async function resolvePath(dict, tags, setVars) {
 
   if (setVars) {
     const addr = [...tags, target].join(" ");
-    await pushHistory(addr);
     const current = process.env.CDQ_CURRENT;
     if (addr !== current) {
       cmd.push(exportVar("CDQ_PREVIOUS", current));
       cmd.push(exportVar("CDQ_CURRENT", addr));
     }
+    await pushHistory(addr);
   }
 
   cmd.push(shellQuote("cd", nd[target]));
