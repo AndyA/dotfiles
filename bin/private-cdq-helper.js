@@ -47,13 +47,13 @@ const saveJSON = async (name, data) => {
   await fsp.rename(tmp, name);
 };
 
-const makeConfigStore = file => {
+const makeConfigStore = (file, fallback) => {
   let conf;
   const load = async () => {
     try {
       return await loadJSON(file);
     } catch (e) {
-      if (e.code === "ENOENT") return defaultConfig;
+      if (e.code === "ENOENT") return fallback;
       throw e;
     }
   };
@@ -67,7 +67,7 @@ const makeConfigStore = file => {
   ];
 };
 
-const [loadConfig, saveConfig] = makeConfigStore(configFile);
+const [loadConfig, saveConfig] = makeConfigStore(configFile, defaultConfig);
 
 async function safeReadDir(dir, opt) {
   try {
