@@ -40,6 +40,13 @@ const bits2dots = bits =>
 const pad = (n, v = 0) => Array(Math.max(n, 0)).fill(v);
 const padTo = (a, w, v) => [...a, ...pad(w - a.length, v)];
 
+const cluster = (a, stride) =>
+  (aa => {
+    const out = [];
+    while (aa.length) out.push(aa.splice(0, stride));
+    return out;
+  })(a.slice(0));
+
 const trim = (dots, [left, right]) => {
   const ri = dots.length - right;
   const t = (d, l, r) => [...d, ...pad(r - d.length)].slice(l, r);
@@ -64,28 +71,22 @@ class BeebKerner {
   kern(l, r) {
     const { opt, _pairs } = this;
 
-    const k2 = (lrm, rlm) => {
-      const minGap = Math.min(...lrm.map((m, i) => m + rlm[i]));
-      const minRight = Math.min(...lrm);
-      const minLeft = Math.min(...rlm);
-      const minRowGap = minRight + minLeft;
-      const trim = Math.min(minGap - opt.minGap, minRowGap - opt.minRowGap);
-      const leftTrim = Math.min(opt.maxLeftTrim, minRight, trim);
-      const rightTrim = Math.min(opt.maxRightTrim, minLeft, trim - leftTrim);
+    const kern = (l, r, h) =>
+      ((lrm, rlm) => {
+        const minGap = Math.min(...lrm.map((m, i) => m + rlm[i]));
+        const minRight = Math.min(...lrm);
+        const minLeft = Math.min(...rlm);
+        const minRowGap = minRight + minLeft;
+        const trim = Math.min(minGap - opt.minGap, minRowGap - opt.minRowGap);
+        const leftTrim = Math.min(opt.maxLeftTrim, minRight, trim);
+        const rightTrim = Math.min(opt.maxRightTrim, minLeft, trim - leftTrim);
 
-      return [leftTrim, rightTrim];
-    };
-
-    const kern = (l, r) => {
-      const h = Math.max(l.height, r.height);
-      return k2(
-        padTo(l.rightMargin, h, l.width),
-        padTo(r.leftMargin, h, r.width)
-      );
-    };
+        return [leftTrim, rightTrim];
+      })(padTo(l.rightMargin, h, l.width), padTo(r.leftMargin, h, r.width));
 
     const key = l.cc + "-" + r.cc;
-    return (_pairs[key] = _pairs[key] || kern(l, r));
+    return (_pairs[key] =
+      _pairs[key] || kern(l, r, Math.max(l.height, r.height)));
   }
 }
 
@@ -155,11 +156,7 @@ class BeebFont {
       .map((rg, i) => kerner.kern(glyphs[i], rg))
       .flat();
 
-    const fp = [0, ...pairs, 0];
-    const out = [];
-    while (fp.length) out.push(fp.splice(0, 2));
-
-    return out;
+    return cluster([0, ...pairs, 0], 2);
   }
 
   measure(str) {
