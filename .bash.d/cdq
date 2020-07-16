@@ -1,11 +1,11 @@
 function cdq() {
-  eval $( private-cdq-helper "$@" )
+  eval $( private-cdq-helper.js "$@" )
 }
 
 function _cdq() {
   local IFS=$'\n'
   COMPREPLY=(
-    $( private-cdq-helper -c "${COMP_WORDS[@]}" )
+    $( private-cdq-helper.js -c "${COMP_WORDS[@]}" )
   )
 }
 

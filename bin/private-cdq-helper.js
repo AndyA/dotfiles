@@ -39,6 +39,17 @@ const shellQuote = (...words) =>
 
 const exportVar = (env, val) => `export ${env}=${shellQuote(val)}`;
 
+const eNoEnt = async (op, fallback) => {
+  try {
+    return await Promise.resolve(op());
+  } catch (e) {
+    if (e.code === "ENOENT") return fallback;
+    throw e;
+  }
+};
+
+const safeReadDir = async (dir, opt) => eNoEnt(() => fsp.readdir(dir, opt), []);
+
 const loadJSON = async name =>
   JSON.parse(await fsp.readFile(name, { encoding: "utf8" }));
 
@@ -50,14 +61,7 @@ const saveJSON = async (name, data) => {
 
 const makeConfigStore = (file, fallback) => {
   let conf;
-  const load = async () => {
-    try {
-      return await loadJSON(file);
-    } catch (e) {
-      if (e.code === "ENOENT") return fallback;
-      throw e;
-    }
-  };
+  const load = () => eNoEnt(() => loadJSON(file), fallback);
 
   return [
     () => (conf = conf || load()),
@@ -69,15 +73,6 @@ const makeConfigStore = (file, fallback) => {
 };
 
 const [loadConfig, saveConfig] = makeConfigStore(configFile, defaultConfig);
-
-async function safeReadDir(dir, opt) {
-  try {
-    return await fsp.readdir(dir, opt);
-  } catch (e) {
-    if (e.code === "ENOENT") return [];
-    throw e;
-  }
-}
 
 async function loadTags(dict, base, paths) {
   const sp = [
@@ -179,11 +174,6 @@ async function resolvePath(dict, tags, setVars) {
   console.error(dest);
 
   console.log(cmd.join("; "));
-}
-
-function syntax() {
-  console.error(`Syntax: cdq <tag> ...`);
-  process.exit(1);
 }
 
 async function goVar(dict, name, setVars) {
