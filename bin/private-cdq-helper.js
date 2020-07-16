@@ -130,7 +130,8 @@ function showCompletion(tags) {
   for (const tag of tags.sort()) console.log(tag);
 }
 
-async function completePath(dict, tags) {
+async function completePath(dict, args) {
+  const [cmd, ...tags] = args;
   const target = tags.pop();
   const nd = await walkPath(dict, tags);
 
@@ -158,7 +159,8 @@ async function pushHistory(tags) {
 async function resolvePath(dict, tags, setVars) {
   const target = tags.pop(); // destination
   const nd = await walkPath(dict, tags);
-  if (!nd[target]) throw new Error(`No tag "${target}"`);
+  const dest = nd[target];
+  if (!dest) throw new Error(`No tag "${target}"`);
 
   const cmd = [];
 
@@ -172,7 +174,8 @@ async function resolvePath(dict, tags, setVars) {
     await pushHistory(addr);
   }
 
-  cmd.push(shellQuote("cd", nd[target]));
+  cmd.push(shellQuote("cd", dest));
+  console.error(dest);
 
   console.log(cmd.join("; "));
 }
