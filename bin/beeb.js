@@ -59,9 +59,7 @@ class BeebKerner {
       const minRight = Math.min(...lrm);
       const minLeft = Math.min(...rlm);
       const minRowGap = minRight + minLeft;
-
       const trim = Math.min(minGap - opt.minGap, minRowGap - opt.minRowGap);
-
       const leftTrim = Math.min(opt.maxLeftTrim, minRight, trim);
       const rightTrim = Math.min(opt.maxRightTrim, minLeft, trim - leftTrim);
 
@@ -131,21 +129,23 @@ class BeebFont {
 
   beeb(str) {
     const { height, opt } = this;
-    const glyphs = str
-      .split("")
-      .map(s => s.charCodeAt(0))
-      .map(cc => this.glyph(cc));
-
-    const ki = this._kern(glyphs);
 
     const pad = n => Array(Math.max(n, 0)).fill(0);
+    const pixel = dot => (dot ? opt.mark : opt.space);
+
     const trim = (dots, [left, right]) => {
       const ri = dots.length - right;
       const t = (d, l, r) => [...d, ...pad(r - d.length)].slice(l, r);
       if (left < 0) return t([...pad(-left), ...dots], 0, ri - left);
       return t(dots, left, ri);
     };
-    const pixel = dot => (dot ? opt.mark : opt.space);
+
+    const glyphs = str
+      .split("")
+      .map(s => s.charCodeAt(0))
+      .map(cc => this.glyph(cc));
+
+    const ki = this._kern(glyphs);
 
     return pad(height).map((z, row) =>
       glyphs
