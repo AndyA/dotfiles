@@ -37,6 +37,16 @@ const bits2dots = bits =>
     .map(v => v.toString(2).substr(1))
     .map(b => b.split("").map(Number));
 
+const pad = (n, v = 0) => Array(Math.max(n, 0)).fill(v);
+const padTo = (a, w, v) => [...a, ...pad(w - a.length, v)];
+
+const trim = (dots, [left, right]) => {
+  const ri = dots.length - right;
+  const t = (d, l, r) => [...d, ...pad(r - d.length)].slice(l, r);
+  if (left < 0) return t([...pad(-left), ...dots], 0, ri - left);
+  return t(dots, left, ri);
+};
+
 class BeebKerner {
   constructor(opt) {
     this.opt = Object.assign(
@@ -54,7 +64,7 @@ class BeebKerner {
   kern(l, r) {
     const { opt, _pairs } = this;
 
-    const kern = (lrm, rlm) => {
+    const k2 = (lrm, rlm) => {
       const minGap = Math.min(...lrm.map((m, i) => m + rlm[i]));
       const minRight = Math.min(...lrm);
       const minLeft = Math.min(...rlm);
@@ -66,8 +76,16 @@ class BeebKerner {
       return [leftTrim, rightTrim];
     };
 
+    const kern = (l, r) => {
+      const h = Math.max(l.height, r.height);
+      return k2(
+        padTo(l.rightMargin, h, l.width),
+        padTo(r.leftMargin, h, r.width)
+      );
+    };
+
     const key = l.cc + "-" + r.cc;
-    return (_pairs[key] = _pairs[key] || kern(l.rightMargin, r.leftMargin));
+    return (_pairs[key] = _pairs[key] || kern(l, r));
   }
 }
 
@@ -75,18 +93,25 @@ class BeebGlyph {
   constructor(cc, bits) {
     this.cc = cc;
     this.dots = bits2dots(bits);
+    this.width = 8;
+  }
+
+  get height() {
+    return this.dots.length;
   }
 
   get leftMargin() {
     return (this._lm =
       this._lm ||
-      this.dots.map(row => row.indexOf(1)).map(m => (m < 0 ? 8 : m)));
+      this.dots.map(row => row.indexOf(1)).map(m => (m < 0 ? this.width : m)));
   }
 
   get rightMargin() {
     return (this._rm =
       this._rm ||
-      this.dots.map(row => row.lastIndexOf(1)).map(m => (m < 0 ? 8 : 7 - m)));
+      this.dots
+        .map(row => row.lastIndexOf(1))
+        .map(m => (m < 0 ? this.width : this.width - 1 - m)));
   }
 }
 
@@ -113,44 +138,52 @@ class BeebFont {
       this._cc[cc] || (cdef => cdef && new BeebGlyph(cc, cdef))(this.cdef[cc]));
   }
 
-  _kern(glyphs) {
+  glyphs(str) {
+    return str
+      .split("")
+      .map(s => s.charCodeAt(0))
+      .map(cc => this.glyph(cc));
+  }
+
+  kern(glyphs) {
     const { kerner } = this.opt;
 
-    const pairs = kerner
-      ? glyphs.slice(1).map((rg, i) => kerner.kern(glyphs[i], rg))
-      : glyphs.map(() => [0, 0]);
+    if (!kerner) return glyphs.map(() => [0, 0]);
 
-    const fp = [0, ...pairs.flat(), 0];
+    const pairs = glyphs
+      .slice(1)
+      .map((rg, i) => kerner.kern(glyphs[i], rg))
+      .flat();
+
+    const fp = [0, ...pairs, 0];
     const out = [];
     while (fp.length) out.push(fp.splice(0, 2));
 
     return out;
   }
 
-  beeb(str) {
+  measure(str) {
+    const { height } = this;
+    const glyphs = this.glyphs(str);
+    const ki = this.kern(glyphs);
+    const width =
+      glyphs.reduce((a, g) => a + g.width, 0) -
+      ki.reduce((a, k) => a + k[0] + k[1], 0);
+    return [width, height];
+  }
+
+  render(str) {
     const { height, opt } = this;
 
-    const pad = n => Array(Math.max(n, 0)).fill(0);
     const pixel = dot => (dot ? opt.mark : opt.space);
 
-    const trim = (dots, [left, right]) => {
-      const ri = dots.length - right;
-      const t = (d, l, r) => [...d, ...pad(r - d.length)].slice(l, r);
-      if (left < 0) return t([...pad(-left), ...dots], 0, ri - left);
-      return t(dots, left, ri);
-    };
-
-    const glyphs = str
-      .split("")
-      .map(s => s.charCodeAt(0))
-      .map(cc => this.glyph(cc));
-
-    const ki = this._kern(glyphs);
+    const glyphs = this.glyphs(str);
+    const ki = this.kern(glyphs);
 
     return pad(height).map((z, row) =>
       glyphs
         .map((g, i) =>
-          trim(g.dots[row], ki[i])
+          trim(g.dots[row] || pad(g.width), ki[i])
             .map(pixel)
             .join("")
         )
@@ -165,7 +198,13 @@ for (const k of [false, true]) {
   const text = ["BBC Micro 32K", "[more...]"];
 
   for (const line of text) {
-    const rasters = bf.beeb(line);
+    const [width, height] = bf.measure(line);
+    const rule = Array(width)
+      .fill("=")
+      .join("");
+    console.log(rule);
+    const rasters = bf.render(line);
     for (const r of rasters) console.log(r);
+    console.log(rule);
   }
 }
