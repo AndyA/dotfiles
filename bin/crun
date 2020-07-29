@@ -8,7 +8,7 @@ if [[ "$prog" -nt "$bin" ]]; then
   tmp="/tmp/crun.$$.c"
   echo "#line 2 \"$prog\"" > "$tmp"
   tail -n +2 "$prog" >> "$tmp"
-  gcc -Wall -o "$bin" "$tmp"
+  cc -O3 -Wall -o "$bin" "$tmp"
   rc=$?
   rm -f "$tmp"
   [[ $rc == 0 ]] || exit $rc
