@@ -1,6 +1,0 @@
-[groups]
-dev-bbc-co-uk=*.dev.bbc.co.uk
-
-[dev-bbc-co-uk]
-ssl-client-cert-file=/Users/andy/.subversion/auth/andy.p12
-ssl-client-cert-password=changeit
