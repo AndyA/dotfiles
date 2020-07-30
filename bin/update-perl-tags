@@ -1,7 +1,0 @@
-#!/bin/sh
-tags=~/.vim/perltags
-work=$tags.$$
-log=$tags.log
-rm -f $tags.*
-ptags --sort --abs --installed 2> $log > $work
-mv $work $tags
