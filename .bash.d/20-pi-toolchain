@@ -1,0 +1,1 @@
+[ -d ~/.pi-toolchain/arm-bcm2708/arm-linux-gnueabihf/bin ] && PATH=~/.pi-toolchain/arm-bcm2708/arm-linux-gnueabihf/bin:$PATH

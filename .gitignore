@@ -219,6 +219,7 @@
 /.perldb_history
 /.pgadmin/
 /.pgpass
+/.pi-toolchain/
 /.pind
 /.pip/
 /.pki
