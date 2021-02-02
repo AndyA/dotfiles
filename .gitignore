@@ -250,6 +250,7 @@
 /.rnd
 /.rpmdb
 /.rsync-filter
+/.rustup/
 /.rvm/
 /.s3/
 /.s3cfg
@@ -335,6 +336,7 @@
 /.zcompdump-*
 /.znc
 /.zsh_history
+/.zshenv
 /Applications
 /Box Documents/
 /Box/

@@ -47,5 +47,6 @@ PATH=$($HOME/bin/path_append $PATH)
 export PATH
 
 [ -f ~/.aliases ] && source ~/.aliases
+[ -f ~/.cargo/env ] && source ~/.cargo/env
 
 # vim:ts=2:sw=2:sts=2:et:ft=bash
