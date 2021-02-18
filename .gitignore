@@ -313,6 +313,7 @@
 /.vpndiff
 /.vpython-root/
 /.vpython_cipd_cache/
+/.vscode/
 /.w3af/
 /.wapi
 /.wget-hsts
