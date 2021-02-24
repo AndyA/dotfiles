@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd $HOME
+export GIT_DIR="$HOME/.git.hidden"
+exec git "$@"
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
