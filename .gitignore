@@ -1,3 +1,5 @@
+*
+#
 # Keepers
 
 !/.bash.d
@@ -14,7 +16,4 @@
 !/.vimperator
 !/.vimperatorrc
 !/.vimrc
-!/.xdock
 !/bin
-
-*
