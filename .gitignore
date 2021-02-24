@@ -1,2 +1,20 @@
 *
+
+# Keepers
+
+!/.bash.d
+!/.bashrc
 !/.gitignore
+!/.gitignore_global
+!/.gvimrc
+!/.perltidyrc
+!/.q
+!/.screenrc
+!/.sqitch
+!/.tmux.conf
+!/.vim
+!/.vimperator
+!/.vimperatorrc
+!/.vimrc
+!/.xdock
+!/bin
