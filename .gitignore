@@ -1,19 +1,23 @@
-*
-#
+# Ignore everything
+
+/*
+
 # Keepers
 
 !/.bash.d
 !/.bashrc
+!/.csscomb.json
+!/.ctags
+!/.cvsignore
+!/.esformatter
+!/.gdbinit
 !/.gitignore
 !/.gitignore_global
 !/.gvimrc
 !/.perltidyrc
 !/.q
-!/.screenrc
 !/.sqitch
 !/.tmux.conf
 !/.vim
-!/.vimperator
-!/.vimperatorrc
 !/.vimrc
 !/bin
