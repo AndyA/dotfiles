@@ -6,11 +6,6 @@
 
 !/.bash.d
 !/.bashrc
-!/.csscomb.json
-!/.ctags
-!/.cvsignore
-!/.esformatter
-!/.gdbinit
 !/.gitignore
 !/.gitignore_global
 !/.gvimrc

@@ -1,9 +1,0 @@
-{
-   "convertStrings" : "double",
-   "elseNewline" : true,
-   "indent" : "  ",
-   "noNewlineBetweenVar" : true,
-   "noSpaceAfterFunction" : true,
-   "noSpaceWithIncDec" : true,
-   "quoteProperties" : false
-}
