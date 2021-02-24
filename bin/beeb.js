@@ -189,19 +189,12 @@ class BeebFont {
   }
 }
 
-for (const k of [false, true]) {
-  const bf = new BeebFont(cdef, { kerner: k && new BeebKerner() });
+const bf = new BeebFont(cdef, { kerner: true && new BeebKerner() });
 
-  const text = ["BBC Micro 32K", "[more...]"];
+const text = process.argv.slice(2);
 
-  for (const line of text) {
-    const [width, height] = bf.measure(line);
-    const rule = Array(width)
-      .fill("=")
-      .join("");
-    console.log(rule);
-    const rasters = bf.render(line);
-    for (const r of rasters) console.log(r);
-    console.log(rule);
-  }
+for (const line of text) {
+  const [width, height] = bf.measure(line);
+  const rasters = bf.render(line);
+  for (const r of rasters) console.log(r);
 }
