@@ -1,0 +1,2 @@
+[ -d /opt/mssql/bin ] && PATH=/opt/mssql/bin:$PATH
+[ -d /opt/mssql-tools/bin ] && PATH=/opt/mssql-tools/bin:$PATH
