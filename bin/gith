@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 DEFAULT=".git"
 HIDDEN=".git.hidden"
 
