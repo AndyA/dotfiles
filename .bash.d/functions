@@ -6,4 +6,10 @@ function cnd() {
   cd "$dir"
 }
 
+function ccode() {
+  dir="$1"
+  mkdir -p "$dir"
+  code "$dir"
+}
+
 # vim:ts=2:sw=2:sts=2:et:ft=sh
