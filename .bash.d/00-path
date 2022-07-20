@@ -5,7 +5,7 @@ for d in /usr/sbin /sbin; do
   [ -d "$d" ] && PATH="$PATH:$d"
 done
 # Add to the start of the path
-for d in /usr/local/bin /usr/local/sbin $HOME/bin/local $HOME/bin/$RCUNAME; do
+for d in /usr/local/bin /usr/local/sbin $HOME/bin/local $HOME/bin/$RCUNAME $HOME/.local/bin; do
   [ -d "$d" ] && PATH="$d:$PATH"
 done
 
