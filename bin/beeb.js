@@ -29,19 +29,19 @@ const cdef = Object.fromEntries([
   "1818180018181800", "3018180e18183000", "316b460000000000"
 ].map((bits, i) => [(i+32), bits]))
 
-const bits2dots = bits =>
+const bits2dots = (bits) =>
   bits
     .split(/(..)/)
     .filter(Boolean)
-    .map(h => parseInt(h, 16) | 0x100)
-    .map(v => v.toString(2).substr(1))
-    .map(b => b.split("").map(Number));
+    .map((h) => parseInt(h, 16) | 0x100)
+    .map((v) => v.toString(2).substr(1))
+    .map((b) => b.split("").map(Number));
 
 const pad = (n, v = 0) => Array(Math.max(n, 0)).fill(v);
 const padTo = (a, w, v) => [...a, ...pad(w - a.length, v)];
 
 const cluster = (a, stride) =>
-  (aa => {
+  ((aa) => {
     const out = [];
     while (aa.length) out.push(aa.splice(0, stride));
     return out;
@@ -61,7 +61,7 @@ class BeebKerner {
         maxLeftTrim: 2,
         maxRightTrim: 1,
         minGap: 1,
-        minRowGap: 2
+        minRowGap: 2,
       },
       opt || {}
     );
@@ -104,15 +104,17 @@ class BeebGlyph {
   get leftMargin() {
     return (this._lm =
       this._lm ||
-      this.dots.map(row => row.indexOf(1)).map(m => (m < 0 ? this.width : m)));
+      this.dots
+        .map((row) => row.indexOf(1))
+        .map((m) => (m < 0 ? this.width : m)));
   }
 
   get rightMargin() {
     return (this._rm =
       this._rm ||
       this.dots
-        .map(row => row.lastIndexOf(1))
-        .map(m => (m < 0 ? this.width : this.width - 1 - m)));
+        .map((row) => row.lastIndexOf(1))
+        .map((m) => (m < 0 ? this.width : this.width - 1 - m)));
   }
 }
 
@@ -131,19 +133,20 @@ class BeebFont {
   get height() {
     return (this._height =
       this._height ||
-      Math.max(...Object.values(this.cdef).map(def => def.length / 2)));
+      Math.max(...Object.values(this.cdef).map((def) => def.length / 2)));
   }
 
   glyph(cc) {
     return (this._cc[cc] =
-      this._cc[cc] || (cdef => cdef && new BeebGlyph(cc, cdef))(this.cdef[cc]));
+      this._cc[cc] ||
+      ((cdef) => cdef && new BeebGlyph(cc, cdef))(this.cdef[cc]));
   }
 
   glyphs(str) {
     return str
       .split("")
-      .map(s => s.charCodeAt(0))
-      .map(cc => this.glyph(cc));
+      .map((s) => s.charCodeAt(0))
+      .map((cc) => this.glyph(cc));
   }
 
   kern(glyphs) {
@@ -172,7 +175,7 @@ class BeebFont {
   render(str) {
     const { height, opt } = this;
 
-    const pixel = dot => (dot ? opt.mark : opt.space);
+    const pixel = (dot) => (dot ? opt.mark : opt.space);
 
     const glyphs = this.glyphs(str);
     const ki = this.kern(glyphs);

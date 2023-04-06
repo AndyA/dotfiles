@@ -1,8 +1,0 @@
-#!/usr/bin/env perl
-
-my ($user, $pass) = @ARGV or die "Usage: create-mysql-user user pas\n";
-
-print qq{CREATE DATABASE /*!32312 IF NOT EXISTS*/ `$user`;\n};
-print qq{GRANT USAGE ON *.* TO  "$user"@"localhost" IDENTIFIED BY "$pass" WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0;\n};
-print qq{GRANT ALL PRIVILEGES ON $user.* TO "$user"@"localhost" WITH GRANT OPTION;\n};
-print qq{flush privileges;\n};
