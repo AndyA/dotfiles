@@ -15,4 +15,5 @@
 !/.tmux.conf
 !/.vim
 !/.vimrc
+!/.psqlrc
 !/bin
