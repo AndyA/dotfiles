@@ -1,3 +1,4 @@
 \set HISTCONTROL ignoredups
 \set COMP_KEYWORD_CASE upper
-
+\timing on
+\set PROMPT1 '%M:%> %n@%/%R%#%x '
