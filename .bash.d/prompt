@@ -17,12 +17,12 @@ if [ $TERM = 'screen' -o $TERM = 'xterm' -o $TERM = 'xterm-color' -o $TERM = 'xt
     export GIT_PS1_SHOWDIRTYSTATE="true"
     export GIT_PS1_SHOWSTASHSTATE="true"
     export GIT_PS1_SHOWUNTRACKEDFILES="true"
-    PS1='[\e[33m\A\e[m] \[\e]2;\u@\H:\w\a\]\[\e[01;32m\u\e[m@\e[01;34m\h\e[m:\e[01;32m\w\e[m\]\e[36m$(__git_ps1 " (%s)")\e[m\n\$ '
+    PS1='[\e[33m\D{%Y/%m/%d %H:%M:%S}\e[m] \[\e]2;\u@\H:\w\a\]\[\e[01;32m\u\e[m@\e[01;34m\h\e[m:\e[01;32m\w\e[m\]\e[36m$(__git_ps1 " (%s)")\e[m\n\$ '
   else
-    PS1='[\e[33m\A\e[m] \[\e]2;\u@\H:\w\a\]\[\e[01;32m\u\e[m@\e[01;34m\h\e[m:\e[01;32m\w\e[m\]\n\$ '
+    PS1='[\e[33m\D{%Y/%m/%d %H:%M:%S}\e[m] \[\e]2;\u@\H:\w\a\]\[\e[01;32m\u\e[m@\e[01;34m\h\e[m:\e[01;32m\w\e[m\]\n\$ '
   fi
 else
-    PS1='[\A] \u \$ '
+    PS1='[\D{%Y/%m/%d %H:%M:%S}] \u \$ '
 fi
 
 export PS1
