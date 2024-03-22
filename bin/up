@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -e
+
+gith pull
+
 if which brew > /dev/null; then
   brew update && brew upgrade
 elif which apt > /dev/null; then
