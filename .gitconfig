@@ -21,15 +21,15 @@
 	clean = git-media-clean %f
 	smudge = git-media-smudge %f
 [core]
-	excludesfile = /Users/andy/.gitignore_global
+	excludesfile = ~/.gitignore_global
 [init]
 	defaultBranch = main
 [credential "https://github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !~/bin/gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !~/bin/gh auth git-credential
 [diff]
         tool = difftastic
 
