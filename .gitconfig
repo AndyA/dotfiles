@@ -1,0 +1,44 @@
+[user]
+	name = Andy Armstrong
+	email = andy@hexten.net
+[github]
+	user = AndyA
+[alias]
+        br = branch
+        ci = commit
+        co = checkout
+        sm = submodule
+        st = status
+        dft = difftool
+        dlog = "!f() { GIT_EXTERNAL_DIFF=difft git log -p --ext-diff $@; }; f"
+[merge]
+	tool = vimdiff
+[color]
+	ui = auto
+[push]
+	default = simple
+[filter "media"]
+	clean = git-media-clean %f
+	smudge = git-media-smudge %f
+[core]
+	excludesfile = /Users/andy/.gitignore_global
+[init]
+	defaultBranch = main
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[diff]
+        tool = difftastic
+
+[difftool]
+        prompt = false
+
+[difftool "difftastic"]
+        cmd = difft "$LOCAL" "$REMOTE"
+
+[pager]
+        difftool = true
+
