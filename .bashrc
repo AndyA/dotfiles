@@ -49,4 +49,6 @@ export PATH
 [ -f ~/.aliases ] && source ~/.aliases
 [ -f ~/.cargo/env ] && source ~/.cargo/env
 
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a"
+
 # vim:ts=2:sw=2:sts=2:et:ft=bash
