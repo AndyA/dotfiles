@@ -68,6 +68,10 @@ fi
 if [[ "$COMSPEC" ]]; then
     alias convert="magick convert" # Shun MS Windows' "convert" command.
 fi
+
+if command -v magick >/dev/null; then
+    alias convert=magick
+fi
     
 cleanup() {
     echo -n $'\e\\'		# Escape sequence to stop SIXEL.
@@ -204,7 +208,6 @@ main() {
 	lsix=$(realpath "$0")
 	for arg; do
 	    if [ -d "$arg" ]; then
-		echo Recursing on $arg
 		(cd "$arg"; $lsix)
 	    else
 		nodirs+=("$arg")
