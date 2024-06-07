@@ -65,14 +65,12 @@ if command -v gsed >/dev/null; then
     alias sed=gsed		# Use GNU sed for MacOS & BSD.
 fi
 
-if [[ "$COMSPEC" ]]; then
-    alias convert="magick convert" # Shun MS Windows' "convert" command.
-fi
+CONVERT="convert"
 
 if command -v magick >/dev/null; then
-    alias convert=magick
+    CONVERT="magick"
 fi
-    
+
 cleanup() {
     echo -n $'\e\\'		# Escape sequence to stop SIXEL.
     stty echo			# Reset terminal to show characters.
@@ -245,7 +243,7 @@ main() {
 	    shift
 	done
 	montage "${onerow[@]}"  $imoptions gif:-  \
-	    | convert - -colors $numcolors sixel:-
+	    | $CONVERT - -colors $numcolors sixel:-
     done
 }
 
