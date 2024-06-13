@@ -1,0 +1,2 @@
+[ -d $HOME/.deno/bin ] && PATH=$HOME/.deno/bin:$PATH
+
