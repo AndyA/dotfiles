@@ -1,6 +1,0 @@
-#!/bin/bash
-
-MYSQL_HISTFILE=~/.sphinxql_history mysql -P9306 --protocol=tcp --prompt='sphinxQL> '
-
-# vim:ts=2:sw=2:sts=2:et:ft=sh
-
