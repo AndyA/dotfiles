@@ -106,11 +106,13 @@ sub bigness {
       my $byte = hex( substr( $cdef[$char - 32], $row * 2, 2 ) );
       my $bits = sprintf( '%08b', $byte );
       if ($visible_space) {
-        $bits =~ tr/01/_#/;
+        $bits =~ s/0/_/g;
+        $bits =~ s/1/█/g;
         push @out, "$bits|";
       }
       else {
-        $bits =~ tr/01/ #/;
+        $bits =~ s/0/ /g;
+        $bits =~ s/1/█/g;
         push @out, $bits;
       }
     }
