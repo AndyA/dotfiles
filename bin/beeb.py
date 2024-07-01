@@ -2,7 +2,10 @@ from itertools import batched
 from functools import reduce
 from typing import Iterable, Self, Sequence
 
-raster = tuple[int, ...]
+
+Pixel = int
+Raster = list[list[Pixel]]
+BLACK: Pixel = 0
 
 BEEB_CDEF = (
     *("0000000000000000", "1818181818001800", "6c6c6c0000000000", "36367f367f363600"),
@@ -32,50 +35,30 @@ BEEB_CDEF = (
 )
 
 
-class BeebCharSet:
-    dots: list[raster]
-    base: int
-
-    def __init__(self, cdef: Sequence[str], *, base=32):
-        self.dots = [self.decode(cd) for cd in cdef]
-        self.base = base
-
-    @staticmethod
-    def decode(chardata: str) -> list[raster]:
-        bits = int(chardata, 16)
-        bs = (int(bool(bits & (1 << i))) for i in range(63, -1, -1))
-        return [*batched(bs, 8)]
-
-    def __getitem__(self, c: int) -> list[raster]:
-        idx = c - self.base
-        if not 0 <= idx < len(self.dots):
-            idx = -1
-        return self.dots[idx]
-
-
-Pixel = int
-BLACK: Pixel = 0
-
-
 class BeebBitmap:
-    screen: list[list[Pixel]]
+    buffer: Raster
     width: int
     height: int
     pixels = " |▘|▝|▀|▖|▌|▞|▛|▗|▚|▐|▜|▄|▙|▟|█".split("|")
 
-    def __init__(self, width: int = 0, height: int = 0):
-        self.screen = []
-        self.width = 0
-        self.height = 0
-        self.set_size(width, height)
+    def __init__(self, *, width: int = 0, height: int = 0, dots: Raster = None):
+        if dots is None:
+            self.buffer = []
+            self.width = 0
+            self.height = 0
+            self.set_size(width, height)
+        else:
+            self.buffer = dots
+            self.width = len(dots[0]) if dots else 0
+            self.height = len(dots)
 
     def set_size(self, width: int, height: int) -> Self:
         w, h = (width + 1) & ~1, (height + 1) & ~1
         if self.width != w or self.height != h:
             self.width, self.height = w, h
-            width_adj = [row[:w] + ([BLACK] * (w - len(row))) for row in self.screen]
-            height_adj = [[BLACK] * w for _ in range(h - len(self.screen))]
-            self.screen = width_adj + height_adj
+            width_adj = [row[:w] + ([BLACK] * (w - len(row))) for row in self.buffer]
+            height_adj = [[BLACK] * w for _ in range(h - len(self.buffer))]
+            self.buffer = width_adj + height_adj
         return self
 
     def extend(self, width: int, height: int) -> Self:
@@ -85,12 +68,18 @@ class BeebBitmap:
 
     def set_pixel(self, x: int, y: int, pixel: Pixel) -> Self:
         self.extend(x + 1, y + 1)
-        self.screen[y][x] = pixel
+        self.buffer[y][x] = pixel
+        return self
+
+    def blit(self, x: int, y: int, bitmap: Self) -> Self:
+        for dy, row in enumerate(bitmap.buffer):
+            for dx, pixel in enumerate(row):
+                self.set_pixel(x + dx, y + dy, pixel)
         return self
 
     def render(self):
         rows = []
-        for lines in batched(self.screen, 2):
+        for lines in batched(self.buffer, 2):
             row = ""
             for p in batched(zip(*lines), 2):
                 cc = (p[0][0] << 0) + (p[1][0] << 1) + (p[0][1] << 2) + (p[1][1] << 3)
@@ -99,43 +88,58 @@ class BeebBitmap:
         return rows
 
 
+class BeebCharSet:
+    dots: list[BeebBitmap]
+    base: int
+
+    def __init__(self, cdef: Sequence[str], *, base=32):
+        self.dots = [self.decode(cd) for cd in cdef]
+        self.base = base
+
+    @staticmethod
+    def decode(chardata: str) -> BeebBitmap:
+        bits = int(chardata, 16)
+        bs = (int(bool(bits & (1 << i))) for i in range(63, -1, -1))
+        return BeebBitmap(dots=[*batched(bs, 8)])
+
+    def __getitem__(self, c: int) -> BeebBitmap:
+        idx = c - self.base
+        if not 0 <= idx < len(self.dots):
+            idx = -1
+        return self.dots[idx]
+
+
+class BeebVDU:
+    screen: BeebBitmap
+    chars: BeebCharSet
+
+    def __init__(self):
+        self.screen = BeebBitmap()
+        self.chars = BeebCharSet(BEEB_CDEF)
+
+    def measure_string(self, text: str) -> tuple[int, int]:
+        width, height = 0, 0
+        for c in text:
+            sprite = self.chars[ord(c)]
+            width += sprite.width
+            height = max(height, sprite.height)
+        return width, height
+
+    def draw_string(self, x: int, y: int, text: str):
+        width, height = self.measure_string(text)
+        self.screen.extend(x + width, y + height)
+        for c in text:
+            sprite = self.chars[ord(c)]
+            self.screen.blit(x, y, sprite)
+            x += sprite.width
+        return width, height
+
+
 cs = BeebCharSet(BEEB_CDEF)
 
-# ▁▂▃▄▅▆▇█ # ▉▊▋▌▍▎▏ # ▐▕ # ▔▀ # ░▒▓ # ▖▗▘▝ # ▚▞ # ▙▟▛▜
-pixels = " |▘|▝|▀|▖|▌|▞|▛|▗|▚|▐|▜|▄|▙|▟|█".split("|")
-
-
-def rasterise(data: Iterable[raster]) -> list[str]:
-    rows = []
-    for lines in batched(data, 2):
-        row = ""
-        for p in batched(zip(*lines), 2):
-            cc = (p[0][0] << 0) + (p[1][0] << 1) + (p[0][1] << 2) + (p[1][1] << 3)
-            row += pixels[cc]
-        rows.append(row)
-    return rows
-
-
-def compose(chars: Iterable[Iterable[raster]]) -> list[raster]:
-    return [reduce(lambda a, b: a + b, dots, ()) for dots in zip(*chars)]
-
-
-def beeb(text: str) -> list[str]:
-    chars = [cs[ord(c)] for c in text]
-    return rasterise(compose(chars))
-
-
-for row in beeb("hedy.hexten.net"):
-    print(row)
-
-
-for cc in batched(range(32, 128), 16):
-    print()
-    for row in rasterise(compose([cs[c] for c in cc])):
+for ccs in batched(range(32, 128), 16):
+    line = "".join(chr(cc) for cc in ccs)
+    vdu = BeebVDU()
+    vdu.draw_string(0, 0, line)
+    for row in vdu.screen.render():
         print(row)
-
-vdu = BeebBitmap()
-for xy in range(11):
-    vdu.set_pixel(xy, xy, 1)
-for row in vdu.render():
-    print(f"<{row}>")
