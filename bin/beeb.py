@@ -57,7 +57,7 @@ Pixel = int
 BLACK: Pixel = 0
 
 
-class BeebVDU:
+class BeebBitmap:
     screen: list[list[Pixel]]
     width: int
     height: int
@@ -65,14 +65,17 @@ class BeebVDU:
 
     def __init__(self, width: int = 0, height: int = 0):
         self.screen = []
+        self.width = 0
+        self.height = 0
         self.set_size(width, height)
 
     def set_size(self, width: int, height: int) -> Self:
-        self.width = (w := (width + 1) & ~1)
-        self.height = (h := (height + 1) & ~1)
-        width_adj = [row[:w] + ([BLACK] * (w - len(row))) for row in self.screen]
-        height_adj = [[BLACK] * w for _ in range(h - len(self.screen))]
-        self.screen = width_adj + height_adj
+        w, h = (width + 1) & ~1, (height + 1) & ~1
+        if self.width != w or self.height != h:
+            self.width, self.height = w, h
+            width_adj = [row[:w] + ([BLACK] * (w - len(row))) for row in self.screen]
+            height_adj = [[BLACK] * w for _ in range(h - len(self.screen))]
+            self.screen = width_adj + height_adj
         return self
 
     def extend(self, width: int, height: int) -> Self:
@@ -131,7 +134,7 @@ for cc in batched(range(32, 128), 16):
     for row in rasterise(compose([cs[c] for c in cc])):
         print(row)
 
-vdu = BeebVDU()
+vdu = BeebBitmap()
 for xy in range(11):
     vdu.set_pixel(xy, xy, 1)
 for row in vdu.render():
