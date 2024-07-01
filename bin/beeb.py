@@ -2,7 +2,7 @@ from itertools import batched
 from functools import reduce
 from typing import Iterable, Self, Sequence
 
-type raster = tuple[int, ...]
+raster = tuple[int, ...]
 
 BEEB_CDEF = (
     *("0000000000000000", "1818181818001800", "6c6c6c0000000000", "36367f367f363600"),
@@ -53,7 +53,7 @@ class BeebCharSet:
         return self.dots[idx]
 
 
-type Pixel = int
+Pixel = int
 BLACK: Pixel = 0
 
 
