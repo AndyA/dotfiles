@@ -1,3 +1,2 @@
 [[ -e $HOME/.atuin ]] && source $HOME/.atuin/bin/env
-[[ -f $HOME/.bash-preexec.sh ]] && source $HOME/.bash-preexec.sh
 eval "$(atuin init bash --disable-up-arrow)"
