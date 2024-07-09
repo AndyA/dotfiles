@@ -1,0 +1,8 @@
+# Ignore everything
+
+/*
+
+# Keepers
+
+!/.gitignore
+!/config.toml

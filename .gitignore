@@ -18,3 +18,5 @@
 !/.vimrc
 !/.psqlrc
 !/bin
+!/.bash-preexec.sh
+!/.config
