@@ -4,6 +4,8 @@ set -e
 
 gith pull
 
+[[ -x ~/.atuin/bin/atuin ]] && atuin sync
+
 if which brew > /dev/null; then
   brew update && brew upgrade
 elif which apt > /dev/null; then
