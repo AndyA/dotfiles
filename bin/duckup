@@ -15,7 +15,7 @@ which "gh" > /dev/null || die "Please install gh"
 DUCKDB="$(which "$BIN" 2> /dev/null || echo)"
 
 if [ "$DUCKDB" ]; then
-  CURRENT=$( "$DUCKDB" --init /dev/null --version 2> /dev/null | tail -n 1 | awk -e '{ print $1 }')
+  CURRENT=$( "$DUCKDB" --init /dev/null --version 2> /dev/null | tail -n 1 | awk '{ print $1 }')
   DIR="$( dirname "$DUCKDB" )"
 else
   CURRENT=""
