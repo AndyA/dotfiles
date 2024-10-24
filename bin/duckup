@@ -1,0 +1,67 @@
+#!/bin/bash
+
+set -e
+
+REPO="duckdb/duckdb"
+BIN="duckdb"
+
+die() {
+  echo "$*" >&2
+  exit 1
+}
+
+which "gh" > /dev/null || die "Please install gh"
+
+DUCKDB="$(which "$BIN" 2> /dev/null || echo)"
+
+if [ "$DUCKDB" ]; then
+  CURRENT=$( "$DUCKDB" --init /dev/null --version 2> /dev/null | tail -n 1 | awk -e '{ print $1 }')
+  DIR="$( dirname "$DUCKDB" )"
+else
+  CURRENT=""
+  DIR="/usr/local/bin"
+fi
+
+case $(uname -m) in
+  "x86_64")
+    ARCH="amd64"
+    ;;
+  "aarch64")
+    ARCH="aarch64"
+    ;;
+  *)
+    die "Unknown machine"
+    ;;
+esac
+
+RELEASE=$( gh release list  \
+  -R "$REPO"                \
+  --json tagName,isLatest   \
+  --jq '.[] | select(.isLatest == true) | .tagName' )
+
+if [[ $RELEASE == $CURRENT ]]; then
+  echo "duckdb $RELEASE is already installed"
+  exit
+fi
+
+DL="https://github.com/$REPO/releases/download/$RELEASE/duckdb_cli-linux-$ARCH.zip"
+
+WORK_DIR=$( mktemp -d )
+
+cleanup() {
+  rm -rf "$WORK_DIR"
+}
+
+trap cleanup EXIT
+
+pushd "$WORK_DIR" > /dev/null
+
+echo "Downloading and installing $RELEASE from $DL"
+curl -Lo "$BIN.zip" "$DL"
+unzip "$BIN.zip"
+mv "$BIN" "$DIR/$BIN"
+
+popd > /dev/null
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
