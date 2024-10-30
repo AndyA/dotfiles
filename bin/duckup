@@ -40,10 +40,10 @@ case $(uname -m) in
     ;;
 esac
 
-RELEASE=$( gh release list  \
-  -R "$REPO"                \
-  --json tagName,isLatest   \
-  --jq '.[] | select(.isLatest == true) | .tagName' )
+RELEASE=$( curl -s -L                        \
+  -H "Accept: application/vnd.github+json"   \
+  "https://api.github.com/repos/$REPO/tags"  \
+  | jq -r '.[0].name' )
 
 if [[ $RELEASE == $CURRENT ]]; then
   echo "duckdb $RELEASE is already installed"
