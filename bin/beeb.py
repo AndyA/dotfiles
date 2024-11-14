@@ -78,14 +78,12 @@ class BeebBitmap:
         return self
 
     def render(self):
-        rows = []
         for lines in batched(self.buffer, 2):
             row = ""
             for p in batched(zip(*lines), 2):
                 cc = (p[0][0] << 0) + (p[1][0] << 1) + (p[0][1] << 2) + (p[1][1] << 3)
                 row += self.pixels[cc]
-            rows.append(row)
-        return rows
+            yield row
 
 
 class BeebCharSet:
