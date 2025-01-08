@@ -2,16 +2,31 @@
 
 set -e
 
+self="$0"
 platform=$( uname -s)
+ref="/tmp/up.$$"
 
 fatal() {
   echo "Fatal: $*" >&2
   exit 1
 }
 
+cleanup() {
+  rm -f "$ref"
+}
+
+trap cleanup EXIT
+
+touch "$ref" -f "$self"
+
 # Sync some stuff
 
 gith pull
+
+if [[ $self -nt $ref ]]; then
+  echo "$self has changed, re-running"
+  exec bash "$self"
+fi
 
 [[ -x ~/.atuin/bin/atuin ]] && atuin sync
 
