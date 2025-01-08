@@ -3,7 +3,7 @@
 set -e
 
 self="$0"
-platform=$( uname -s)
+platform=$( uname -s )
 ref="/tmp/up.$$"
 
 fatal() {
