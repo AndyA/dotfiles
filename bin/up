@@ -17,7 +17,7 @@ cleanup() {
 
 trap cleanup EXIT
 
-touch "$ref" -f "$self"
+touch -f "$self" "$ref" 
 
 # Sync some stuff
 
