@@ -1,5 +1,6 @@
 if [[ -d $HOME/.vcpkg ]]; then
   export VCPKG_ROOT="$HOME/.vcpkg"
+  export VCPKG_FORCE_SYSTEM_BINARIES=1
   PATH=$VCPKG_ROOT:$PATH
   source $VCPKG_ROOT/scripts/vcpkg_completion.bash
 fi
