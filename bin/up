@@ -30,6 +30,12 @@ fi
 
 [[ -x ~/.atuin/bin/atuin ]] && atuin sync
 
+if [[ -x ~/.atuin/bin/atuin ]]; then
+  atuin-update
+  atuin sync
+fi
+
+
 # Update packages
 
 case $platform in

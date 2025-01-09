@@ -38,7 +38,6 @@ set vb
 set lz
 set backspace=indent,eol,start
 set nofsync
-set swapsync=
 set backupskip=/tmp/*,/private/tmp/*" 
 
 set wildmode=longest:full
