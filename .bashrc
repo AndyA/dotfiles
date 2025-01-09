@@ -52,6 +52,5 @@ export PATH
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a"
 
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
-eval "$(atuin init bash)"
 
 # vim:ts=2:sw=2:sts=2:et:ft=bash
