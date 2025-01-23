@@ -1,0 +1,136 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.13"
+# dependencies = []
+# ///
+
+import urllib.request, json, os, shutil, subprocess
+from dataclasses import dataclass
+from typing import Optional
+
+DOWNLOADS = "https://ziglang.org/download/index.json"
+BRANCH = "master"
+
+SYSMAP = {
+    "aarch64-Linux": "aarch64-linux",
+    "x86_64-Linux": "x86_64-linux",
+    "arm64-Darwin": "aarch64-macos",
+}
+
+KNOWN_ZIG_OBJECTS = {
+    "zig",
+    "doc",
+    "lib",
+    "LICENSE",
+    "README.md",
+}
+
+DECOMP = {
+    "xz": ["xz", "-d"],
+    "gz": ["gz", "-d"],
+}
+
+ZIG_EXE = os.path.expanduser("~/.zig/zig")
+
+
+@dataclass(frozen=True, kw_only=True)
+class Download:
+    tarball: str
+    shasum: str
+    size: int
+
+
+def relocate_zig(src_exe: str, dst_exe: str, limit: Optional[set[str]] = None) -> None:
+    if src_exe == dst_exe:
+        return
+
+    src_dir = os.path.dirname(src_exe)
+    dst_dir = os.path.dirname(dst_exe)
+    backup_dir = os.path.join(dst_dir, "backup")
+
+    os.makedirs(backup_dir, exist_ok=True)
+
+    src_names = set(os.listdir(src_dir))
+
+    if limit:
+        src_names &= limit
+
+    for obj in src_names:
+        src_obj = os.path.join(src_dir, obj)
+        dst_obj = os.path.join(dst_dir, obj)
+        if os.path.exists(dst_obj):
+            shutil.move(dst_obj, os.path.join(backup_dir, obj))
+        shutil.move(src_obj, dst_obj)
+
+    shutil.rmtree(backup_dir)
+
+
+def find_file(dir: str, name: str):
+    for root, _, files in os.walk(dir):
+        if name in files:
+            return os.path.join(root, name)
+    return None
+
+
+def install_zig(download: Download, dst_exe: str) -> None:
+    name = urllib.parse.urlparse(download.tarball).path.split("/")[-1]
+    [*base, ext] = os.path.basename(name).split(".")
+    if not (decomp := DECOMP.get(ext)):
+        raise ValueError(f"Unknown extension: {ext}")
+
+    dst_dir = os.path.dirname(dst_exe)
+    work_dir = os.path.join(dst_dir, "zigup")
+    shutil.rmtree(work_dir, ignore_errors=True)
+    os.makedirs(work_dir, exist_ok=True)
+    tarball = os.path.join(work_dir, name)
+
+    print(f"Downloading {download.tarball} to {tarball}")
+    urllib.request.urlretrieve(download.tarball, tarball)
+
+    print(f"Decompressing {tarball}")
+    subprocess.run(decomp + [tarball], cwd=work_dir, check=True)
+
+    tarfile = ".".join(base)
+    print(f"Expanding {tarfile}")
+    subprocess.run(["tar", "-xf", tarfile], cwd=work_dir, check=True)
+
+    print(f"Relocating {src_exe} to {dst_exe}")
+    src_exe = find_file(work_dir, "zig")
+    if not src_exe:
+        raise ValueError("zig executable not found in archive")
+    relocate_zig(src_exe, dst_exe)
+
+
+with urllib.request.urlopen(DOWNLOADS) as res:
+    downloads = json.load(res)
+
+uname = os.uname()
+raw_sys = f"{uname.machine}-{uname.sysname}"
+if not (want_sys := SYSMAP.get(raw_sys)):
+    raise f"Unknown machine: {raw_sys}"
+
+branch = downloads[BRANCH]
+version = branch["version"]
+download = Download(**branch[want_sys])
+
+if zig_exe := shutil.which("zig"):
+    if zig_exe != ZIG_EXE:
+        print(f"Moving {zig_exe} to {ZIG_EXE}")
+
+        relocate_zig(zig_exe, ZIG_EXE, KNOWN_ZIG_OBJECTS)
+        zig_exe = ZIG_EXE
+
+    current = (
+        subprocess.run([zig_exe, "version"], capture_output=True)
+        .stdout.decode()
+        .strip()
+    )
+
+    if current == version:
+        print(f"zig {current} is already installed")
+        exit()
+
+print(f"Installing zig {version}")
+install_zig(download, ZIG_EXE)
+
+# vim:ts=2:sw=2:sts=2:et:ft=python
