@@ -94,10 +94,11 @@ def install_zig(download: Download, dst_exe: str) -> None:
     print(f"Expanding {tarfile}")
     subprocess.run(["tar", "-xf", tarfile], cwd=work_dir, check=True)
 
-    print(f"Relocating {src_exe} to {dst_exe}")
     src_exe = find_file(work_dir, "zig")
     if not src_exe:
         raise ValueError("zig executable not found in archive")
+
+    print(f"Relocating {src_exe} to {dst_exe}")
     relocate_zig(src_exe, dst_exe)
 
 
