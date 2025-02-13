@@ -6,6 +6,7 @@ set -e
 
 REPO="duckdb/duckdb"
 BIN="duckdb"
+BIN_DIR="$HOME/.local/bin"
 
 OS=$( uname -o )
 
@@ -16,17 +17,22 @@ die() {
 
 [[ $OS = "GNU/Linux" ]] || die "Please use another method on $OS"
 
-which "gh" > /dev/null || die "Please install gh"
-
 DUCKDB="$(which "$BIN" 2> /dev/null || echo)"
 
 if [ "$DUCKDB" ]; then
   CURRENT=$( "$DUCKDB" --init /dev/null --version 2> /dev/null | tail -n 1 | awk '{ print $1 }')
   DIR="$( dirname "$DUCKDB" )"
+  if [[ $DIR != $BIN_DIR ]]; then
+    echo "Relocating from $DIR to $BIN_DIR"
+    mkdir -p "$BIN_DIR"
+    mv "$DIR"/duckdb* "$BIN_DIR"
+    DIR="$BIN_DIR"
+  fi
 else
   CURRENT=""
-  DIR="/usr/local/bin"
+  DIR="$BIN_DIR"
 fi
+
 
 case $(uname -m) in
   "x86_64")
@@ -65,6 +71,11 @@ pushd "$WORK_DIR" > /dev/null
 echo "Downloading and installing $RELEASE from $DL"
 curl -Lo "$BIN.zip" "$DL"
 unzip "$BIN.zip"
+
+# Keep the old version
+[[ -x $DIR/$BIN ]] && mv "$DIR/$BIN" "$DIR/$BIN-$CURRENT"
+
+# Install the new version
 mv "$BIN" "$DIR/$BIN"
 
 popd > /dev/null
