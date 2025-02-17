@@ -86,7 +86,7 @@ def install_zig(download: Download, dst_exe: str) -> None:
     try:
         tarball = os.path.join(work_dir, name)
 
-        print(f"Downloading {download.tarball} to {tarball}")
+        print(f"Downloading {download.tarball}")
         urllib.request.urlretrieve(download.tarball, tarball)
 
         print(f"Decompressing {tarball}")
