@@ -11,15 +11,10 @@
         st = status
         dft = difftool
         dlog = "!f() { GIT_EXTERNAL_DIFF=difft git log -p --ext-diff $@; }; f"
-[merge]
-	tool = vimdiff
 [color]
 	ui = auto
-[push]
-	default = simple
-[filter "media"]
-	clean = git-media-clean %f
-	smudge = git-media-smudge %f
+[column]
+        ui = auto
 [core]
 	excludesfile = ~/.gitignore_global
 [init]
@@ -30,15 +25,35 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !~/bin/gh auth git-credential
+
+[branch]
+        sort = -committerdate
+[tag]
+        sort = version:refname
 [diff]
-        tool = difftastic
-
-[difftool]
-        prompt = false
-
-[difftool "difftastic"]
-        cmd = difft "$LOCAL" "$REMOTE"
-
-[pager]
-        difftool = true
+        algorithm = histogram
+        colorMoved = plain
+        mnemonicPrefix = true
+        renames = true
+[grep]
+        patternType = perl
+[push]
+        default = simple
+        autoSetupRemote = true
+        followTags = true
+[fetch]
+        prune = true
+        pruneTags = true
+        all = true
+[help]
+        autocorrect = prompt
+[commit]
+        verbose = true
+[rerere]
+        enabled = true
+        autoupdate = true
+[rebase]
+        autoSquash = true
+        autoStash = true
+        updateRefs = true
 
