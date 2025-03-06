@@ -1,17 +1,25 @@
-#!/usr/bin/env perl
+#!/usr/bin/env -S uv run -q --script
 
-use strict;
-use warnings;
+# /// script
+# requires-python = ">=3.13"
+# dependencies = []
+# ///
 
-use Time::HiRes qw( sleep time );
+import time, sys
 
-my $Q = shift || 1;
-my $O = shift || 0;
+now = time.time()
 
-my $now  = time;
-my $next = int( $now / $Q ) * $Q + $O;
-$next += $Q if $next <= $now;
-sleep $next - $now;
+if not 2 <= len(sys.argv) <= 3:
+    raise ValueError("Syntax: ssleep <q> [<o>]")
 
-# vim:ts=2:sw=2:sts=2:et:ft=perl
+q = float(sys.argv[1])
+o = float(sys.argv[2]) if len(sys.argv) > 2 else 0
 
+now = time.time()
+next = (now // q * q) + o
+if next <= now:
+    next += q
+
+time.sleep(next - now)
+
+# vim:ts=4:sw=4:sts=4:et:ft=python
