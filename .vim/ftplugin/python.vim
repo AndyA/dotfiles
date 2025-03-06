@@ -14,7 +14,7 @@ endif
 
 function! s:tidy()
   let l:loc = Get_location()
-  exec ':%!uvx black -q -'
+  exec ':%!uvx ruff format --stdin-filename script.py'
   call Set_location(l:loc)
 endfunction
 
