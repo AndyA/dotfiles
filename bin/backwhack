@@ -1,34 +1,28 @@
-#!/usr/bin/env perl
+#!/usr/bin/env -S uv run -q --script
 
-use v5.10;
+# /// script
+# requires-python = ">=3.13"
+# dependencies = []
+# ///
 
-use autodie;
-use strict;
-use warnings;
+import sys
 
-chomp( my @ln = <> );
 
-my ($len);
+def split_whack(ln: str) -> tuple[str, bool]:
+    ln = ln.rstrip()
+    if ln.endswith("\\"):
+        return ln[:-1].rstrip(), True
+    else:
+        return ln, False
 
-for my $ln (@ln) {
-  my ( $is, $whack ) = is_whack($ln);
-  next unless $is;
-  my $ll = length $whack;
-  $len = $ll unless defined $len && $len > $ll;
-}
 
-for my $ln (@ln) {
-  my ( $is, $whack ) = is_whack($ln);
-  unless ($is) { say $whack; next; }
-  say $whack, ( ' ' x ( $len + 2 - length $whack ) ), '\\';
-}
+lines = [split_whack(ln) for ln in sys.stdin.readlines()]
+width = max(len(ln) for ln, bw in lines if bw)
 
-sub is_whack {
-  my $ln = shift;
-  return ( 0, $ln ) unless $ln =~ /^(.*(?<!\\)(?:\\\\)*)\\\s*$/;
-  ( my $pre = $1 ) =~ s/\s+$//;
-  return ( 1, $pre );
-}
+for ln, bw in lines:
+    if bw:
+        ln = ln.ljust(width) + " \\"
+    print(ln)
 
-# vim:ts=2:sw=2:sts=2:et:ft=perl
 
+# vim:ts=4:sw=4:sts=4:et:ft=python
