@@ -3,8 +3,8 @@
 so $VIMRUNTIME/ftplugin/python.vim
 
 setlocal shiftround
-setlocal shiftwidth=2
-setlocal softtabstop=2
+setlocal shiftwidth=4
+setlocal softtabstop=4
 setlocal expandtab
 setlocal textwidth=72
 
@@ -14,7 +14,7 @@ endif
 
 function! s:tidy()
   let l:loc = Get_location()
-  exec ':%!pydent'
+  exec ':%!uvx black -q -'
   call Set_location(l:loc)
 endfunction
 
