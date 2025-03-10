@@ -43,7 +43,7 @@ case $platform in
   Linux)
     distro=$( lsb_release -is )
     case $distro in
-      Debian|Ubuntu)
+      Debian|Ubuntu|Raspbian)
         sudo apt update && sudo apt upgrade -y
         ;;
       *)
