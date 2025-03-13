@@ -1,18 +1,6 @@
-# ./Build
-
-function _perl_build() {
-  local cur=${COMP_WORDS[COMP_CWORD]}
-  COMPREPLY=(
-    $( ./Build help | \
-      perl -ne 'if ( /^\s*Actions/ .. /^\s*$/  ) { next if /^\s*Actions/; print "$1\n" while /(\S+)/g }' | \
-      sort | grep "^$cur" )
-  )
-}
-
 function _scripts() {
   local cur=${COMP_WORDS[COMP_CWORD]}
   COMPREPLY=( $( find-scripts -b | grep "^$cur" ) )
 }
 
-complete -F _perl_build ./Build
 complete -F _scripts vimbin

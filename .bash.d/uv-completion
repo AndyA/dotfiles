@@ -1,0 +1,2 @@
+eval "$( $HOME/.local/bin/uv generate-shell-completion bash )"
+eval "$( $HOME/.local/bin/uvx --generate-shell-completion bash )"
