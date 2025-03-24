@@ -1,9 +1,4 @@
-#!/usr/bin/env -S uv run -q --script
-
-# /// script
-# requires-python = ">=3.13"
-# dependencies = []
-# ///
+#!/usr/bin/env python3
 
 import time, sys
 
