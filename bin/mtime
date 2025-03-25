@@ -1,71 +1,77 @@
-#!/usr/bin/env perl
+#!/usr/bin/env -S uv run --script -q
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "humanize",
+# ]
+# ///
 
-use strict;
-use warnings;
-use File::Find;
-use Getopt::Long;
+#!/usr/bin/env python3
 
-my $Column  = 9;    # mtime
-my $Human   = 0;
-my $Reverse = 0;
-my $Size    = 0;
+import os
+import argparse
+import time
+from datetime import datetime
+from humanize import naturalsize, naturaltime
 
-Getopt::Long::Configure( 'bundling' );
-GetOptions(
-  'a' => sub { $Column = 8 },
-  'c' => sub { $Column = 10 },
-  's' => sub { $Column = 7; $Size = 1 },
-  'h' => \$Human,
-  'r' => \$Reverse,
-);
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Sort files by mtime, ctime, or size.")
+    parser.add_argument('-a', action='store_true', help="Sort by atime (access time)")
+    parser.add_argument('-c', action='store_true', help="Sort by ctime (change time)")
+    parser.add_argument('-s', action='store_true', help="Sort by size")
+    parser.add_argument('-H', action='store_true', help="Human-readable format")
+    parser.add_argument('-r', action='store_true', help="Reverse sort order")
+    parser.add_argument('dirs', nargs='*', default=['.'], help="Directories to scan")
+    return parser.parse_args()
 
-@ARGV = ( '.' ) unless @ARGV;
-mtime( @ARGV );
+def get_file_info(path, column):
+    try:
+        stats = os.lstat(path)
+        if column == 'size':
+            return stats.st_size
+        elif column == 'atime':
+            return stats.st_atime
+        elif column == 'ctime':
+            return stats.st_ctime
+        else:  # Default to mtime
+            return stats.st_mtime
+    except FileNotFoundError:
+        return None
 
-sub mtime {
-  my @dirs = @_;
-  my @got  = ();
+def format_value(value, human, size):
+    if value is None:
+        return '*' * 10
+    if size:
+        return naturalsize(value) if human else str(value)
+    return naturaltime(datetime.fromtimestamp(value)) if human else time.ctime(value)
 
-  find(
-    {
-      no_chdir => 1,
-      wanted   => sub {
-        my $time = ( lstat $File::Find::name )[$Column];
-        push @got, [ $time, $File::Find::name ];
-       }
-    },
-    @dirs
-  );
+def main():
+    args = parse_arguments()
 
-  my $fmt_val 
-   = $Size
-   ? $Human
-     ? sub {
-       require Number::Bytes::Human;
-       Number::Bytes::Human::format_bytes( $_[0] );
-     }
-     : sub { $_[0] }
-   : $Human ? sub {
-    require Time::Duration;
-    Time::Duration::ago( $^T - $_[0], 2 );
-   }
-   : sub { scalar localtime $_[0] };
+    # Determine the column to sort by
+    if args.a:
+        column = 'atime'
+    elif args.c:
+        column = 'ctime'
+    elif args.s:
+        column = 'size'
+    else:
+        column = 'mtime'
 
-  my $safe_val = sub {
-    my $ts = shift;
-    return ( defined $ts ) ? $fmt_val->( $ts ) : ( '*' x 10 );
-  };
+    files = []
+    for directory in args.dirs:
+        for root, _, filenames in os.walk(directory):
+            for filename in filenames:
+                filepath = os.path.join(root, filename)
+                value = get_file_info(filepath, column)
+                files.append((value, filepath))
 
-  my $sorter
-   = $Reverse
-   ? sub { $a->[0] <=> $b->[0] }
-   : sub { $b->[0] <=> $a->[0] };
+    # Sort files
+    files.sort(key=lambda x: x[0], reverse=args.r)
 
-  my @by_val = sort $sorter @got;
-  for my $item ( @by_val ) {
-    printf( "%30s : %s\n", $safe_val->( $item->[0] ), $item->[1] );
-  }
-}
+    # Print results
+    for value, filepath in files:
+        print(f"{format_value(value, args.H, column == 'size'):>30} : {filepath}")
 
-# vim:ts=2:sw=2:sts=2:et:ft=perl
-
+if __name__ == "__main__":
+    main()
