@@ -1,20 +1,17 @@
-#!/usr/bin/env perl
+#!/usr/bin/env -S uv run -q --script
+# /// script
+# requires-python = ">=3.13"
+# dependencies = []
+# ///
 
-use v5.10;
+import argparse
+import os
+import sys
+from collections import defaultdict
+from pathlib import Path
 
-use autodie;
-use strict;
-use warnings;
-
-use File::Find;
-use Getopt::Long;
-use JSON;
-use Path::Class;
-
-@ARGV = ('.') unless @ARGV;
-
-use constant USAGE => <<EOT;
-Syntax: $0 [options] <dir> ...
+USAGE = """
+Syntax: gopro_ls.py [options] <dir> ...
 
 Finds all of the GOPROxxxx and GPyyxxxx files in the named directories
 and lists them in the correct order.
@@ -28,100 +25,94 @@ Options:
     -p, --prefix=<prefix>   Prefix to use instead of "GoPro"
         --ffmpeg            Output ffmpeg "concat" format file
     -n, --dryrun            Don't change anything
-EOT
+"""
 
-my %O = (
-  help   => undef,
-  rename => undef,
-  dirs   => undef,
-  prefix => 'GoPro',
-  ffmpeg => undef,
-  dryrun => undef,
-);
 
-Getopt::Long::Configure("bundling");
+def parse_args():
+    parser = argparse.ArgumentParser(description="Process GoPro files.", add_help=False)
+    parser.add_argument("dirs", nargs="*", default=["."], help="Directories to process")
+    parser.add_argument("-r", "--rename", action="store_true", help="Rename files")
+    parser.add_argument(
+        "-d", "--dirs", action="store_true", help="Rename files into directories"
+    )
+    parser.add_argument(
+        "-p", "--prefix", default="GoPro", help="Prefix to use instead of 'GoPro'"
+    )
+    parser.add_argument(
+        "--ffmpeg", action="store_true", help="Output ffmpeg 'concat' format file"
+    )
+    parser.add_argument(
+        "-n", "--dryrun", action="store_true", help="Don't change anything"
+    )
+    parser.add_argument("-h", "--help", action="store_true", help="Display help text")
+    return parser.parse_args()
 
-GetOptions(
-  'h|help'     => \$O{help},
-  'r|rename'   => \$O{rename},
-  'd|dirs'     => \$O{dirs},
-  'p|prefix:s' => \$O{prefix},
-  'ffmpeg'     => \$O{ffmpeg},
-  'n|dryrun'   => \$O{dryrun},
-) or die USAGE;
 
-if ( $O{help} ) {
-  say USAGE;
-  exit;
-}
+def find_files(dirs):
+    by_dir = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    for dir in dirs:
+        for root, _, files in os.walk(dir):
+            for file in files:
+                if not file.startswith(".") and (
+                    "GOPR" in file or file.startswith("GP")
+                ):
+                    seq = file[4:8] if "GOPR" in file else file[2:6]
+                    name = Path(file).stem
+                    by_dir[root][seq][name].append(Path(root) / file)
+    return by_dir
 
-my $by_dir = {};
-find {
-  no_chdir => 1,
-  wanted   => sub {
-    return unless /\b(?:GOPR|GP\d\d)(\d\d\d\d)\.\w+/;
-    my ( $seq, $vid ) = ( $1, file $_);
-    my $name = $vid->basename;
-    return if $name =~ /^\./;
-    $name =~ s/\..*//;
-    my $dir = $vid->parent;
-    push @{ $by_dir->{"$dir"}{$seq}{$name} }, $vid;
-  }
-}, @ARGV;
 
-if ( $O{rename} || $O{dirs} ) {
-  my %idx_for_seq = ();
-  with_files(
-    $by_dir,
-    sub {
-      my ( $dir, $seq, $name, @vid ) = @_;
-      my $next = ++$idx_for_seq{$seq};
-      my $nice = nice_name($seq);
-      for my $vid (@vid) {
-        my ($ext) = $vid->basename =~ /\.([^.]+)$/;
-        my @new_name = ( sprintf "%s-%03d.%s", $nice, $next, lc $ext );
-        unshift @new_name, $nice if $O{dirs};
+def nice_name(prefix, seq):
+    return f"{prefix}-{seq}"
 
-        my $new_vid = file $dir, @new_name;
-        say "$vid --> $new_vid";
-        unless ( $O{dryrun} ) {
-          $new_vid->parent->mkpath;
-          rename $vid, $new_vid;
-        }
-      }
-    }
-  );
-}
-else {
-  with_files(
-    $by_dir,
-    sub {
-      my ( $dir, $seq, $name, @vid ) = @_;
-      if ( $O{ffmpeg} ) {
-        say "file '$_'" for sort grep { /\.MP4$/i } @vid;
-      }
-      else {
-        say for sort @vid;
-      }
-    }
-  );
-}
 
-sub with_files {
-  my ( $by_dir, $cb ) = @_;
-  for my $dir ( sort keys %$by_dir ) {
-    for my $seq ( sort keys %{ $by_dir->{$dir} } ) {
-      for my $name ( sort keys %{ $by_dir->{$dir}{$seq} } ) {
-        my $vid = $by_dir->{$dir}{$seq}{$name};
-        $cb->( $dir, $seq, $name, @$vid );
-      }
-    }
-  }
-}
+def with_files(by_dir, callback):
+    for dir, seqs in sorted(by_dir.items()):
+        for seq, names in sorted(seqs.items()):
+            for name, vids in sorted(names.items()):
+                callback(dir, seq, name, vids)
 
-sub nice_name {
-  my $seq = shift;
-  return join '-', $O{prefix}, $seq;
-}
 
-# vim:ts=2:sw=2:sts=2:et:ft=perl
+def main():
+    args = parse_args()
+    if args.help:
+        print(USAGE)
+        sys.exit(0)
+
+    by_dir = find_files(args.dirs)
+
+    if args.rename or args.dirs:
+        idx_for_seq = defaultdict(int)
+
+        def rename_callback(dir, seq, name, vids):
+            nonlocal idx_for_seq
+            idx_for_seq[seq] += 1
+            nice = nice_name(args.prefix, seq)
+            for vid in vids:
+                ext = vid.suffix.lower()
+                new_name = f"{nice}-{idx_for_seq[seq]:03d}{ext}"
+                if args.dirs:
+                    new_name = f"{nice}/{new_name}"
+                new_vid = Path(dir) / new_name
+                print(f"{vid} --> {new_vid}")
+                if not args.dryrun:
+                    new_vid.parent.mkdir(parents=True, exist_ok=True)
+                    vid.rename(new_vid)
+
+        with_files(by_dir, rename_callback)
+    else:
+
+        def list_callback(dir, seq, name, vids):
+            if args.ffmpeg:
+                for vid in sorted(vids):
+                    if vid.suffix.lower() == ".mp4":
+                        print(f"file '{vid}'")
+            else:
+                for vid in sorted(vids):
+                    print(vid)
+
+        with_files(by_dir, list_callback)
+
+
+if __name__ == "__main__":
+    main()
