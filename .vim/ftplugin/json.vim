@@ -15,7 +15,7 @@ if executable('ack')
 endif
 
 function! s:tidy()
-  if executable('jsontidy')
+  if executable('prettier')
     let l:loc = Get_location()
     exec ':%!prettier --stdin-filepath ' . expand('%:t')
     call Set_location(l:loc)
