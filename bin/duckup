@@ -2,8 +2,6 @@
 
 set -e
 
-
-
 REPO="duckdb/duckdb"
 BIN="duckdb"
 BIN_DIR="$HOME/.local/bin"
@@ -39,7 +37,7 @@ case $(uname -m) in
     ARCH="amd64"
     ;;
   "aarch64")
-    ARCH="aarch64"
+    ARCH="arm64"
     ;;
   *)
     die "Unknown machine"
