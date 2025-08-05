@@ -12,7 +12,7 @@ o = float(sys.argv[2]) if len(sys.argv) > 2 else 0
 
 now = time.time()
 next = (now // q * q) + o
-if next <= now:
+while next <= now:
     next += q
 
 time.sleep(next - now)
