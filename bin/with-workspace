@@ -1,0 +1,72 @@
+#!/usr/bin/env -S uv run -q --script
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = []
+# ///
+import json
+import os
+import subprocess
+import sys
+from typing import Any, Generator
+
+
+def is_workspace_file(name: str) -> bool:
+    return name.endswith(".code-workspace")
+
+
+def find_workspaces_in_dir(dir: str) -> Generator[str, None, None]:
+    for entry in os.listdir(dir):
+        if is_workspace_file(entry):
+            yield os.path.join(dir, entry)
+
+
+def find_workspace_on_path() -> str | None:
+    dir = os.getcwd()
+    while True:
+        workspaces = list(find_workspaces_in_dir(dir))
+        if workspaces:
+            if len(workspaces) > 1:
+                print(f"Multiple workspace files found in {dir}", file=sys.stderr)
+                exit(1)
+            return workspaces[0]
+        parent = os.path.dirname(dir)
+        if parent == dir:
+            break
+        dir = parent
+    return None
+
+
+def load_json(path: str) -> dict[str, Any]:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def main() -> None:
+    args = sys.argv[1:]
+    if args and (args[0] == "--workspace" or args[0] == "-w"):
+        if len(args) < 2:
+            print("Expected argument after --workspace", file=sys.stderr)
+            exit(1)
+        workspace_file = args[1]
+        args = args[2:]
+    else:
+        workspace_file = find_workspace_on_path()
+        if workspace_file is None:
+            print("No workspace file found on path", file=sys.stderr)
+            exit(1)
+    print(f"Using workspace file: {workspace_file}", file=sys.stderr)
+    workspace = load_json(workspace_file)
+    folders = workspace.get("folders", [])
+    for folder in folders:
+        path = folder.get("path")
+        if path is None:
+            continue
+        abs_path = os.path.abspath(os.path.join(os.path.dirname(workspace_file), path))
+        print(abs_path)
+        if args:
+            subprocess.run(args, cwd=abs_path)
+
+
+if __name__ == "__main__":
+    main()
