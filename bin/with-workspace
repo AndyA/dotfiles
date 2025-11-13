@@ -21,25 +21,36 @@ def find_workspaces_in_dir(dir: str) -> Generator[str, None, None]:
             yield os.path.join(dir, entry)
 
 
-def find_workspace_on_path() -> str | None:
+def find_workspace_on_path() -> list[str]:
     dir = os.getcwd()
     while True:
         workspaces = list(find_workspaces_in_dir(dir))
         if workspaces:
-            if len(workspaces) > 1:
-                print(f"Multiple workspace files found in {dir}", file=sys.stderr)
-                exit(1)
-            return workspaces[0]
+            return workspaces
         parent = os.path.dirname(dir)
         if parent == dir:
             break
         dir = parent
-    return None
+    return []
 
 
 def load_json(path: str) -> dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def with_workspace(workspace_file: str, command: list[str]) -> None:
+    workspace = load_json(workspace_file)
+    for folder in workspace.get("folders", []):
+        rel_path = folder.get("path")
+        if rel_path is None:
+            continue
+        path = os.path.abspath(os.path.join(os.path.dirname(workspace_file), rel_path))
+        print(path)
+        if command:
+            res = subprocess.run(command, cwd=path)
+            if res.returncode != 0:
+                exit(res.returncode)
 
 
 def main() -> None:
@@ -48,26 +59,20 @@ def main() -> None:
         if len(args) < 2:
             print("Expected argument after --workspace", file=sys.stderr)
             exit(1)
-        workspace_file = args[1]
+        workspace_files = [args[1]]
         args = args[2:]
     else:
-        workspace_file = find_workspace_on_path()
-        if workspace_file is None:
+        workspace_files = find_workspace_on_path()
+        if len(workspace_files) == 0:
             print("No workspace file found on path", file=sys.stderr)
             exit(1)
+        elif len(workspace_files) > 1:
+            print("Multiple workspace files found on path", file=sys.stderr)
+            exit(1)
+
+    workspace_file = workspace_files[0]
     print(f"Using workspace file: {workspace_file}", file=sys.stderr)
-    workspace = load_json(workspace_file)
-    folders = workspace.get("folders", [])
-    for folder in folders:
-        rel_path = folder.get("path")
-        if rel_path is None:
-            continue
-        path = os.path.abspath(os.path.join(os.path.dirname(workspace_file), rel_path))
-        print(path)
-        if args:
-            res = subprocess.run(args, cwd=path)
-            if res.returncode != 0:
-                exit(res.returncode)
+    with_workspace(workspace_file, args)
 
 
 if __name__ == "__main__":
