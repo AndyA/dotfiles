@@ -59,13 +59,15 @@ def main() -> None:
     workspace = load_json(workspace_file)
     folders = workspace.get("folders", [])
     for folder in folders:
-        path = folder.get("path")
-        if path is None:
+        rel_path = folder.get("path")
+        if rel_path is None:
             continue
-        abs_path = os.path.abspath(os.path.join(os.path.dirname(workspace_file), path))
-        print(abs_path)
+        path = os.path.abspath(os.path.join(os.path.dirname(workspace_file), rel_path))
+        print(path)
         if args:
-            subprocess.run(args, cwd=abs_path)
+            res = subprocess.run(args, cwd=path)
+            if res.returncode != 0:
+                exit(res.returncode)
 
 
 if __name__ == "__main__":
