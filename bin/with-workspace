@@ -21,7 +21,7 @@ def find_workspaces_in_dir(dir: str) -> Generator[str, None, None]:
             yield os.path.join(dir, entry)
 
 
-def find_workspace_on_path() -> list[str]:
+def find_workspaces_on_path() -> list[str]:
     dir = os.getcwd()
     while True:
         workspaces = list(find_workspaces_in_dir(dir))
@@ -62,7 +62,7 @@ def main() -> None:
         workspace_files = [args[1]]
         args = args[2:]
     else:
-        workspace_files = find_workspace_on_path()
+        workspace_files = find_workspaces_on_path()
         if len(workspace_files) == 0:
             print("No workspace file found on path", file=sys.stderr)
             exit(1)
