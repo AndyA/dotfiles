@@ -67,7 +67,9 @@ else
   curl -LsSf https://astral.sh/uv/install.sh | sh
 fi
 
-if ! which zvm > /dev/null; then
+if which zvm > /dev/null; then
+  zvm upgrade
+else
   bash <( curl https://raw.githubusercontent.com/tristanisham/zvm/master/install.sh ) --no-env
   source $HOME/.bash.d/zvm
 fi
