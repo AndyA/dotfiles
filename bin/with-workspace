@@ -47,7 +47,7 @@ def with_workspace(workspace_file: str, command: list[str]) -> None:
         if rel_path is None:
             continue
         path = os.path.abspath(os.path.join(workspace_base, rel_path))
-        print(path)
+        print(f"▶ {path}")
         if command:
             res = subprocess.run(command, cwd=path)
             if res.returncode != 0:
