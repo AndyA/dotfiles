@@ -79,6 +79,10 @@ else
   source $HOME/.bash.d/zvm
 fi
 
+if which bun > /dev/null; then
+  bun upgrade
+fi
+
 zvm install master
 
 
