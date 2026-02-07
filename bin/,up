@@ -1,0 +1,92 @@
+#!/bin/bash
+
+set -e
+
+self="$0"
+platform=$( uname -s )
+ref="/tmp/up.$$"
+
+fatal() {
+  echo "Fatal: $*" >&2
+  exit 1
+}
+
+cleanup() {
+  rm -f "$ref"
+}
+
+trap cleanup EXIT
+
+touch -f "$self" "$ref" 
+
+# Sync some stuff
+
+,git pull
+
+if [[ $self -nt $ref ]]; then
+  echo "$self has changed, re-running"
+  exec bash "$self"
+fi
+
+if [[ -x ~/.atuin/bin/atuin ]]; then
+  atuin-update
+  atuin sync
+fi
+
+
+# Update packages
+
+case $platform in
+  Darwin)
+    brew update && brew upgrade
+    ;;
+  Linux)
+    distro=$( lsb_release -is )
+    case $distro in
+      Debian|Ubuntu|Raspbian)
+        sudo apt update && sudo apt upgrade -y
+        ;;
+      *)
+        fatal "Don't know how to update $platform/$distro"
+        ;;
+    esac
+
+    # DuckDB (brew on Darwin)
+    ~/bin/duckup
+    ;;
+  *)
+    fatal "Don't know how to update $platform"
+    ;;
+esac
+
+# Some others
+
+if which uv > /dev/null; then
+  uv self update
+else
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+
+for tool in ty ruff; do
+  uv tool install "$tool"
+  uv tool upgrade "$tool"
+done
+
+if which zvm > /dev/null; then
+  zvm upgrade
+else
+  bash <( curl https://raw.githubusercontent.com/tristanisham/zvm/master/install.sh ) --no-env
+  source $HOME/.bash.d/zvm
+fi
+zvm install master
+
+if which bun > /dev/null; then
+  bun upgrade
+fi
+
+if which rustup > /dev/null; then
+  rustup update
+fi
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
