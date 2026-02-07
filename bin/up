@@ -21,7 +21,7 @@ touch -f "$self" "$ref"
 
 # Sync some stuff
 
-gith pull
+,git pull
 
 if [[ $self -nt $ref ]]; then
   echo "$self has changed, re-running"
