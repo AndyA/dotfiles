@@ -2,13 +2,16 @@
 
 # /// script
 # requires-python = ">=3.14"
-# dependencies = []
+# dependencies = [
+#     "json5>=0.13.0",
+# ]
 # ///
-import json
 import os
 import subprocess
 import sys
 from typing import Any, Generator
+
+import json5
 
 
 def is_workspace_file(name: str) -> bool:
@@ -36,7 +39,7 @@ def find_workspaces_on_path() -> list[str]:
 
 def load_json(path: str) -> dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        return json5.load(f)
 
 
 def with_workspace(workspace_file: str, command: list[str]) -> None:
