@@ -215,7 +215,8 @@ records = true
 [daemon]
 ## Enables using the daemon to sync. Requires the daemon to be running in the background. Start it with `atuin daemon`
 # enabled = false
-# enabled = true
+enabled = true
+autostart = true
 
 ## How often the daemon should sync in seconds
 sync_frequency = 30
@@ -232,3 +233,7 @@ sync_frequency = 30
 
 ## The port that should be used for TCP on non unix systems
 # tcp_port = 8889
+
+[ai]
+enabled = true
+

@@ -1,3 +1,4 @@
 [[ -e $HOME/.atuin ]] && source $HOME/.atuin/bin/env
 #eval "$(atuin init bash --disable-up-arrow)"
 eval "$(atuin init bash)"
+eval "$(atuin hex init)"
