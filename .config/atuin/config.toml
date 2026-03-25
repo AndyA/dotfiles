@@ -219,7 +219,7 @@ enabled = true
 autostart = true
 
 ## How often the daemon should sync in seconds
-sync_frequency = 30
+sync_frequency = 5
 
 ## The path to the unix socket used by the daemon (on unix systems)
 ## linux/mac: ~/.local/share/atuin/atuin.sock
