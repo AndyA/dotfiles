@@ -1,0 +1,21 @@
+#!/bin/bash
+
+function activate() {
+  local VENV
+  for up in . .. ../.. ../../..; do
+    if [[ -d "$up/.venv" ]]; then
+      VENV="$up/.venv"
+      break
+    fi
+  done
+  if [[ -z $VENV ]]; then
+    echo "Can't find a .venv" 1>&2
+    return
+  fi
+
+  if [[ $(type -t deactivate) == function ]]; then
+    echo "Deactivating active venv $VIRTUAL_ENV_PROMPT"
+    deactivate
+  fi
+  source "$VENV/bin/activate"
+}
