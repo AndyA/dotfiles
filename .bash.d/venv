@@ -13,7 +13,7 @@ function activate() {
     return
   fi
 
-  if [[ $(type -t deactivate) == function ]]; then
+  if [[ $VIRTUAL_ENV_PROMPT ]]; then
     echo "Deactivating active venv $VIRTUAL_ENV_PROMPT"
     deactivate
   fi
