@@ -78,7 +78,13 @@ else
   bash <( curl https://raw.githubusercontent.com/tristanisham/zvm/master/install.sh ) --no-env
   source $HOME/.bash.d/zvm
 fi
+
+ZVM_CURRENT=$( zvm ls | grep '\[x\]' | awk '{ print $1 }' )
 zvm install master
+if [[ $ZVM_CURRENT ]]; then
+  echo "Using zig $ZVM_CURRENT"
+  zvm use $ZVM_CURRENT
+fi
 
 if which bun > /dev/null; then
   bun upgrade
