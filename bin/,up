@@ -79,7 +79,7 @@ else
   source $HOME/.bash.d/zvm
 fi
 
-ZVM_CURRENT=$( zvm ls | grep '\[x\]' | awk '{ print $1 }' )
+ZVM_CURRENT=$( zvm --color off ls | grep '\[x\]' | awk '{ print $1 }' )
 zvm install master
 if [[ $ZVM_CURRENT ]]; then
   echo "Using zig $ZVM_CURRENT"
