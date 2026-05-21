@@ -86,10 +86,6 @@ if [[ $ZVM_CURRENT ]]; then
   zvm use $ZVM_CURRENT
 fi
 
-if which bun > /dev/null; then
-  bun upgrade
-fi
-
 if which rustup > /dev/null; then
   rustup update
 fi
