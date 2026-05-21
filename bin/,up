@@ -90,5 +90,7 @@ if which rustup > /dev/null; then
   rustup update
 fi
 
+rm -rf "$HOME/.bun"
+
 # vim:ts=2:sw=2:sts=2:et:ft=sh
 
