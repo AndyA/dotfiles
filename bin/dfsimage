@@ -1,0 +1,17 @@
+#!/usr/bin/env -S uv run -q --script
+
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#     "dfsimage",
+# ]
+#
+# [tool.uv.sources]
+# dfsimage = { git = "https://github.com/monkeyman79/dfsimage.git" }
+# ///
+import re
+import sys
+from dfsimage import cli
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(cli())
