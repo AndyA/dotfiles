@@ -79,12 +79,18 @@ else
   source $HOME/.bash.d/zvm
 fi
 
+ZVM_SETTINGS="$HOME/.zvm/settings.json"
+ZVM_SETTINGS_BACKUP="$HOME/.zvm/settings.json.$$.$RANDOM"
+
+# Preserve ZVM config
+[[ -f $ZVM_SETTINGS ]] && cp "$ZVM_SETTINGS" "$ZVM_SETTINGS_BACKUP"
 ZVM_CURRENT=$( zvm --color off ls | grep '\[x\]' | awk '{ print $1 }' )
 zvm install master
 if [[ $ZVM_CURRENT ]]; then
   echo "Using zig $ZVM_CURRENT"
   zvm use $ZVM_CURRENT
 fi
+[[ -f $ZVM_SETTINGS_BACKUP ]] && mv "$ZVM_SETTINGS_BACKUP" "$ZVM_SETTINGS"
 
 if which rustup > /dev/null; then
   rustup update
