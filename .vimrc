@@ -33,7 +33,7 @@ set showcmd
 set showmatch  
 set title
 set number
-set relativenumber
+"set relativenumber
 set t_vb=
 set vb
 set lz
