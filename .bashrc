@@ -53,4 +53,7 @@ PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a"
 
 [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
 
+#preexec() { echo "just typed $1"; }
+#precmd() { echo "printing the prompt"; }
+
 # vim:ts=2:sw=2:sts=2:et:ft=bash
