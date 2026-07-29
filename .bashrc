@@ -46,8 +46,9 @@ source_dir "$HOME/.bash.d"
 PATH=$($HOME/bin/path_append $PATH)
 export PATH
 
-[ -f ~/.aliases ] && source ~/.aliases
-[ -f ~/.cargo/env ] && source ~/.cargo/env
+[ -f ~/.aliases ]       && source ~/.aliases
+[ -f ~/.atuin/bin/env ] && source ~/.atuin/bin/env
+[ -f ~/.cargo/env ]     && source ~/.cargo/env
 
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a"
 
