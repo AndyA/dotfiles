@@ -22,7 +22,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
 
 vim.lsp.config['zls'] = {
   -- Set to 'zls' if `zls` is in your PATH
-  cmd = { '/path/to/zls_executable' },
+  cmd = { 'zls' },
   filetypes = { 'zig' },
   root_markers = { 'build.zig' },
   -- There are two ways to set config options:
@@ -40,7 +40,7 @@ vim.lsp.config['zls'] = {
       -- enable_build_on_save = true,
 
       -- omit the following line if `zig` is in your PATH
-      zig_exe_path = '/path/to/zig_executable'
+      -- zig_exe_path = '/path/to/zig_executable'
     }
   },
 }
