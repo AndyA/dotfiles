@@ -1,5 +1,7 @@
 local vim = vim
 
+vim.cmd [[colorscheme habamax]]
+
 -- Install `ziglang/zig.vim` using the built-in plugin manager (Neovim 0.12.0+)
 -- A tool like `vim-plug` or `lazy.nvim` can also be used instead.
 vim.pack.add({
