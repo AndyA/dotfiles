@@ -25,7 +25,7 @@ touch -f "$self" "$ref"
 
 if [[ $self -nt $ref ]]; then
   echo "$self has changed, re-running"
-  exec bash "$self"
+  exec /bin/bash "$self"
 fi
 
 if [[ -x ~/.atuin/bin/atuin ]]; then
@@ -38,13 +38,12 @@ fi
 
 case $platform in
   Darwin)
-    brew update && brew upgrade
     ;;
   Linux)
     distro=$( lsb_release -is )
     case $distro in
       Debian|Ubuntu|Raspbian)
-        sudo apt update && sudo apt upgrade -y
+        sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
         ;;
       *)
         fatal "Don't know how to update $platform/$distro"
@@ -58,6 +57,8 @@ case $platform in
     fatal "Don't know how to update $platform"
     ;;
 esac
+
+which brew >/dev/null && brew update && brew upgrade
 
 # Some others
 
