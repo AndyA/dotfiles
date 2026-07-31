@@ -1,0 +1,8 @@
+{
+  "plugins": {
+    "zig.vim": {
+      "rev": "61109e5166f2bdb7578493a0220a92c43627fc82",
+      "src": "https://codeberg.org/ziglang/zig.vim"
+    }
+  }
+}
