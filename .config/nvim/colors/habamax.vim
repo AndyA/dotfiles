@@ -80,7 +80,7 @@ hi Added guifg=#5fd75f guibg=NONE guisp=NONE gui=NONE ctermfg=77 ctermbg=NONE ct
 hi Changed guifg=#ffaf5f guibg=NONE guisp=NONE gui=NONE ctermfg=215 ctermbg=NONE cterm=NONE term=NONE
 hi Character guifg=#87d787 guibg=NONE guisp=NONE gui=NONE ctermfg=114 ctermbg=NONE cterm=NONE term=NONE
 hi ColorColumn guifg=NONE guibg=#3a3a3a guisp=NONE gui=NONE ctermfg=NONE ctermbg=237 cterm=NONE term=reverse
-hi Comment guifg=#36a736 guibg=NONE guisp=NONE gui=NONE ctermfg=243 ctermbg=NONE cterm=NONE term=bold
+hi Comment guifg=#4ac449 guibg=NONE guisp=NONE gui=NONE ctermfg=243 ctermbg=NONE cterm=NONE term=bold
 hi Conceal guifg=#585858 guibg=NONE guisp=NONE gui=NONE ctermfg=240 ctermbg=NONE cterm=NONE term=NONE
 hi Constant guifg=#d75f87 guibg=NONE guisp=NONE gui=NONE ctermfg=168 ctermbg=NONE cterm=NONE term=NONE
 hi Cursor guifg=#000000 guibg=#dadada guisp=NONE gui=NONE ctermfg=16 ctermbg=253 cterm=NONE term=reverse
@@ -131,7 +131,7 @@ hi SpellRare guifg=NONE guibg=NONE guisp=#d787d7 gui=undercurl ctermfg=176 cterm
 hi Statement guifg=#af87af guibg=NONE guisp=NONE gui=NONE ctermfg=139 ctermbg=NONE cterm=NONE term=NONE
 hi StatusLine guifg=#f3daac guibg=#5e5e5e guisp=NONE gui=NONE ctermfg=234 ctermbg=247 cterm=NONE term=bold,reverse
 hi StatusLineNC guifg=#1c1c1c guibg=#363636 guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=bold,underline
-hi String guifg=#5faf5f guibg=NONE guisp=NONE gui=NONE ctermfg=71 ctermbg=NONE cterm=NONE term=NONE
+hi String guifg=#dba962 guibg=NONE guisp=NONE gui=NONE ctermfg=71 ctermbg=NONE cterm=NONE term=NONE
 hi TabLine guifg=#1c1c1c guibg=#363636 guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=bold,underline
 hi TabLineFill guifg=#1c1c1c guibg=#363636 guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=NONE
 hi TabLineSel guifg=#1c1c1c guibg=#5e5e5e guisp=NONE gui=bold ctermfg=234 ctermbg=247 cterm=bold term=bold,reverse
