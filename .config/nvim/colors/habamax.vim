@@ -16,7 +16,7 @@ let g:colors_name = 'habamax'
 let s:t_Co = &t_Co
 let s:tgc = has('termguicolors') && &termguicolors
 
-let g:terminal_ansi_colors = ['#1c1c1c', '#af5f5f', '#5faf5f', '#af875f', '#5f87af', '#af87af', '#5f8787', '#9e9e9e', '#363636', '#d75f87', '#87d787', '#d7af87', '#5fafd7', '#d787d7', '#87afaf', '#c7c7c7']
+let g:terminal_ansi_colors = ['#1c1c1c', '#af5f5f', '#5faf5f', '#af875f', '#5f87af', '#af87af', '#5f8787', '#5e5e5e', '#363636', '#d75f87', '#87d787', '#d7af87', '#5fafd7', '#d787d7', '#87afaf', '#c7c7c7']
 " Nvim uses g:terminal_color_{0-15} instead
 for i in range(g:terminal_ansi_colors->len())
   let g:terminal_color_{i} = g:terminal_ansi_colors[i]
@@ -97,7 +97,7 @@ hi EndOfBuffer guifg=#585858 guibg=NONE guisp=NONE gui=NONE ctermfg=240 ctermbg=
 hi Error guifg=NONE guibg=#a03f2f guisp=NONE gui=NONE ctermfg=131 ctermbg=234 cterm=reverse term=bold,reverse
 hi ErrorMsg guifg=#af5f5f guibg=#1c1c1c guisp=NONE gui=reverse ctermfg=131 ctermbg=234 cterm=reverse term=bold,reverse
 hi FoldColumn guifg=#585858 guibg=NONE guisp=NONE gui=NONE ctermfg=240 ctermbg=NONE cterm=NONE term=NONE
-hi Folded guifg=#9e9e9e guibg=#262626 guisp=NONE gui=NONE ctermfg=247 ctermbg=235 cterm=NONE term=NONE
+hi Folded guifg=#5e5e5e guibg=#262626 guisp=NONE gui=NONE ctermfg=247 ctermbg=235 cterm=NONE term=NONE
 hi Identifier guifg=#87afaf guibg=NONE guisp=NONE gui=NONE ctermfg=109 ctermbg=NONE cterm=NONE term=NONE
 hi Ignore guifg=NONE guibg=NONE guisp=NONE gui=NONE ctermfg=NONE ctermbg=NONE cterm=NONE term=NONE
 hi IncSearch guifg=NONE guibg=#5a4a45 guisp=NONE gui=NONE ctermfg=215 ctermbg=234 cterm=reverse term=bold,reverse,underline
@@ -108,7 +108,7 @@ hi MoreMsg guifg=#5faf5f guibg=NONE guisp=NONE gui=NONE ctermfg=71 ctermbg=NONE 
 hi NonText guifg=#585858 guibg=NONE guisp=NONE gui=NONE ctermfg=240 ctermbg=NONE cterm=NONE term=NONE
 hi Pmenu guifg=NONE guibg=#3a3a3a guisp=NONE gui=NONE ctermfg=NONE ctermbg=237 cterm=NONE term=reverse
 hi PmenuExtra guifg=#363636 guibg=#3a3a3a guisp=NONE gui=NONE ctermfg=243 ctermbg=237 cterm=NONE term=NONE
-hi PmenuExtraSel guifg=#9e9e9e guibg=#585858 guisp=NONE gui=NONE ctermfg=247 ctermbg=240 cterm=NONE term=NONE
+hi PmenuExtraSel guifg=#5e5e5e guibg=#585858 guisp=NONE gui=NONE ctermfg=247 ctermbg=240 cterm=NONE term=NONE
 hi PmenuKind guifg=#5f8787 guibg=#3a3a3a guisp=NONE gui=NONE ctermfg=66 ctermbg=237 cterm=NONE term=NONE
 hi PmenuKindSel guifg=#5f8787 guibg=#585858 guisp=NONE gui=NONE ctermfg=66 ctermbg=240 cterm=NONE term=NONE
 hi PmenuMatch guifg=#ffaf5f guibg=#3a3a3a guisp=NONE gui=NONE ctermfg=215 ctermbg=237 cterm=NONE term=NONE
@@ -129,12 +129,12 @@ hi SpellCap guifg=NONE guibg=NONE guisp=#ffaf5f gui=undercurl ctermfg=215 ctermb
 hi SpellLocal guifg=NONE guibg=NONE guisp=#5fd75f gui=undercurl ctermfg=77 ctermbg=NONE cterm=underline term=underline
 hi SpellRare guifg=NONE guibg=NONE guisp=#d787d7 gui=undercurl ctermfg=176 ctermbg=NONE cterm=underline term=underline
 hi Statement guifg=#af87af guibg=NONE guisp=NONE gui=NONE ctermfg=139 ctermbg=NONE cterm=NONE term=NONE
-hi StatusLine guifg=#1c1c1c guibg=#9e9e9e guisp=NONE gui=NONE ctermfg=234 ctermbg=247 cterm=NONE term=bold,reverse
+hi StatusLine guifg=#1c1c1c guibg=#5e5e5e guisp=NONE gui=NONE ctermfg=234 ctermbg=247 cterm=NONE term=bold,reverse
 hi StatusLineNC guifg=#1c1c1c guibg=#363636 guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=bold,underline
 hi String guifg=#5faf5f guibg=NONE guisp=NONE gui=NONE ctermfg=71 ctermbg=NONE cterm=NONE term=NONE
 hi TabLine guifg=#1c1c1c guibg=#363636 guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=bold,underline
 hi TabLineFill guifg=#1c1c1c guibg=#363636 guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=NONE
-hi TabLineSel guifg=#1c1c1c guibg=#9e9e9e guisp=NONE gui=bold ctermfg=234 ctermbg=247 cterm=bold term=bold,reverse
+hi TabLineSel guifg=#1c1c1c guibg=#5e5e5e guisp=NONE gui=bold ctermfg=234 ctermbg=247 cterm=bold term=bold,reverse
 hi Title guifg=NONE guibg=NONE guisp=NONE gui=bold ctermfg=NONE ctermbg=NONE cterm=bold term=NONE
 hi TitleBar guifg=#dadada guibg=#3c3c3c guisp=NONE gui=NONE ctermfg=253 ctermbg=237 cterm=NONE term=NONE
 hi TitleBarNC guifg=#363636 guibg=#2c2c2c guisp=NONE gui=NONE ctermfg=243 ctermbg=236 cterm=NONE term=NONE
