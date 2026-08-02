@@ -1,6 +1,6 @@
 local vim = vim
 
-vim.cmd [[colorscheme habamax]]
+vim.cmd [[colorscheme samoo]]
 vim.cmd [[set number]]
 
 -- Install `ziglang/zig.vim` using the built-in plugin manager (Neovim 0.12.0+)
