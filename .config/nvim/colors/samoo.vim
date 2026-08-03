@@ -130,7 +130,7 @@ hi SpellLocal guifg=NONE guibg=NONE guisp=#5fd75f gui=undercurl ctermfg=77 cterm
 hi SpellRare guifg=NONE guibg=NONE guisp=#d787d7 gui=undercurl ctermfg=176 ctermbg=NONE cterm=underline term=underline
 hi Statement guifg=#af87af guibg=NONE guisp=NONE gui=NONE ctermfg=139 ctermbg=NONE cterm=NONE term=NONE
 hi StatusLine guifg=#f3daac guibg=#2f2f2f guisp=NONE gui=NONE ctermfg=234 ctermbg=247 cterm=NONE term=bold,reverse
-hi StatusLineNC guifg=#1c1c1c guibg=#1f1f1f guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=bold,underline
+hi StatusLineNC guifg=#937a5c guibg=#1f1f1f guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=bold,underline
 hi String guifg=#dba962 guibg=NONE guisp=NONE gui=NONE ctermfg=71 ctermbg=NONE cterm=NONE term=NONE
 hi TabLine guifg=#1c1c1c guibg=#1f1f1f guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=bold,underline
 hi TabLineFill guifg=#1c1c1c guibg=#1f1f1f guisp=NONE gui=NONE ctermfg=234 ctermbg=243 cterm=NONE term=NONE
