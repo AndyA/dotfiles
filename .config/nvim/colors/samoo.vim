@@ -75,7 +75,7 @@ hi! link vimSep Normal
 hi! link vimVar Normal
 hi! link yamlBlockMappingKey Statement
 
-hi Normal guifg=#c7c7c7 guibg=#1c1c1c guisp=NONE gui=NONE ctermfg=251 ctermbg=234 cterm=NONE term=NONE
+hi Normal guifg=#c7c7c7 guibg=#101010 guisp=NONE gui=NONE ctermfg=251 ctermbg=234 cterm=NONE term=NONE
 hi Added guifg=#5fd75f guibg=NONE guisp=NONE gui=NONE ctermfg=77 ctermbg=NONE cterm=NONE term=NONE
 hi Changed guifg=#ffaf5f guibg=NONE guisp=NONE gui=NONE ctermfg=215 ctermbg=NONE cterm=NONE term=NONE
 hi Character guifg=#87d787 guibg=NONE guisp=NONE gui=NONE ctermfg=114 ctermbg=NONE cterm=NONE term=NONE
