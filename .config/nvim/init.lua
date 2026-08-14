@@ -17,7 +17,7 @@ vim.g.zig_fmt_autosave = 0
 --
 -- Formatting with ZLS matches `zig fmt`.
 vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = { "*.zig", "*.zon" },
+  pattern = { "*.zig", "*.zon", "*.py" },
   callback = function(ev)
     vim.lsp.buf.format()
   end
@@ -47,4 +47,18 @@ vim.lsp.config['zls'] = {
     }
   },
 }
+
+vim.lsp.config['ruff'] = {
+  cmd = { 'ruff', 'server' },
+  filetypes = { 'python' },
+  root_markers = { 'pyproject.toml', 'ruff.toml', '.ruff.toml', '.git' },
+  init_options = {
+    settings = {
+      color = 'always'
+    }
+  }
+}
+
 vim.lsp.enable('zls')
+vim.lsp.enable('ruff')
+vim.lsp.enable('ty')
