@@ -80,8 +80,20 @@ else
   source $HOME/.bash.d/zvm
 fi
 
-ZVM_SETTINGS="$HOME/.zvm/settings.json"
-ZVM_SETTINGS_BACKUP="$HOME/.zvm/settings.json.$$.$RANDOM"
+ZVM_BASE="$HOME/.zvm"
+ZVM_SETTINGS="$ZVM_BASE/settings.json"
+ZVM_SETTINGS_BACKUP="$ZVM_BASE/settings.json.$$.$RANDOM"
+
+if [[ -d $ZVM_BASE/master ]]; then
+  # Capture the current master as a versioned directory
+  ZIG_MASTER="$( $ZVM_BASE/master/zig version )"
+  if [[ ! -d $ZVM_BASE/$ZIG_MASTER ]]; then
+    echo "Copying master to $ZIG_MASTER"
+    pushd "$ZVM_BASE/master" >/dev/null
+    find . -type f | cpio -pld "../$ZIG_MASTER"
+    popd >/dev/null
+  fi
+fi
 
 # Preserve ZVM config
 [[ -f $ZVM_SETTINGS ]] && cp "$ZVM_SETTINGS" "$ZVM_SETTINGS_BACKUP"
