@@ -97,7 +97,7 @@ fi
 
 # Preserve ZVM config
 [[ -f $ZVM_SETTINGS ]] && cp "$ZVM_SETTINGS" "$ZVM_SETTINGS_BACKUP"
-ZVM_CURRENT=$( zvm --color off ls | grep '\[x\]' | awk '{ print $1 }' )
+ZVM_CURRENT=$( zvm --color off ls | sed '1!G;h;$!d' | grep '\[x\]' | awk '{ print $1 }' )
 zvm install master
 if [[ $ZVM_CURRENT ]]; then
   echo "Using zig $ZVM_CURRENT"
