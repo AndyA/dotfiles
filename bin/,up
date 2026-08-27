@@ -31,7 +31,7 @@ fi
 if [[ -x ~/.atuin/bin/atuin ]]; then
   atuin-update
   atuin daemon restart
-  atuin sync
+  # atuin sync
 fi
 
 
