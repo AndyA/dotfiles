@@ -1,6 +1,8 @@
+from copy import copy
+from dataclasses import dataclass
 from itertools import batched
-from functools import reduce
-from typing import Iterable, Self, Sequence
+import json
+from typing import Callable, Self, Sequence
 
 
 Pixel = int
@@ -34,12 +36,18 @@ BEEB_CDEF = (
     *("1818180018181800", "3018180e18183000", "316b460000000000", "ffc3c3c3c3c3c3ff"),
 )
 
+OP_SET = lambda _, new: new
+OP_MAX = lambda old, new: max(old, new)
+OP_MIN = lambda old, new: min(old, new)
+OP_XOR = lambda old, new: old ^ new
+
 
 class BeebBitmap:
     buffer: Raster
     width: int
     height: int
     pixels = " |▘|▝|▀|▖|▌|▞|▛|▗|▚|▐|▜|▄|▙|▟|█".split("|")
+    op = Callable[[Pixel, Pixel], Pixel]
 
     def __init__(self, *, width: int = 0, height: int = 0, dots: Raster = None):
         if dots is None:
@@ -51,6 +59,11 @@ class BeebBitmap:
             self.buffer = dots
             self.width = len(dots[0]) if dots else 0
             self.height = len(dots)
+
+        self.op = OP_SET
+
+    def __copy__(self):
+        return type(self)(dots=copy(self.buffer))
 
     def set_size(self, width: int, height: int) -> Self:
         w, h = (width + 1) & ~1, (height + 1) & ~1
@@ -68,14 +81,70 @@ class BeebBitmap:
 
     def set_pixel(self, x: int, y: int, pixel: Pixel) -> Self:
         self.extend(x + 1, y + 1)
-        self.buffer[y][x] = pixel
+        self.buffer[y][x] = self.op(self.buffer[y][x], pixel)
         return self
 
-    def blit(self, x: int, y: int, bitmap: Self) -> Self:
-        for dy, row in enumerate(bitmap.buffer):
-            for dx, pixel in enumerate(row):
-                self.set_pixel(x + dx, y + dy, pixel)
+    def get_pixel(self, x: int, y: int) -> Pixel:
+        if x >= self.width or y >= self.height:
+            return BLACK
+        return self.buffer[y][x]
+
+    def draw_line(self, x0: int, y0: int, x1: int, y1: int, pixel: Pixel) -> Self:
+        # Brezenham's line algorithm
+        dx = abs(x1 - x0)
+        dy = abs(y1 - y0)
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        err = dx - dy
+
+        while True:
+            self.set_pixel(x0, y0, pixel)
+            if x0 == x1 and y0 == y1:
+                break
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                x0 += sx
+            if e2 < dx:
+                err += dx
+                y0 += sy
+
         return self
+
+    def blit(
+        self,
+        x: int,
+        y: int,
+        other: Self,
+        *,
+        x_scale: int = 1,
+        y_scale: int = 1,
+    ) -> Self:
+        assert x_scale > 0
+        assert y_scale > 0
+
+        self.extend(x + other.width * x_scale, y + other.height * y_scale)
+
+        for oy, row in enumerate(other.buffer):
+            for ox, pixel in enumerate(row):
+                for dy in range(y_scale):
+                    for dx in range(x_scale):
+                        self.set_pixel(
+                            x + ox * x_scale + dx,
+                            y + oy * y_scale + dy,
+                            pixel,
+                        )
+
+        return self
+
+    def scale(self, *, x_scale: int = 1, y_scale: int = 1):
+        assert x_scale > 0
+        assert y_scale > 0
+        if x_scale == 1 and y_scale == 1:
+            return copy(self)
+        else:
+            next = BeebBitmap(width=self.width * x_scale, height=self.height * y_scale)
+            return next.blit(0, 0, self, x_scale=x_scale, y_scale=y_scale)
 
     def render(self):
         for lines in batched(self.buffer, 2):
@@ -84,6 +153,9 @@ class BeebBitmap:
                 cc = (p[0][0] << 0) + (p[1][0] << 1) + (p[0][1] << 2) + (p[1][1] << 3)
                 row += self.pixels[cc]
             yield row
+
+    def __str__(self):
+        return "\n".join(self.render())
 
 
 class BeebCharSet:
@@ -107,37 +179,79 @@ class BeebCharSet:
         return self.dots[idx]
 
 
-class BeebVDU:
-    screen: BeebBitmap
-    chars: BeebCharSet
-
-    def __init__(self):
-        self.screen = BeebBitmap()
-        self.chars = BeebCharSet(BEEB_CDEF)
+class BeebVDU(BeebBitmap):
+    chars = BeebCharSet(BEEB_CDEF)
+    line_spacing = 3
 
     def measure_string(self, text: str) -> tuple[int, int]:
+        if text == "":
+            # Special case: empty lines are the same height as a space character
+            _, height = self.measure_string(" ")
+            return 0, height
+
         width, height = 0, 0
         for c in text:
             sprite = self.chars[ord(c)]
             width += sprite.width
             height = max(height, sprite.height)
+
         return width, height
 
     def draw_string(self, x: int, y: int, text: str):
         width, height = self.measure_string(text)
-        self.screen.extend(x + width, y + height)
+        self.extend(x + width, y + height)
         for c in text:
             sprite = self.chars[ord(c)]
-            self.screen.blit(x, y, sprite)
+            self.blit(x, y, sprite)
             x += sprite.width
         return width, height
 
+    def draw_text(self, x: int, y: int, text: str):
+        width, height = 0, 0
+        for line in text.splitlines():
+            sw, sh = self.draw_string(x, y, line)
+            width = max(width, sw)
+            height += sh + self.line_spacing
+            y += sh + self.line_spacing
 
-cs = BeebCharSet(BEEB_CDEF)
+        return width, height
 
-for ccs in batched(range(32, 128), 16):
-    line = "".join(chr(cc) for cc in ccs)
-    vdu = BeebVDU()
-    vdu.draw_string(0, 0, line)
-    for row in vdu.screen.render():
-        print(row)
+
+def round_box(bm: BeebBitmap, x: int, y: int, w: int, h: int, pixel: Pixel):
+    bm.draw_line(x + 2, y, x + w - 3, y, pixel)
+    bm.draw_line(x + 2, y + h - 1, x + w - 3, y + h - 1, pixel)
+
+    bm.draw_line(x, y + 2, x, y + h - 3, pixel)
+    bm.draw_line(x + 1, y + 1, x + 1, y + h - 2, pixel)
+    bm.draw_line(x + w - 1, y + 2, x + w - 1, y + h - 3, pixel)
+    bm.draw_line(x + w - 2, y + 1, x + w - 2, y + h - 2, pixel)
+
+    bm.set_pixel(x + 2, y + 1, pixel)
+    bm.set_pixel(x + w - 3, y + 1, pixel)
+    bm.set_pixel(x + 2, y + h - 2, pixel)
+    bm.set_pixel(x + w - 3, y + h - 2, pixel)
+
+
+def flood(bm: BeebBitmap, x: int, y: int, pixel: Pixel, fill: Pixel):
+    stack = [(x, y)]
+    while stack:
+        x, y = stack.pop()
+        if bm.get_pixel(x, y) == pixel:
+            bm.set_pixel(x, y, fill)
+            stack.append((x - 1, y))
+            stack.append((x + 1, y))
+            stack.append((x, y - 1))
+            stack.append((x, y + 1))
+
+
+vdu = BeebVDU()
+# vdu.op = OP_XOR
+w, h = vdu.draw_text(6, 3, "printypi")
+round_box(vdu, 0, 0, w + 12, h + 2, 1)
+v2 = BeebVDU(width=vdu.width + 3, height=vdu.height + 2)
+v2.blit(2, 2, vdu)
+# flood(vdu, 0, 2, 1, 0)
+# print(f"{w} x {h}")
+scaled = v2.scale(x_scale=1, y_scale=1)
+for row in scaled.render():
+    print(row)
