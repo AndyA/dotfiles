@@ -1,0 +1,13 @@
+#!/bin/bash
+
+PATH=""
+for dir in "/opt/homebrew/bin" "/usr/local/bin" "/usr/bin" "/bin"; do
+  if [[ -d $dir ]]; then
+    [[ -z $PATH ]] && PATH=$dir || PATH="$PATH:$dir"
+  fi
+done
+
+exec gh "$@"
+
+# vim:ts=2:sw=2:sts=2:et:ft=sh
+
