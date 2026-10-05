@@ -59,7 +59,7 @@ case $platform in
     ;;
 esac
 
-which brew >/dev/null && brew update && brew upgrade
+which brew >/dev/null && brew update && HOMEBREW_NO_ASK=1 brew upgrade
 
 # Some others
 
