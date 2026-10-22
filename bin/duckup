@@ -54,7 +54,7 @@ if [[ $RELEASE == $CURRENT ]]; then
   exit
 fi
 
-DL="https://github.com/$REPO/releases/download/$RELEASE/duckdb_cli-linux-$ARCH.zip"
+DL="https://github.com/$REPO/releases/download/$RELEASE/duckdb-cli-linux-$ARCH.tar.gz"
 
 WORK_DIR=$( mktemp -d )
 
@@ -67,8 +67,9 @@ trap cleanup EXIT
 pushd "$WORK_DIR" > /dev/null
 
 echo "Downloading and installing $RELEASE from $DL"
-curl -Lo "$BIN.zip" "$DL"
-unzip "$BIN.zip"
+curl -Lo "$BIN.tar.gz" "$DL"
+
+tar zxf "$BIN.tar.gz"
 
 # Keep the old version
 [[ -x $DIR/$BIN ]] && mv "$DIR/$BIN" "$DIR/$BIN-$CURRENT"
